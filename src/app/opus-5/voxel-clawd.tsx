@@ -235,11 +235,22 @@ export function VoxelClawd() {
         /* capture is best-effort */
       }
     };
+    // Pointer capture is best-effort, so a release can happen without a
+    // pointerup ever reaching the scene. Without these two fallbacks `dragging`
+    // could stay true forever: the toy would freeze mid-spin and then follow
+    // the cursor with no button held.
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      idle = 0;
+    };
 
     scene.addEventListener("pointerdown", onDown);
     scene.addEventListener("pointermove", onMove);
     scene.addEventListener("pointerup", onUp);
     scene.addEventListener("pointercancel", onUp);
+    scene.addEventListener("lostpointercapture", endDrag);
+    window.addEventListener("pointerup", endDrag);
 
     return () => {
       stop();
@@ -250,6 +261,8 @@ export function VoxelClawd() {
       scene.removeEventListener("pointermove", onMove);
       scene.removeEventListener("pointerup", onUp);
       scene.removeEventListener("pointercancel", onUp);
+      scene.removeEventListener("lostpointercapture", endDrag);
+      window.removeEventListener("pointerup", endDrag);
       rig.remove();
     };
   }, []);
@@ -267,7 +280,7 @@ export function VoxelClawd() {
       />
       <p className="eyebrow font-body text-[13px] text-silver-muted">
         drag to spin &middot;{" "}
-        <span className="text-vivid-blue">built by opus 5</span>
+        <span className="text-amber-400">built by opus 5</span>
       </p>
     </div>
   );

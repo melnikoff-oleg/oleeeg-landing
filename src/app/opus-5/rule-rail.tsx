@@ -37,7 +37,15 @@ export function RuleRail({ items }: { items: readonly RailItem[] }) {
       rootMargin: "-45% 0px -50% 0px",
     });
     for (const section of sections) io.observe(section);
-    return () => io.disconnect();
+
+    // The band is a percentage of viewport height, so a resize (notably a
+    // phone address bar collapsing) moves it without any section crossing it.
+    window.addEventListener("resize", pick);
+
+    return () => {
+      io.disconnect();
+      window.removeEventListener("resize", pick);
+    };
   }, [items]);
 
   return (

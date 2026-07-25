@@ -351,7 +351,7 @@ function BenchmarkBoard() {
           </li>
         ))}
       </ul>
-      <p className="font-body text-[15px] text-silver-muted md:hidden">
+      <p className="font-body text-base text-silver-muted md:hidden">
         price per million tokens, input then output. opus 5 {OPUS_PRICE}, fable 5{" "}
         {FABLE_PRICE}.
       </p>
@@ -464,7 +464,7 @@ export default function Opus5Page() {
                 width={2000}
                 height={1125}
                 sizes="(max-width: 768px) 100vw, 768px"
-                className="w-full rounded-xl border border-hairline bg-white"
+                className="w-full rounded-xl border border-hairline"
               />
               <span className="mt-2.5 flex min-h-11 items-center font-body text-[15px] text-silver-muted transition-colors group-hover:text-white md:hidden">
                 tap the chart to open it full size
@@ -535,7 +535,7 @@ export default function Opus5Page() {
                 ].map((line) => (
                   <li
                     key={line}
-                    className="flex gap-2.5 font-body text-[15px] leading-relaxed text-amber-200/90"
+                    className="flex gap-2.5 font-body text-base leading-relaxed text-amber-200/90"
                   >
                     <span aria-hidden className="font-bold">
                       &times;
@@ -561,7 +561,7 @@ export default function Opus5Page() {
                 ].map((line) => (
                   <li
                     key={line}
-                    className="flex gap-2.5 font-body text-[15px] font-medium leading-relaxed text-silver"
+                    className="flex gap-2.5 font-body text-base font-medium leading-relaxed text-silver"
                   >
                     <span aria-hidden className="font-bold text-vivid-blue">
                       +

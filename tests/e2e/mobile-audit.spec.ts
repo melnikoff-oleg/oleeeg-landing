@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Locator } from "@playwright/test";
+import { ROUTES } from "./routes";
 
 // Tests 29+: site-wide mobile refinement pass.
 //
@@ -11,14 +12,10 @@ import { test, expect, type Page, type Locator } from "@playwright/test";
 const MOBILE_ONLY = (testInfo: { project: { name: string } }) =>
   test.skip(testInfo.project.name !== "mobile", "mobile only");
 
-const ALL_ROUTES = [
-  "/", "/marketing-brain", "/marketing-brain-knowledge", "/5-levels-ai",
-  "/60k-linkedin-post", "/high-converting-website", "/ads-ai",
-  "/claude-reels", "/claude-tiktok", "/claude-content", "/claude-twitter",
-  "/claude-b2b-outreach", "/claude-cowork-outreach", "/claude-outreach",
-  "/claude-marketing", "/claude-social-growth", "/claude-trend-scanner",
-  "/claude-seo", "/claude-website", "/claude-interviewer",
-];
+// The shared route list, so a new page can't be silently absent from this
+// audit while still being listed everywhere else (it previously duplicated
+// ROUTES by hand and drifted).
+const ALL_ROUTES = ROUTES;
 
 // Resource/tool pages that carry a video (now via the click-to-load facade).
 // NOTE: /claude-outreach, /claude-trend-scanner, /claude-seo and
