@@ -5,13 +5,13 @@
   "recommendations": {
     "marketing-brain": [
       "5-levels-ai",
-      "claude-content",
-      "claude-cowork-outreach"
+      "claude-reels",
+      "high-converting-website"
     ],
     "high-converting-website": [
-      "claude-b2b-outreach",
+      "marketing-brain",
       "claude-outreach",
-      "marketing-brain"
+      "claude-b2b-outreach"
     ],
     "claude-outreach": [
       "claude-b2b-outreach",
@@ -30,13 +30,13 @@
     ],
     "claude-twitter": [
       "claude-content",
-      "60k-linkedin-post",
-      "claude-social-growth"
+      "claude-social-growth",
+      "60k-linkedin-post"
     ],
     "claude-content": [
       "claude-reels",
       "claude-tiktok",
-      "claude-social-growth"
+      "claude-twitter"
     ],
     "claude-reels": [
       "claude-tiktok",
@@ -54,8 +54,8 @@
       "claude-trend-scanner"
     ],
     "claude-trend-scanner": [
-      "claude-content",
       "claude-reels",
+      "claude-content",
       "claude-tiktok"
     ],
     "claude-marketing": [
@@ -80,17 +80,22 @@
     ],
     "ads-ai": [
       "claude-marketing",
-      "high-converting-website",
-      "claude-b2b-outreach"
+      "claude-reels",
+      "marketing-brain"
     ],
     "60k-linkedin-post": [
       "claude-interviewer",
-      "claude-twitter",
-      "marketing-brain"
+      "marketing-brain",
+      "claude-twitter"
     ],
     "5-levels-ai": [
       "marketing-brain",
-      "claude-cowork-outreach",
+      "claude-reels",
+      "claude-b2b-outreach"
+    ],
+    "opus-5": [
+      "5-levels-ai",
+      "marketing-brain",
       "claude-reels"
     ]
   }

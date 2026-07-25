@@ -17,6 +17,7 @@ import {
   Brain,
   LayoutTemplate,
   ListOrdered,
+  Gauge,
   type LucideIcon,
 } from "lucide-react";
 
@@ -157,6 +158,13 @@ export const RESOURCES: Resource[] = [
     description:
       "A map from copy-pasting out of a chat window to a thousand agents that launch themselves, with the move to each next rung",
     icon: ListOrdered,
+  },
+  {
+    slug: "opus-5",
+    title: "Opus 5, No Hype",
+    description:
+      "5 rules for Claude Opus 5 straight from Anthropic's own charts: why max effort is worse, what to delete from your prompt, and which model to run per task",
+    icon: Gauge,
   },
 ];
 
