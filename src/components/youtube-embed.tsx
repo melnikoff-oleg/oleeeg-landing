@@ -17,13 +17,19 @@ export function YouTubeEmbed({
   videoId,
   title,
   className,
+  start,
 }: {
   videoId: string;
   title: string;
   className?: string;
+  /** Seconds into the video to start playback. Used by /elon-ai, where each
+   *  clip has to open on the exact sentence the rule came from. */
+  start?: number;
 }) {
   const [playing, setPlaying] = useState(false);
   const [posterOk, setPosterOk] = useState(true);
+
+  const startParam = start && start > 0 ? `&start=${Math.floor(start)}` : "";
 
   return (
     <div
@@ -32,7 +38,7 @@ export function YouTubeEmbed({
       <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
         {playing ? (
           <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1${startParam}`}
             title={title}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen

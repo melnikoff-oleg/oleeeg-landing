@@ -102,6 +102,11 @@
       "claude-reels",
       "claude-content",
       "claude-tiktok"
+    ],
+    "elon-ai": [
+      "opus-5",
+      "marketing-brain",
+      "5-levels-ai"
     ]
   }
 }
