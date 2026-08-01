@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Claude Code Instagram Video Editor: Free Setup Guide (2026)",
   description:
-    "Reel Studio turns Claude Code into a video editor that runs on your own laptop. Drop your photos, clips and voice take in, say what you want in plain English, get a finished 9:16 Instagram Reel. Free, local, and set up step by step from zero.",
+    "Reel Studio turns Claude Code into a video editor that runs on your own laptop. Drop your photos, clips and voice take in, say what you want in plain English, get a finished 9:16 Instagram Reel. Five steps from zero, and Claude Code installs the rest itself.",
   keywords: [
     "Claude Code",
     "Claude Code video editor",
