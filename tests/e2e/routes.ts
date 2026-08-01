@@ -22,6 +22,7 @@ export const ROUTES = [
   "/60k-linkedin-post",
   "/5-levels-ai",
   "/opus-5",
+  "/claude-code-instagram",
   "/marketing-brain",
   "/marketing-brain-knowledge",
 ] as const;

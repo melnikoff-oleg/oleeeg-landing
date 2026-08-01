@@ -39,13 +39,13 @@
       "claude-twitter"
     ],
     "claude-reels": [
+      "claude-code-instagram",
       "claude-tiktok",
-      "claude-content",
-      "claude-social-growth"
+      "claude-content"
     ],
     "claude-tiktok": [
+      "claude-code-instagram",
       "claude-reels",
-      "claude-content",
       "claude-trend-scanner"
     ],
     "claude-social-growth": [
@@ -97,6 +97,11 @@
       "5-levels-ai",
       "marketing-brain",
       "claude-reels"
+    ],
+    "claude-code-instagram": [
+      "claude-reels",
+      "claude-content",
+      "claude-tiktok"
     ]
   }
 }

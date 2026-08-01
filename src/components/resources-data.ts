@@ -18,6 +18,7 @@ import {
   LayoutTemplate,
   ListOrdered,
   Gauge,
+  Scissors,
   type LucideIcon,
 } from "lucide-react";
 
@@ -165,6 +166,13 @@ export const RESOURCES: Resource[] = [
     description:
       "5 rules for Claude Opus 5 straight from Anthropic's own charts: why max effort is worse, what to delete from your prompt, and which model to run per task",
     icon: Gauge,
+  },
+  {
+    slug: "claude-code-instagram",
+    title: "Claude Code as a Video Editor",
+    description:
+      "Reel Studio: drop your photos and a voice take in, say what you want in one sentence, get a finished Instagram Reel. Local, free, no cost per video",
+    icon: Scissors,
   },
 ];
 
