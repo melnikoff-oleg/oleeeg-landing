@@ -55,6 +55,8 @@ export default function ElonMuskAiPage() {
                is in the href only; on screen it would just be noise. */}
           <div className="yt-wall">
 
+            <span className="mark mark-yt" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+
             <a className="yt" href="https://youtu.be/O4wBUysNe2k?t=4257" target="_blank" rel="noopener">
               <div className="yt-thumb">
                 <img src="/elon-musk-ai/thumbs/O4wBUysNe2k.jpg" alt="" loading="lazy" />
@@ -106,6 +108,8 @@ export default function ElonMuskAiPage() {
 
           {/* ---- the posts, as X renders them ---- */}
           <div className="x-wall">
+
+            <span className="mark mark-x" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>
 
             <a className="tw" href="https://x.com/elonmusk/status/2075278580955685036" target="_blank" rel="noopener">
               <img className="tw-av" src="/elon-musk-ai/avatars/x-elonmusk.jpg" alt="" loading="lazy" />

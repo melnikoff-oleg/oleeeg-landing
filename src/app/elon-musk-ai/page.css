@@ -69,6 +69,7 @@
   --yt-font: var(--font-roboto), Arial, sans-serif;
   --x-font:  -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 
+  --wallmark: 52px; /* platform-logo column leading each evidence row */
   --gutter: 76px;   /* rank-numeral column */
   --shelf:  330px;  /* visual column */
 }
@@ -206,9 +207,17 @@
    none of the page's own type or colour is allowed in here.
 --------------------------------------------------------------------------- */
 
+/* Both evidence rows read left to right as: whose platform this is, the three
+   receipts, how many more there are. The logo does in half a second what a
+   caption would need a sentence for, and the caption is not allowed. */
+.elon-page .mark { align-self: center; justify-self: start; }
+.elon-page .mark svg { display: block; }
+.elon-page .mark-yt svg { width: 42px; height: 42px; fill: #ff0000; }
+.elon-page .mark-x  svg { width: 30px; height: 30px; fill: #e7e9ea; }
+
 .elon-page .yt-wall {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  grid-template-columns: var(--wallmark) repeat(3, minmax(0, 1fr)) auto;
   gap: 22px;
   margin-bottom: 60px;
 }
@@ -283,7 +292,7 @@
 
 .elon-page .x-wall {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  grid-template-columns: var(--wallmark) repeat(3, minmax(0, 1fr)) auto;
   gap: 22px;
 }
 
@@ -489,6 +498,8 @@
   .elon-page h1 { padding-top: 64px; margin-bottom: 40px; }
   .elon-page .yt-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 44px; }
   .elon-page .x-wall { grid-template-columns: minmax(0, 1fr); }
+  /* stacked, the logo stops being a leading column and becomes a row heading */
+  .elon-page .mark { grid-column: 1 / -1; margin-bottom: 4px; }
 }
 
 @media (max-width: 620px) {
