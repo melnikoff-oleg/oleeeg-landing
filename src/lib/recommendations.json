@@ -79,8 +79,8 @@
       "claude-twitter"
     ],
     "ads-ai": [
+      "claude-code-ads",
       "claude-marketing",
-      "claude-reels",
       "marketing-brain"
     ],
     "60k-linkedin-post": [
@@ -99,9 +99,14 @@
       "claude-reels"
     ],
     "claude-code-instagram": [
+      "claude-code-ads",
       "claude-reels",
-      "claude-content",
-      "claude-tiktok"
+      "claude-content"
+    ],
+    "claude-code-ads": [
+      "claude-code-instagram",
+      "ads-ai",
+      "marketing-brain"
     ],
     "elon-ai": [
       "opus-5",

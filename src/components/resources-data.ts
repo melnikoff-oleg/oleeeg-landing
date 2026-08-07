@@ -190,6 +190,13 @@ export const RESOURCES: Resource[] = [
       "An Obsidian vault Claude Code operates: dump thoughts in plain English, it files, links and remembers. Six steps, one prompt, about 10 minutes",
     icon: FolderTree,
   },
+  {
+    slug: "claude-code-ads",
+    title: "Video Ads With Claude Code",
+    description:
+      "Ads Studio: paste a company's website, get a finished video ad in their own colours, fonts and logo. Local, free per ad, no editing skills",
+    icon: Clapperboard,
+  },
 ];
 
 /** slug -> resource, for O(1) lookup by the recommendation surface. */

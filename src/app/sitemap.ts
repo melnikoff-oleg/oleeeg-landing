@@ -129,6 +129,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: "https://oleg.ae/claude-code-ads",
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: "https://oleg.ae/elon-ai",
       lastModified: new Date(),
       changeFrequency: "monthly",
