@@ -20,6 +20,7 @@ import {
   Gauge,
   Scissors,
   Lightbulb,
+  FolderTree,
   type LucideIcon,
 } from "lucide-react";
 
@@ -181,6 +182,13 @@ export const RESOURCES: Resource[] = [
     description:
       "Reel Studio: drop your photos and a voice take in, say what you want in one sentence, get a finished Instagram Reel. Local, free, no cost per video",
     icon: Scissors,
+  },
+  {
+    slug: "claude-code-second-brain",
+    title: "AI Second Brain on Claude Code",
+    description:
+      "An Obsidian vault Claude Code operates: dump thoughts in plain English, it files, links and remembers. Six steps, one prompt, about 10 minutes",
+    icon: FolderTree,
   },
 ];
 
