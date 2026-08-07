@@ -1,6 +1,13 @@
 // Single source of truth for the site's public routes, imported by every spec
 // that iterates them (routes, design-tokens, mobile-overflow). Keeping one list
 // means a new page can't be silently absent from half the suite.
+//
+// Two live routes are deliberately NOT here: /elon-musk-ai and /boris-cherny-ai.
+// They are the filmed evidence-wall pages, ported in from the vault, and they
+// render none of the shared shell — no header, no footer, no design tokens, and
+// their own scoped ground — so every spec that iterates this list would fail on
+// them for reasons that are the point of the pages. Adding one means teaching
+// those specs to skip it; excluding it is the cheaper truth.
 
 export const ROUTES = [
   "/",
