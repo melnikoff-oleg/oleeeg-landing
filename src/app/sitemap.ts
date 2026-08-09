@@ -153,6 +153,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: "https://oleg.ae/claude-code-sessions",
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: "https://oleg.ae/marketing-brain-knowledge",
       lastModified: new Date(),
       changeFrequency: "monthly",
