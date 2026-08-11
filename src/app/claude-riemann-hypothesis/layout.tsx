@@ -1,0 +1,71 @@
+import type { Metadata } from "next";
+import { Nunito, Comic_Neue } from "next/font/google";
+
+// Two faces the rest of the site does not load. Nunito carries the slide titles
+// — heavy, round and friendly, so a hard idea does not look severe. Comic Neue
+// is the hand-drawn label face inside the diagrams; it is what makes the
+// Excalidraw-style artwork read as drawn rather than rendered.
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font-nunito",
+  weight: ["600", "800", "900"],
+  display: "swap",
+});
+
+const comic = Comic_Neue({
+  subsets: ["latin"],
+  variable: "--font-comic",
+  weight: ["700"],
+  display: "swap",
+});
+
+const TITLE = "Claude and the Riemann hypothesis, explained simply";
+const DESCRIPTION = "An unreleased research version of Claude was asked to take a real stab at the Riemann hypothesis. It failed \u2014 and on the way it raised the proven share of zeta zeros on the critical line from 41.6% to 67.2%, a number decades of mathematicians had crept forward a point at a time. What that actually means, in plain words.";
+const SHORT = "It failed to solve the Riemann hypothesis. On the way it pushed a 167-year-old number from 41.6% to 67.2%, in a day and a half.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  keywords: [
+    "Riemann hypothesis",
+    "Riemann hypothesis explained",
+    "Claude",
+    "Anthropic",
+    "AI mathematics",
+    "Riemann zeta function",
+    "prime numbers explained",
+    "AI discovery",
+    "Claude Code",
+  ],
+  openGraph: {
+    title: TITLE,
+    description: SHORT,
+    type: "article",
+    url: "https://oleg.ae/claude-riemann-hypothesis",
+    publishedTime: "2026-08-11T00:00:00Z",
+    modifiedTime: "2026-08-11T00:00:00Z",
+    authors: ["Oleg Melnikov"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: SHORT,
+  },
+  alternates: {
+    canonical: "https://oleg.ae/claude-riemann-hypothesis",
+  },
+};
+
+export default function ClaudeRiemannLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // The route owns its own ground, reset and type scale, all of it scoped under
+  // .crh-page in page.css. The font variables have to land on the same node.
+  return (
+    <div className={`crh-page ${nunito.variable} ${comic.variable}`}>
+      {children}
+    </div>
+  );
+}
