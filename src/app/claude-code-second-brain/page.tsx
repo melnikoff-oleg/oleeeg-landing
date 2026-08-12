@@ -2,6 +2,10 @@ import type { ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { ResourcePageShell } from "@/components/resource-page-shell";
 
+const VIDEO_ID = "TdYYRm_Ph5E";
+const VIDEO_TITLE =
+  "how i actually use my claude code second brain (boring, useful)";
+
 /**
  * The one prompt from the video, verbatim. It is the whole build: Claude Code
  * creates the folders, the CLAUDE.md contract and the slash commands itself,
@@ -293,9 +297,12 @@ export default function ClaudeCodeSecondBrainPage() {
   return (
     <ResourcePageShell
       slug="claude-code-second-brain"
+      videoId={VIDEO_ID}
+      videoTitle={VIDEO_TITLE}
       title="your ai second brain on claude code"
       subhead="an Obsidian vault that Claude Code operates: you dump thoughts and documents in plain English, it does the filing, linking and remembering. about 10 minutes to set up, no technical experience."
       steps={steps}
+      troubleshooting={["claudeNotFound", "costs", "skipPermissions"]}
       jsonLd={{
         title: "AI Second Brain with Claude Code and Obsidian: Free Setup Guide",
         description:

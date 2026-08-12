@@ -175,6 +175,7 @@ export default function ClaudeSocialGrowthPage() {
       title="claude code for social media growth"
       subhead="analyze thousands of competitor videos, find the ones that truly outperform, and build a data-driven content strategy for your channel, all with claude code."
       steps={steps}
+      troubleshooting={["claudeNotFound", "crAlias", "costs", "scrapingSafety"]}
       jsonLd={{
         title: "AI Social Media Growth with Claude Code",
         description: "Analyze thousands of competitor videos, find the standout performers, and build a data-driven content strategy for YouTube, Instagram, and TikTok growth.",

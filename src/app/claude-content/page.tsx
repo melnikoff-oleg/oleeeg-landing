@@ -162,6 +162,7 @@ export default function ClaudeContentPage() {
       title="claude code content creation system"
       subhead="produce weeks of social media content with custom visuals: infographics, carousels, personal images, all from a single prompt. works for linkedin, instagram, x, and more."
       steps={steps}
+      troubleshooting={["claudeNotFound", "crAlias", "noEnvFile", "costs", "creditBalance"]}
       jsonLd={{
         title: "Content Creation System with Claude Code",
         description:

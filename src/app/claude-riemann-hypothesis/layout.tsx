@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito, Comic_Neue } from "next/font/google";
+import { FilmedPageOutro } from "@/components/filmed-page-outro";
 
 // Two faces the rest of the site does not load. Nunito carries the slide titles
 // — heavy, round and friendly, so a hard idea does not look severe. Comic Neue
@@ -63,9 +64,19 @@ export default function ClaudeRiemannLayout({
 }) {
   // The route owns its own ground, reset and type scale, all of it scoped under
   // .crh-page in page.css. The font variables have to land on the same node.
+  //
+  // The outro sits OUTSIDE that node on purpose: the page's scoped reset must
+  // not reach it, and it must not reach the page. It lives here rather than in
+  // page.tsx because page.tsx is generated from the vault and gets overwritten.
   return (
-    <div className={`crh-page ${nunito.variable} ${comic.variable}`}>
-      {children}
-    </div>
+    <>
+      <div className={`crh-page ${nunito.variable} ${comic.variable}`}>
+        {children}
+      </div>
+      <FilmedPageOutro
+        videoId="sUqLRKyU0PY"
+        videoTitle="Anthropic's AI Just Made Math History (Explained Simply)"
+      />
+    </>
   );
 }

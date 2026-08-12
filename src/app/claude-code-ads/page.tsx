@@ -379,6 +379,7 @@ export default function ClaudeCodeAdsPage() {
       title="make video ads with claude code"
       subhead="paste a company's website, say what kind of ad you want, get a finished video. it reads the brand itself. runs on your own laptop, free per ad."
       steps={steps}
+      troubleshooting={["claudeNotFound", "costs", "skipPermissions"]}
       jsonLd={{
         title: "Make Video Ads With Claude Code: Free Setup Guide",
         description:

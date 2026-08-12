@@ -194,6 +194,7 @@ export default function ClaudeMarketingPage() {
       title="claude code for marketing (smm, ads, outreach)"
       subhead="five real marketing use cases with claude code: instagram reels, competitor analysis, ad campaigns, cold outreach, and content creation. one walkthrough, all the systems oleg actually uses."
       steps={steps}
+      troubleshooting={["claudeNotFound", "crAlias", "noEnvFile", "costs", "creditBalance"]}
       jsonLd={{
         title: "Claude Code for Marketing: AI Marketing Automation Guide",
         description: "Five real marketing use cases with Claude Code: Instagram Reels, competitor analysis, ad campaigns, cold outreach, and content automation.",

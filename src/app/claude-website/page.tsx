@@ -1,7 +1,8 @@
 import { ResourcePageShell } from "@/components/resource-page-shell";
 
-const VIDEO_ID = "Iew4mx03C3s";
-const VIDEO_TITLE = "Build Your Personal Website with Claude Code";
+// The YouTube video for this page was removed from the channel (the id
+// Iew4mx03C3s now 403s), so this page renders no facade and no video schema,
+// matching the other four pages whose source video is gone. See CLAUDE.md.
 
 const steps = [
   {
@@ -219,11 +220,10 @@ export default function ClaudeWebsitePage() {
   return (
     <ResourcePageShell
       slug="claude-website"
-      videoId={VIDEO_ID}
-      videoTitle={VIDEO_TITLE}
       title="build your personal website with claude code"
       subhead="build a polished personal website with claude code, the kind that actually looks designed. describe what you want, refine it in plain english, and deploy it live on your own domain."
       steps={steps}
+      troubleshooting={["claudeNotFound", "crAlias", "costs"]}
       jsonLd={{
         title: "Build a Website with AI Using Claude Code",
         description: "Build a professional personal website from scratch with Claude Code in under 30 minutes. No design skills needed.",

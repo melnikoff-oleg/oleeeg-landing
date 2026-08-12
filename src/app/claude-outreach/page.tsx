@@ -149,6 +149,7 @@ export default function ClaudeOutreachPage() {
       title="claude code for cold outreach"
       subhead="build a thoughtful cold outreach system with claude code. it researches each prospect, then writes a personal, value-first message. follow the steps below to set it up."
       steps={steps}
+      troubleshooting={["linkedinBan", "noEnvFile", "claudeNotFound", "costs"]}
       jsonLd={{
         title: "Claude Code for Cold Outreach: Free AI Outreach Setup Guide",
         description: "Build an AI cold outreach system with Claude Code. Scrape leads, generate personalized messages with visuals, and close deals on LinkedIn, Instagram, or Facebook.",

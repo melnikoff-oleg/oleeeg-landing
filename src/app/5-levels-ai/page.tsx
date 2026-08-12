@@ -4,6 +4,10 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Fragment, type ReactNode } from "react";
 import { ResourceFooter } from "@/components/resource-footer";
+import { YouTubeEmbed } from "@/components/youtube-embed";
+
+const VIDEO_ID = "mFYKAsGcnso";
+const VIDEO_TITLE = "Anthropic Just Revealed How the Top 1% Use AI";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -442,6 +446,20 @@ export default function FiveLevelsPage() {
               smarter model, it is learning to review results instead of
               keystrokes.
             </p>
+          </div>
+        </motion.section>
+
+        {/* The video this page came from. Click-to-load facade, kept low on the
+            page: almost everyone here arrived from that video already. */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={fadeUp}
+          className="pb-24 md:pb-32"
+        >
+          <div className="mx-auto max-w-3xl px-6">
+            <YouTubeEmbed videoId={VIDEO_ID} title={VIDEO_TITLE} />
           </div>
         </motion.section>
       </main>

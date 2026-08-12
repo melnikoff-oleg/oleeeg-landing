@@ -24,6 +24,8 @@ const SPECS: Spec[] = [
   { route: "/ads-ai", href: /github\.com\/melnikoff-oleg\/ads-ai/, label: /github/i },
   { route: "/claude-cowork-outreach", href: /claude\.ai\/download/, label: /download claude cowork/i },
   { route: "/claude-social-growth", href: /claude\.ai\/download/, label: /get claude code/i },
+  { route: "/claude-code-instagram", href: /github\.com\/melnikoff-oleg\/reel-studio/, label: /github/i },
+  { route: "/claude-twitter", href: /github\.com\/melnikoff-oleg\/x-ai/, label: /github/i },
 ];
 
 for (const spec of SPECS) {

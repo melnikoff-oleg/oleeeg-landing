@@ -174,6 +174,7 @@ export default function ClaudeSeoPage() {
       title="claude code for seo optimization"
       subhead="put the technical side of seo on solid footing with claude code: meta tags, structured data, sitemaps, keyword research, and the ongoing work that keeps a site ranking. handled in one focused session."
       steps={steps}
+      troubleshooting={["claudeNotFound", "crAlias", "costs"]}
       jsonLd={{
         title: "AI SEO Optimization with Claude Code",
         description:

@@ -250,6 +250,7 @@ export default function ClaudeB2bOutreachPage() {
       title="claude code for b2b outreach (35% reply rate)"
       subhead="build a personalized b2b outreach system with claude code. it finds the right leads on linkedin, scores them, and writes value-first messages with custom visuals. no generic pitches, just outreach worth replying to."
       steps={steps}
+      troubleshooting={["linkedinBan", "noEnvFile", "claudeNotFound", "costs", "creditBalance"]}
       jsonLd={{
         title: "AI B2B Outreach with Claude Code (35% Reply Rate)",
         description:

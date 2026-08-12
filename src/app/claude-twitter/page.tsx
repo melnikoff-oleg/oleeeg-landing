@@ -1,8 +1,25 @@
+import type { ReactNode } from "react";
 import { ResourcePageShell } from "@/components/resource-page-shell";
 import { BoldaneLink } from "@/components/boldane-cta";
 
 const VIDEO_ID = "JQQhT0edXXw";
 const VIDEO_TITLE = "Claude Code X/Twitter Content System";
+
+// The code is public on GitHub and always was. This page used to send people to
+// the Skool community for it, which is where the video description sends them
+// too, and the video's comments are full of "I can't find the links", "the
+// application says it's archived" and "I can't access the skool". A public repo
+// needs no signup, so it is the download now, in the fold and in step 3.
+const REPO = "https://github.com/melnikoff-oleg/x-ai";
+
+/** Inline code, matching the newer resource pages. */
+function K({ children }: { children: ReactNode }) {
+  return (
+    <code className="rounded bg-vivid-blue/15 px-1.5 py-0.5 font-mono text-sm text-silver">
+      {children}
+    </code>
+  );
+}
 
 const steps = [
   {
@@ -46,20 +63,27 @@ const steps = [
     content: (
       <div className="space-y-3">
         <p>
-          grab the project folder from the link in the{" "}
+          the whole thing is public on GitHub, no signup:{" "}
           <a
-            href="https://www.skool.com/ai-automation-7100/about"
+            href={REPO}
             target="_blank"
             rel="noopener noreferrer"
             className="text-vivid-blue underline decoration-vivid-blue/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
           >
-            free skool community
+            github.com/melnikoff-oleg/x-ai
           </a>
           .
         </p>
         <p>
-          open the folder in VS Code. you&apos;ll see the full project
-          structure on the left side with everything ready to configure.
+          click the green <K>Code</K> button, then <K>Download ZIP</K>, then
+          unzip it. or if you have git, run this in a terminal:
+        </p>
+        <pre className="overflow-x-auto rounded-lg border border-hairline bg-navy-raised p-4 font-mono text-xs text-silver">
+          git clone https://github.com/melnikoff-oleg/x-ai.git
+        </pre>
+        <p>
+          open the folder in VS Code. you&apos;ll see the full project structure
+          on the left side with everything ready to configure.
         </p>
       </div>
     ),
@@ -68,7 +92,7 @@ const steps = [
     title: "get your api keys",
     content: (
       <div className="space-y-4">
-        <p>you need three services:</p>
+        <p>you need four services:</p>
         <div className="space-y-3">
           <div>
             <p className="text-silver font-medium">
@@ -130,15 +154,48 @@ const steps = [
               → add at least $5 credit → copy your API key.
             </p>
           </div>
+          <div>
+            <p className="text-silver font-medium">
+              Kie AI{" "}
+              <span className="font-normal text-silver-muted">
+                for the infographic images
+              </span>
+            </p>
+            <p className="mt-1">
+              draws the branded infographic that goes out with the post, which is
+              most of what this system posts. get a key at{" "}
+              <a
+                href="https://kie.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-vivid-blue underline decoration-vivid-blue/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+              >
+                kie.ai
+              </a>
+              . miss this one and the text posts still work, but every image
+              fails.
+            </p>
+          </div>
         </div>
-        <p>paste all three keys in the .env file:</p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
-          APIFY_API_KEY=your_apify_key
+        <p>
+          create a file called <K>.env</K> in the project root (the folder with{" "}
+          <K>CLAUDE.md</K> in it, not inside <K>app</K>) and paste all four keys.
+          the repo ships a <K>.env.example</K> you can copy. no quotes, no spaces
+          around the <K>=</K>:
+        </p>
+        <div className="overflow-x-auto rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+          APIFY_API_TOKEN=your_apify_token
           <br />
           GEMINI_API_KEY=your_gemini_key
           <br />
           ANTHROPIC_API_KEY=your_anthropic_key
+          <br />
+          KIE_AI_API_KEY=your_kie_key
         </div>
+        <p>
+          the name has to be exactly <K>APIFY_API_TOKEN</K>. it is the one people
+          get wrong, and the scrape just fails with nothing useful on screen.
+        </p>
       </div>
     ),
   },
@@ -267,9 +324,11 @@ export default function ClaudeTwitterPage() {
       slug="claude-twitter"
       videoId={VIDEO_ID}
       videoTitle={VIDEO_TITLE}
+      repoCta={{ href: REPO }}
       title="claude code x/twitter content system"
       subhead="study what actually works in your competitors' tweets, then generate ready-to-publish content written in your own voice and for your own niche."
       steps={steps}
+      troubleshooting={["noEnvFile", "claudeNotFound", "crAlias", "geminiQuota", "creditBalance", "costs", "scrapingSafety"]}
       jsonLd={{
         title: "X/Twitter Content System with Claude Code",
         description:

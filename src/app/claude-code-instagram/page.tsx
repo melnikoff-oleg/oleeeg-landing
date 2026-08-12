@@ -4,6 +4,9 @@ import { ResourcePageShell } from "@/components/resource-page-shell";
 
 const REPO = "https://github.com/melnikoff-oleg/reel-studio";
 
+const VIDEO_ID = "SUZYKyIujQY";
+const VIDEO_TITLE = "My Claude Code System For Banger Instagram Reels";
+
 /**
  * The one sentence that does steps 2 through 7 of the old version of this page.
  * Claude Code can install its own dependencies, clone a repo and start a dev
@@ -310,10 +313,13 @@ export default function ClaudeCodeInstagramPage() {
   return (
     <ResourcePageShell
       slug="claude-code-instagram"
+      videoId={VIDEO_ID}
+      videoTitle={VIDEO_TITLE}
       repoCta={{ href: REPO }}
       title="claude code as your instagram video editor"
       subhead="drop your photos and a voice take on the left, say what you want, watch the reel appear on the right. runs on your own laptop, free per video."
       steps={steps}
+      troubleshooting={["claudeNotFound", "costs", "skipPermissions"]}
       jsonLd={{
         title: "Claude Code Instagram Video Editor: Free Setup Guide",
         description:

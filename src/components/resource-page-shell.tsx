@@ -13,6 +13,7 @@ import { ArticleJsonLd } from "@/components/json-ld";
 import { BoldaneCta } from "@/components/boldane-cta";
 import { RepoCta } from "@/components/repo-cta";
 import { YouTubeEmbed } from "@/components/youtube-embed";
+import { Troubleshooting, type FIXES } from "@/components/troubleshooting";
 import { Reveal, RevealGroup } from "@/components/motion/reveal";
 
 type Step = { title: string; content: ReactNode };
@@ -33,6 +34,12 @@ type ResourcePageShellProps = {
    * they clicked through for.
    */
   repoCta?: { href: string; label?: string; icon?: ReactNode };
+  /**
+   * Keys from FIXES, rendered as a collapsed "if you get stuck" section right
+   * after the setup guide. Pick only what applies to the page. See
+   * troubleshooting.tsx for where the list came from.
+   */
+  troubleshooting?: (keyof typeof FIXES)[];
   jsonLd: {
     title: string;
     description: string;
@@ -55,6 +62,7 @@ export function ResourcePageShell({
   subhead,
   steps,
   repoCta,
+  troubleshooting,
   jsonLd,
   boldaneCta,
   boldaneCredit,
@@ -133,6 +141,12 @@ export function ResourcePageShell({
             </div>
           </RevealGroup>
         </section>
+
+        {/* The recurring failures, answered where people get stuck: right after
+            the steps, not at the bottom of the page. */}
+        {troubleshooting?.length ? (
+          <Troubleshooting items={troubleshooting} />
+        ) : null}
 
         {/* YouTube video (click-to-load facade). Omitted when videoId is unset. */}
         {videoId ? (

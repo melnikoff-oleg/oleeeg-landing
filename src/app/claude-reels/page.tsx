@@ -183,7 +183,7 @@ const steps = [
         </p>
         <p>paste your API keys:</p>
         <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
-          APIFY_API_KEY=your_apify_key_here
+          APIFY_API_TOKEN=your_apify_token_here
           <br />
           GEMINI_API_KEY=your_gemini_key_here
           <br />
@@ -226,6 +226,7 @@ export default function ClaudeReelsPage() {
       title="claude code for instagram reels that earn attention"
       subhead="study the reels actually winning in your niche, then turn what you learn into ready-to-film scripts with sharp hooks, retention analysis, and clear visual direction. craft over guesswork."
       steps={steps}
+      troubleshooting={["claudeNotFound", "crAlias", "noEnvFile", "geminiQuota", "creditBalance", "costs", "skipPermissions", "scrapingSafety"]}
       jsonLd={{
         title: "AI Instagram Reels with Claude Code",
         description:

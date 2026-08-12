@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Newsreader, Roboto } from "next/font/google";
+import { FilmedPageOutro } from "@/components/filmed-page-outro";
 
 // Two faces the rest of the site does not load. Newsreader carries Elon's
 // verbatim quotes, so his words never look like Oleg's words. Roboto is
@@ -66,9 +67,19 @@ export default function ElonMuskAiLayout({
 }) {
   // The page owns its own ground, reset and type scale, all of it scoped under
   // .elon-page in page.css. The font variables have to land on the same node.
+  //
+  // The outro sits OUTSIDE that node on purpose: the page's scoped reset must
+  // not reach it, and it must not reach the page. It lives here rather than in
+  // page.tsx because page.tsx is generated from the vault and gets overwritten.
   return (
-    <div className={`elon-page ${newsreader.variable} ${roboto.variable}`}>
-      {children}
-    </div>
+    <>
+      <div className={`elon-page ${newsreader.variable} ${roboto.variable}`}>
+        {children}
+      </div>
+      <FilmedPageOutro
+        videoId="ieTgCMWYsoQ"
+        videoTitle="How Does Elon Musk REALLY Use AI? (7 Insane Habits)"
+      />
+    </>
   );
 }

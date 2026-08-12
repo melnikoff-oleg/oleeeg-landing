@@ -21,11 +21,16 @@ const ALL_ROUTES = ROUTES;
 // NOTE: /claude-outreach, /claude-trend-scanner, /claude-seo and
 // /claude-interviewer had their video blocks removed entirely (the source
 // YouTube videos were hidden for low views), so they are intentionally absent.
+// Every route that renders a YouTubeEmbed facade. Kept in sync with the pages
+// whose source video is still live on the channel: /claude-website dropped off
+// this list when its video was removed from YouTube (the id 403s), and the three
+// newest companion pages joined it.
 const YT_FACADE_ROUTES = [
   "/claude-reels", "/claude-tiktok", "/claude-content", "/claude-twitter",
   "/claude-b2b-outreach", "/claude-cowork-outreach",
   "/claude-marketing", "/claude-social-growth",
-  "/claude-website", "/ads-ai",
+  "/ads-ai", "/5-levels-ai",
+  "/claude-code-instagram", "/claude-code-second-brain",
 ];
 
 const MIN_TAP = 44;

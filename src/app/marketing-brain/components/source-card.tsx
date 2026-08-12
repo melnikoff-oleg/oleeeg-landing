@@ -2,6 +2,51 @@
 
 import { forwardRef, useState } from "react";
 import type { GroupedSource } from "@/lib/marketing-brain/types";
+import { mustOpenOnYouTube } from "@/lib/marketing-brain/no-embed";
+
+const POSTER_CLASS =
+  "group relative block aspect-video w-full overflow-hidden bg-navy-raised";
+
+/**
+ * The thumbnail. A button when the clip can play in place, a link out when the
+ * owner has disabled embedding, so the affordance never promises something the
+ * iframe would refuse to deliver.
+ */
+function PosterFrame({
+  openOut,
+  href,
+  onPlay,
+  children,
+}: {
+  openOut: boolean;
+  href?: string;
+  onPlay: () => void;
+  children: React.ReactNode;
+}) {
+  if (openOut && href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Watch the cited moment on YouTube"
+        className={POSTER_CLASS}
+      >
+        {children}
+      </a>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onPlay}
+      className={POSTER_CLASS}
+      aria-label="Play at cited moment"
+    >
+      {children}
+    </button>
+  );
+}
 
 export const SourceCard = forwardRef<
   HTMLDivElement,
@@ -50,8 +95,14 @@ export const SourceCard = forwardRef<
     );
   }
 
-  // video: one full-width player/thumbnail, multiple timecodes as jump chips
-  const active = activeItem !== null ? source.items[activeItem] : null;
+  // video: one full-width player/thumbnail, multiple timecodes as jump chips.
+  //
+  // Some sources (every Hormozi video, and he is the top-ranked expert here)
+  // have embedding disabled by the owner, so an iframe shows YouTube's grey
+  // "Video unavailable" panel. For those, the whole card opens the real thing on
+  // YouTube at the cited second instead of pretending to play in place.
+  const openOut = mustOpenOnYouTube(source.videoId);
+  const active = !openOut && activeItem !== null ? source.items[activeItem] : null;
 
   return (
     <div ref={ref} className={`overflow-hidden rounded-xl border transition-colors duration-500 ${ring}`}>
@@ -67,11 +118,10 @@ export const SourceCard = forwardRef<
           />
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => setActiveItem(0)}
-          className="group relative block aspect-video w-full overflow-hidden bg-navy-raised"
-          aria-label="Play at cited moment"
+        <PosterFrame
+          openOut={openOut}
+          href={source.items[0]?.url}
+          onPlay={() => setActiveItem(0)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -87,7 +137,7 @@ export const SourceCard = forwardRef<
               </svg>
             </span>
           </span>
-        </button>
+        </PosterFrame>
       )}
       <div className="p-3">
         <p className="line-clamp-2 font-body text-sm font-medium leading-snug text-silver">{source.title}</p>
@@ -98,20 +148,37 @@ export const SourceCard = forwardRef<
               {numBadge(it.n)}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setActiveItem(i)}
-                    className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium tabular-nums transition-colors ${
-                      activeItem === i
-                        ? "bg-vivid-blue/25 text-white"
-                        : "bg-vivid-blue/15 text-silver hover:bg-vivid-blue/25 hover:text-white"
-                    }`}
-                  >
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="size-2.5">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                    {it.timecode}
-                  </button>
+                  {openOut ? (
+                    // Cannot play in place, so the chip is a link to the exact
+                    // second on YouTube rather than a button that would load a
+                    // player refusing to start.
+                    <a
+                      href={it.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded bg-vivid-blue/15 px-2 py-1 text-[11px] font-medium tabular-nums text-silver transition-colors hover:bg-vivid-blue/25 hover:text-white"
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="size-2.5">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                      {it.timecode}
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setActiveItem(i)}
+                      className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium tabular-nums transition-colors ${
+                        activeItem === i
+                          ? "bg-vivid-blue/25 text-white"
+                          : "bg-vivid-blue/15 text-silver hover:bg-vivid-blue/25 hover:text-white"
+                      }`}
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="size-2.5">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                      {it.timecode}
+                    </button>
+                  )}
                   <a
                     href={it.url}
                     target="_blank"

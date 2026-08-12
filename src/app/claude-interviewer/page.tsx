@@ -245,6 +245,7 @@ export default function ClaudeInterviewerPage() {
       title="an AI interviewer that turns your expertise into content"
       subhead="build a voice AI agent that interviews you about your work, then shapes the conversation into ready-to-post linkedin content. you talk, it writes. the ideas stay yours."
       steps={steps}
+      troubleshooting={["claudeNotFound", "costs"]}
       jsonLd={{
         title: "An AI Interviewer That Turns Your Expertise Into Content",
         description:
