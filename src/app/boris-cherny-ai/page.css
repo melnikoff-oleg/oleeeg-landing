@@ -27,10 +27,14 @@
    are gone from the screen. They are things he says out loud; on camera they
    are noise. The article build lives on in index.html and still has all of it.
 
-   The one survivor is the plain-Russian explanation, and it is deliberately
-   almost invisible: a grey question mark in the bottom-left corner. He opens
-   it, reads it to himself, shuts it, then says it in English in his own words.
-   It overlays rather than pushes, so opening it never moves the slide.
+   What survives is a two-control rail in the bottom-left corner — the one corner
+   the camera never reaches — and both controls are deliberately almost
+   invisible. A grey question mark opens the plain-Russian explanation: he reads
+   it to himself, shuts it, then says it in English in his own words, and it
+   overlays rather than pushes, so opening it never moves the slide. A grey
+   chevron advances to the next slide. That one is an anchor to the next
+   section's id, not a script, so it is an instant jump that lands on the snap
+   point by construction — no animation for a recording to catch half way.
 
    Style continues the Riemann page: Excalidraw structure (hand-drawn stroke
    wobble, Comic Neue labels) carrying Kurzgesagt colour and warmth, on
@@ -138,23 +142,39 @@
    text always lives outside a .rough group. */
 .bcd-page .rough {filter:url(#roughen)}
 
-/* ---------- the Russian, for him only ----------
-   Shut, it is a grey question mark small enough to disappear into the corner.
-   Open, it is a panel big enough to read in one pass — and it is absolutely
-   positioned, so the slide underneath does not move a pixel either way. Bottom
-   LEFT, the one corner the camera never reaches. */
-.bcd-page .ru {position:absolute;left:clamp(24px,2.9vw,56px);bottom:clamp(12px,1.6vh,22px);z-index:5}
-.bcd-page .ru summary {
-  list-style:none;cursor:pointer;
+/* ---------- the corner rail ----------
+   The two controls, both of them for the person filming and neither of them for
+   a reader: the Russian, and the advance button. Bottom LEFT, the one corner the
+   camera never reaches, and both dim enough to vanish into it. */
+.bcd-page .rail {
+  position:absolute;
+  left:clamp(24px,2.9vw,56px); bottom:clamp(12px,1.6vh,22px);
+  z-index:5;
+  display:flex; align-items:center; gap:10px;
+}
+
+/* Shut, the Russian is a grey question mark. Open, it is a panel big enough to
+   read in one pass — and it is absolutely positioned, so the slide underneath
+   does not move a pixel either way. */
+.bcd-page .ru {position:relative}
+.bcd-page .ru summary, .bcd-page .next {
   width:22px;height:22px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-comic), cursive;font-weight:700;font-size:13px;
   color:rgba(255,255,255,.22);
   border:1px solid rgba(255,255,255,.13);
   transition:color .15s,border-color .15s;
+  cursor:pointer;
 }
+.bcd-page .ru summary {list-style:none;font-family:var(--font-comic), cursive;font-weight:700;font-size:13px}
 .bcd-page .ru summary::-webkit-details-marker {display:none}
-.bcd-page .ru summary:hover {color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.35)}
+.bcd-page .ru summary:hover, .bcd-page .next:hover {color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.35)}
+
+/* Next slide. A plain anchor to the next section's id, not a script: with
+   scroll-behavior auto it is an instant jump, and it lands on the snap point by
+   construction, so there is no animation to catch a recording half way through.
+   The last slide has none — there is nothing after it. */
+.bcd-page .next {text-decoration:none}
+.bcd-page .next svg {width:11px;height:11px;display:block}
 .bcd-page .ru p {
   position:absolute;bottom:calc(100% + 12px);left:0;
   width:min(46vw,780px);
