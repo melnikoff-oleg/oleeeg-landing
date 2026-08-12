@@ -1,5 +1,6 @@
-// End card for the four filmed evidence-wall pages (/elon-musk-ai,
-// /boris-cherny-ai, /claude-code-sessions, /claude-riemann-hypothesis).
+// End card for the filmed evidence-wall pages (/elon-musk-ai,
+// /boris-cherny-ai, /claude-code-sessions, /claude-riemann-hypothesis,
+// /andrej-karpathy-ai, /sam-altman-ai).
 //
 // Those pages are ported in from the vault and render none of the shared shell:
 // no header, no ResourceFooter, no internal link of any kind. So a visitor who
@@ -41,8 +42,10 @@ export function FilmedPageOutro({
   videoId,
   videoTitle,
 }: {
-  videoId: string;
-  videoTitle: string;
+  /** Omit both while the companion video is unpublished: the card then renders
+      only the way-out links, and gains the video block when the id is added. */
+  videoId?: string;
+  videoTitle?: string;
 }) {
   return (
     <aside
@@ -64,81 +67,91 @@ export function FilmedPageOutro({
             color: "#2863f0",
           }}
         >
-          the video
+          {videoId ? "the video" : "more from oleg"}
         </p>
 
-        <a
-          href={`https://www.youtube.com/watch?v=${videoId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "block",
-            position: "relative",
-            marginTop: "1.25rem",
-            borderRadius: "14px",
-            overflow: "hidden",
-            border: "1px solid rgba(208,214,224,0.14)",
-            background: "#07142a",
-            textDecoration: "none",
-            lineHeight: 0,
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
-            alt={videoTitle}
-            width={480}
-            height={360}
-            loading="lazy"
-            style={{
-              display: "block",
-              width: "100%",
-              height: "auto",
-              aspectRatio: "16 / 9",
-              objectFit: "cover",
-            }}
-          />
-          <span
-            aria-hidden
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span
+        {videoId ? (
+          <>
+            <a
+              href={`https://www.youtube.com/watch?v=${videoId}`}
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "64px",
-                height: "44px",
-                borderRadius: "12px",
-                background: "rgba(2,11,24,0.72)",
-                border: "1px solid rgba(40,99,240,0.45)",
+                display: "block",
+                position: "relative",
+                marginTop: "1.25rem",
+                borderRadius: "14px",
+                overflow: "hidden",
+                border: "1px solid rgba(208,214,224,0.14)",
+                background: "#07142a",
+                textDecoration: "none",
+                lineHeight: 0,
               }}
             >
-              <svg viewBox="0 0 24 24" fill="#ffffff" width="18" height="18">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </span>
-          </span>
-        </a>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
+                alt={videoTitle}
+                width={480}
+                height={360}
+                loading="lazy"
+                style={{
+                  display: "block",
+                  width: "100%",
+                  height: "auto",
+                  aspectRatio: "16 / 9",
+                  objectFit: "cover",
+                }}
+              />
+              <span
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "64px",
+                    height: "44px",
+                    borderRadius: "12px",
+                    background: "rgba(2,11,24,0.72)",
+                    border: "1px solid rgba(40,99,240,0.45)",
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" fill="#ffffff" width="18" height="18">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+              </span>
+            </a>
 
-        <p
-          style={{
-            margin: "1.1rem 0 0",
-            color: "#d0d6e0",
-            font: `500 17px/1.45 ${FONT}`,
-          }}
-        >
-          {videoTitle}
-        </p>
-        <p style={{ margin: "0.4rem 0 0", fontSize: "15px" }}>
-          this page is the research the video was made from. watch it on YouTube.
-        </p>
+            <p
+              style={{
+                margin: "1.1rem 0 0",
+                color: "#d0d6e0",
+                font: `500 17px/1.45 ${FONT}`,
+              }}
+            >
+              {videoTitle}
+            </p>
+            <p style={{ margin: "0.4rem 0 0", fontSize: "15px" }}>
+              this page is the research the video was made from. watch it on
+              YouTube.
+            </p>
+          </>
+        ) : (
+          <p style={{ margin: "1.1rem 0 0", fontSize: "15px" }}>
+            this page is the research behind an upcoming video. the guides and
+            tools below are free in the meantime.
+          </p>
+        )}
 
         <div
           style={{
@@ -148,23 +161,43 @@ export function FilmedPageOutro({
             marginTop: "1.75rem",
           }}
         >
-          <a
-            href={`https://www.youtube.com/watch?v=${videoId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              ...LINK,
-              background: "#2863f0",
-              borderColor: "#2863f0",
-              color: "#ffffff",
-            }}
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden>
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" />
-              <path fill="#2863f0" d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-            </svg>
-            watch on youtube
-          </a>
+          {videoId ? (
+            <a
+              href={`https://www.youtube.com/watch?v=${videoId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                ...LINK,
+                background: "#2863f0",
+                borderColor: "#2863f0",
+                color: "#ffffff",
+              }}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden>
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" />
+                <path fill="#2863f0" d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+              </svg>
+              watch on youtube
+            </a>
+          ) : (
+            <a
+              href="https://www.youtube.com/@Oleg-Melnikov"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                ...LINK,
+                background: "#2863f0",
+                borderColor: "#2863f0",
+                color: "#ffffff",
+              }}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden>
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" />
+                <path fill="#2863f0" d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+              </svg>
+              youtube channel
+            </a>
+          )}
           <a href="/" style={LINK}>
             free guides and tools
           </a>

@@ -11,11 +11,15 @@ import {
   Smartphone,
 } from "lucide-react";
 import { Accordion } from "@/components/accordion";
+import { CopyButton } from "@/components/copy-button";
 import { ResourceFooter } from "@/components/resource-footer";
+import { Troubleshooting } from "@/components/troubleshooting";
 import { ArticleJsonLd } from "@/components/json-ld";
 import { Button } from "@/components/ui/button";
 
 const REPO_URL = "https://github.com/melnikoff-oleg/high-converting-website";
+
+const INSTALL_CMD = "npm install -g @anthropic-ai/claude-code";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -137,9 +141,10 @@ const steps = [
           </li>
           <li>type this and press Enter:</li>
         </ol>
-        <pre className="overflow-x-auto rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
-          <code>npm install -g @anthropic-ai/claude-code</code>
+        <pre className="whitespace-pre-wrap [overflow-wrap:anywhere] rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+          <code>{INSTALL_CMD}</code>
         </pre>
+        <CopyButton text={INSTALL_CMD} label="copy the command" />
         <p>
           on Mac, if it mentions permissions, put{" "}
           <code className={code}>sudo</code> in front and run it again. Claude
@@ -233,7 +238,7 @@ const steps = [
             type this, and press Enter:
           </li>
         </ol>
-        <pre className="overflow-x-auto rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <pre className="whitespace-pre-wrap [overflow-wrap:anywhere] rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
           <code>claude</code>
         </pre>
         <p>
@@ -248,7 +253,7 @@ const steps = [
     content: (
       <div className="space-y-3">
         <p>this is the part that does all the work. type:</p>
-        <pre className="overflow-x-auto rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <pre className="whitespace-pre-wrap [overflow-wrap:anywhere] rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
           <code>/start</code>
         </pre>
         <p>Claude takes over from here and walks you through everything:</p>
@@ -520,7 +525,7 @@ export default function HighConvertingWebsitePage() {
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-8">
-              <Accordion items={steps} />
+              <Accordion items={steps} defaultOpen={0} />
             </motion.div>
 
             <motion.div variants={fadeUp} className="mt-10 text-center">
@@ -532,6 +537,10 @@ export default function HighConvertingWebsitePage() {
             </motion.div>
           </div>
         </motion.section>
+
+        {/* The recurring failures, answered where people are standing when
+            they hit them: right after the steps. */}
+        <Troubleshooting items={["claudeNotFound", "costs", "skipPermissions"]} />
 
         {/*
           YouTube video walkthrough. Add the video ID when the video is live:

@@ -4,12 +4,16 @@
 // chip rail that scrolls inside its own box on a phone, so the page itself
 // never scrolls sideways.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type RailItem = { id: string; num: string; label: string };
 
 export function RuleRail({ items }: { items: readonly RailItem[] }) {
   const [active, setActive] = useState<string | null>(null);
+  // True while more chips hide past the rail's right edge, driving the fade cue.
+  const [clippedRight, setClippedRight] = useState(false);
+  const railRef = useRef<HTMLDivElement | null>(null);
+  const chipRefs = useRef(new Map<string, HTMLAnchorElement>());
 
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
@@ -48,17 +52,63 @@ export function RuleRail({ items }: { items: readonly RailItem[] }) {
     };
   }, [items]);
 
+  // Keep the active chip visible: the rail scrolls itself inside its own box
+  // (scrollTo on the container, never scrollIntoView, which can also shift the
+  // page vertically) so on a phone the highlight can't sit half off-screen.
+  useEffect(() => {
+    if (!active) return;
+    const rail = railRef.current;
+    const chip = chipRefs.current.get(active);
+    if (!rail || !chip || rail.scrollWidth <= rail.clientWidth) return;
+    // Measured via rects, not offsetLeft, so the math holds regardless of
+    // which ancestor is the chips' offsetParent.
+    const railBox = rail.getBoundingClientRect();
+    const chipBox = chip.getBoundingClientRect();
+    const left =
+      rail.scrollLeft +
+      (chipBox.left - railBox.left) -
+      (rail.clientWidth - chipBox.width) / 2;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    rail.scrollTo({ left, behavior: reduce ? "auto" : "smooth" });
+  }, [active]);
+
+  // Fade at the right edge whenever chips are clipped there, so the rail
+  // reads as scrollable even with its scrollbar hidden.
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const update = () => {
+      setClippedRight(rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 1);
+    };
+    update();
+    rail.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      rail.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [items]);
+
   return (
     <nav
       aria-label="Jump to a rule"
       className="sticky top-0 z-50 border-b border-hairline bg-navy/85 backdrop-blur-md"
     >
-      <div className="mx-auto flex max-w-3xl gap-2 overflow-x-auto px-6 py-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        ref={railRef}
+        className="mx-auto flex max-w-3xl gap-2 overflow-x-auto px-6 py-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         {items.map((item) => {
           const on = active === item.id;
           return (
             <a
               key={item.id}
+              ref={(el) => {
+                if (el) chipRefs.current.set(item.id, el);
+                else chipRefs.current.delete(item.id);
+              }}
               href={`#${item.id}`}
               data-testid="rule-rail-chip"
               aria-current={on ? "true" : undefined}
@@ -74,6 +124,12 @@ export function RuleRail({ items }: { items: readonly RailItem[] }) {
           );
         })}
       </div>
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-navy to-transparent transition-opacity duration-200 ${
+          clippedRight ? "opacity-100" : "opacity-0"
+        }`}
+      />
     </nav>
   );
 }

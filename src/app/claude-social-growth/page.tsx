@@ -1,9 +1,14 @@
 import { ResourcePageShell } from "@/components/resource-page-shell";
 import { BoldaneLink } from "@/components/boldane-cta";
+import { CopyButton } from "@/components/copy-button";
 import { DOWNLOAD_ICON } from "@/components/repo-cta";
 
 const VIDEO_ID = "GK3JFG7x7LA";
 const VIDEO_TITLE = "Claude Code for Social Media Growth";
+
+// held in a const so the copy button and the displayed prompt never drift
+const ANALYSIS_PROMPT =
+  "Analyze all videos from these YouTube channels: [paste URLs]. Scrape every video, identify outliers that performed way above average, and analyze their titles, thumbnails, and transcripts.";
 
 const steps = [
   {
@@ -39,8 +44,18 @@ const steps = [
         </p>
         <p>install it and log in with your Anthropic account.</p>
         <p>
-          the subscription is $19/mo. it gives you access to claude code
-          directly inside VS Code.
+          claude code needs a paid claude plan: pro is $20/mo and is enough to
+          start. the &quot;get claude code&quot; button at the top of this page
+          takes you to the same place,{" "}
+          <a
+            href="https://claude.com/claude-code"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-vivid-blue underline decoration-vivid-blue/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+          >
+            claude.com/claude-code
+          </a>
+          .
         </p>
       </div>
     ),
@@ -91,11 +106,10 @@ const steps = [
           open terminal in VS Code, start claude code, and give it a prompt
           like:
         </p>
-        <div className="rounded-lg surface-raised border border-hairline p-5 text-[15px] leading-relaxed text-silver italic">
-          &quot;Analyze all videos from these YouTube channels: [paste URLs].
-          Scrape every video, identify outliers that performed way above average,
-          and analyze their titles, thumbnails, and transcripts.&quot;
+        <div className="rounded-lg surface-raised border border-hairline p-5 text-base leading-relaxed text-silver [overflow-wrap:anywhere]">
+          &quot;{ANALYSIS_PROMPT}&quot;
         </div>
+        <CopyButton text={ANALYSIS_PROMPT} />
         <p>
           this takes 15-30 minutes depending on the volume of videos. in the
           video, we analyzed 1,906 videos from 14 competitors.
@@ -169,13 +183,13 @@ export default function ClaudeSocialGrowthPage() {
   return (
     <ResourcePageShell
       slug="claude-social-growth"
-      repoCta={{ href: "https://claude.ai/download", label: "get claude code", icon: DOWNLOAD_ICON }}
+      repoCta={{ href: "https://claude.com/claude-code", label: "get claude code", icon: DOWNLOAD_ICON }}
       videoId={VIDEO_ID}
       videoTitle={VIDEO_TITLE}
       title="claude code for social media growth"
       subhead="analyze thousands of competitor videos, find the ones that truly outperform, and build a data-driven content strategy for your channel, all with claude code."
       steps={steps}
-      troubleshooting={["claudeNotFound", "crAlias", "costs", "scrapingSafety"]}
+      troubleshooting={["claudeNotFound", "crAlias", "costs", "costsScraping", "scrapingSafety"]}
       jsonLd={{
         title: "AI Social Media Growth with Claude Code",
         description: "Analyze thousands of competitor videos, find the standout performers, and build a data-driven content strategy for YouTube, Instagram, and TikTok growth.",

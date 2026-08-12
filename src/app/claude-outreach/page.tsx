@@ -1,6 +1,11 @@
 import { ResourcePageShell } from "@/components/resource-page-shell";
 import { BoldaneLink } from "@/components/boldane-cta";
+import { CopyButton } from "@/components/copy-button";
 
+// the page's whole payload: claude code builds the app from this one prompt.
+// held in a const so the displayed text and the copy button never drift.
+const BUILD_PROMPT =
+  "Create a web application where I can plug in a URL of a person. It can be LinkedIn, Instagram, or Facebook. On the backend, scrape information about this person using Apify, then generate a personalized outreach message with a visual using Kie.ai. The message should provide value based on what I'm selling. I'm selling [your service] through [LinkedIn/Instagram/Facebook].";
 
 const steps = [
   {
@@ -28,7 +33,7 @@ const steps = [
     content: (
       <div className="space-y-3">
         <p>open terminal in VS Code (Terminal → New Terminal) and run:</p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           npm install -g @anthropic-ai/claude-code
         </div>
         <p>
@@ -97,7 +102,7 @@ const steps = [
           you&apos;ll paste these keys when claude code asks for them, or put
           them in a .env file:
         </p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           APIFY_API_KEY=your_apify_key_here
           <br />
           KIE_API_KEY=your_kie_ai_key_here
@@ -120,14 +125,10 @@ const steps = [
           </code>
           , then give it a prompt like:
         </p>
-        <div className="rounded-lg surface-raised border border-hairline p-5 text-[15px] leading-relaxed text-silver italic">
-          &quot;Create a web application where I can plug in a URL of a person.
-          It can be LinkedIn, Instagram, or Facebook. On the backend, scrape
-          information about this person using Apify, then generate a
-          personalized outreach message with a visual using Kie.ai. The message
-          should provide value based on what I&apos;m selling. I&apos;m selling
-          [your service] through [LinkedIn/Instagram/Facebook].&quot;
+        <div className="rounded-lg surface-raised border border-hairline p-5 text-base leading-relaxed text-silver italic">
+          &quot;{BUILD_PROMPT}&quot;
         </div>
+        <CopyButton text={BUILD_PROMPT} />
         <p>
           adapt the prompt to your use case. in oleg&apos;s case, he sells
           content creation services to founders and generates example content as
@@ -149,7 +150,7 @@ export default function ClaudeOutreachPage() {
       title="claude code for cold outreach"
       subhead="build a thoughtful cold outreach system with claude code. it researches each prospect, then writes a personal, value-first message. follow the steps below to set it up."
       steps={steps}
-      troubleshooting={["linkedinBan", "noEnvFile", "claudeNotFound", "costs"]}
+      troubleshooting={["linkedinBan", "noEnvFile", "claudeNotFound", "costs", "costsScraping"]}
       jsonLd={{
         title: "Claude Code for Cold Outreach: Free AI Outreach Setup Guide",
         description: "Build an AI cold outreach system with Claude Code. Scrape leads, generate personalized messages with visuals, and close deals on LinkedIn, Instagram, or Facebook.",

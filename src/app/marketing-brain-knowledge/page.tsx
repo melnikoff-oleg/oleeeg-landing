@@ -2,8 +2,15 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import { ResourceFooter } from "@/components/resource-footer";
 import { books, experts, stats, type Video } from "./data";
+
+// talks shown per expert before the fold; data.ts sorts each expert's
+// videos by views, so these are the top talks. The rest stay in the HTML
+// inside a <details>, which keeps the page from being a 38-screen scroll
+// on a phone while every link remains crawlable.
+const TOP_TALKS = 3;
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -114,7 +121,7 @@ export default function MarketingBrainKnowledgePage() {
           </Link>
           <Link
             href="/marketing-brain"
-            className="inline-flex items-center gap-2 rounded-full bg-vivid-blue px-4 py-2 font-body text-sm font-medium text-white shadow-[0_10px_40px_-12px_rgba(40,99,240,0.7)] transition-colors hover:bg-[#1b50d8]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-vivid-blue px-4 py-2 font-body text-sm font-medium text-white shadow-[0_10px_40px_-12px_rgba(40,99,240,0.7)] transition-colors hover:bg-[#1b50d8]"
           >
             ask the brain →
           </Link>
@@ -221,18 +228,26 @@ export default function MarketingBrainKnowledgePage() {
         {/* Expert quick-nav (sticky on the long scroll) with an always-present CTA */}
         <div className="sticky top-0 z-20 border-y border-hairline bg-navy/70 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center gap-3 px-6">
-            <nav className="flex min-w-0 flex-1 gap-3 overflow-x-auto py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {experts.map((e) => (
-                <a
-                  key={e.slug}
-                  href={`#${e.slug}`}
-                  data-testid="kb-nav-chip"
-                  className="inline-flex min-h-[44px] shrink-0 items-center rounded-full border border-hairline px-4 font-body text-sm font-medium text-silver-muted transition-colors hover:border-vivid-blue/50 hover:text-white"
-                >
-                  {e.name}
-                </a>
-              ))}
-            </nav>
+            <div className="relative min-w-0 flex-1">
+              <nav className="flex gap-3 overflow-x-auto py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {experts.map((e) => (
+                  <a
+                    key={e.slug}
+                    href={`#${e.slug}`}
+                    data-testid="kb-nav-chip"
+                    className="inline-flex min-h-[44px] shrink-0 items-center rounded-full border border-hairline px-3 font-body text-sm font-medium text-silver-muted transition-colors hover:border-vivid-blue/50 hover:text-white sm:px-4"
+                  >
+                    {e.name}
+                  </a>
+                ))}
+              </nav>
+              {/* fade hint: the scrollbar is hidden, so this is what says
+                  the rail scrolls instead of a chip looking hard-clipped */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-navy to-transparent"
+              />
+            </div>
             <Link
               href="/marketing-brain"
               className="inline-flex min-h-[44px] shrink-0 items-center rounded-full bg-vivid-blue px-4 font-body text-sm font-medium text-white shadow-[0_10px_40px_-12px_rgba(40,99,240,0.7)] transition-colors hover:bg-[#1b50d8]"
@@ -268,7 +283,9 @@ export default function MarketingBrainKnowledgePage() {
                   >
                     {initials(e.name)}
                   </span>
-                  <div className="min-w-0">
+                  {/* flex-1 keeps the name beside the avatar on every expert;
+                      without it the block wraps below on long subtitles */}
+                  <div className="min-w-0 flex-1">
                     <h2 className="text-metallic font-display text-2xl tracking-tight md:text-3xl">
                       {e.name}
                     </h2>
@@ -284,15 +301,33 @@ export default function MarketingBrainKnowledgePage() {
                   </div>
                 </motion.div>
 
-                {/* videos grid */}
+                {/* videos grid: top talks up front, the rest folded */}
                 <motion.div
                   variants={stagger}
                   className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
                 >
-                  {e.videos.map((v) => (
+                  {e.videos.slice(0, TOP_TALKS).map((v) => (
                     <VideoCard key={v.id} v={v} />
                   ))}
                 </motion.div>
+                {e.videos.length > TOP_TALKS && (
+                  /* named group: VideoCard uses the bare `group` class, so an
+                     unnamed group here would leak hover into every card */
+                  <details className="group/talks mt-5">
+                    <summary
+                      data-testid="see-all-talks"
+                      className="flex min-h-11 cursor-pointer list-none items-center justify-center gap-2 rounded-full text-sm font-medium text-silver-muted transition-colors hover:text-white [&::-webkit-details-marker]:hidden"
+                    >
+                      see all {e.videos.length} talks
+                      <ChevronDown className="size-4 transition-transform duration-200 group-open/talks:rotate-180" />
+                    </summary>
+                    <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      {e.videos.slice(TOP_TALKS).map((v) => (
+                        <VideoCard key={v.id} v={v} />
+                      ))}
+                    </div>
+                  </details>
+                )}
               </motion.section>
             );
           })}
@@ -313,7 +348,7 @@ export default function MarketingBrainKnowledgePage() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/marketing-brain"
-                className="inline-flex items-center gap-2 rounded-full bg-vivid-blue px-5 py-2.5 font-body text-sm font-medium text-white shadow-[0_10px_40px_-12px_rgba(40,99,240,0.7)] transition-colors hover:bg-[#1b50d8]"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-vivid-blue px-5 py-2.5 font-body text-sm font-medium text-white shadow-[0_10px_40px_-12px_rgba(40,99,240,0.7)] transition-colors hover:bg-[#1b50d8]"
               >
                 ask the brain
               </Link>
@@ -321,7 +356,7 @@ export default function MarketingBrainKnowledgePage() {
                 href="https://www.youtube.com/@Oleg-Melnikov"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-hairline px-5 py-2.5 font-body text-sm font-medium text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline px-5 py-2.5 font-body text-sm font-medium text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
               >
                 watch on youtube
               </a>

@@ -33,7 +33,7 @@ const steps = [
         <p>
           open the terminal in VS Code (Terminal → New Terminal) and run:
         </p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           npm install -g @anthropic-ai/claude-code
         </div>
         <p>
@@ -83,7 +83,7 @@ const steps = [
         <p>
           alternatively, clone it from the terminal:
         </p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           git clone https://github.com/melnikoff-oleg/social-media.git
         </div>
       </div>
@@ -182,7 +182,7 @@ const steps = [
           if needed.
         </p>
         <p>paste your API keys:</p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           APIFY_API_TOKEN=your_apify_token_here
           <br />
           GEMINI_API_KEY=your_gemini_key_here
@@ -226,7 +226,7 @@ export default function ClaudeReelsPage() {
       title="claude code for instagram reels that earn attention"
       subhead="study the reels actually winning in your niche, then turn what you learn into ready-to-film scripts with sharp hooks, retention analysis, and clear visual direction. craft over guesswork."
       steps={steps}
-      troubleshooting={["claudeNotFound", "crAlias", "noEnvFile", "geminiQuota", "creditBalance", "costs", "skipPermissions", "scrapingSafety"]}
+      troubleshooting={["claudeNotFound", "crAlias", "noEnvFile", "geminiQuota", "creditBalance", "costs", "costsScraping", "skipPermissions", "scrapingSafety"]}
       jsonLd={{
         title: "AI Instagram Reels with Claude Code",
         description:

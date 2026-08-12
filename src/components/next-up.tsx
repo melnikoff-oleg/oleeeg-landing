@@ -52,11 +52,11 @@ export function NextUp({ currentSlug }: { currentSlug: string }) {
           <p className="font-display text-lg font-semibold text-silver transition-colors group-hover:text-white sm:text-xl">
             {hero.title}
           </p>
-          <p className="mt-1 text-base leading-relaxed text-silver-muted">
+          <p className="mt-1 line-clamp-3 text-base leading-relaxed text-silver-muted">
             {hero.description}
           </p>
         </div>
-        <ArrowRight className="size-5 shrink-0 self-center text-silver-muted transition-all duration-150 group-hover:translate-x-1 group-hover:text-white" />
+        <ArrowRight className="hidden size-5 shrink-0 self-center text-silver-muted transition-all duration-150 group-hover:translate-x-1 group-hover:text-white sm:block" />
       </Link>
 
       {/* Ranked secondary picks: a short, digestible list, never a wall. */}

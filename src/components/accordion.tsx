@@ -61,7 +61,7 @@ export function Accordion({ items, defaultOpen }: AccordionProps) {
               <div className="overflow-hidden">
                 <div
                   hidden={!isOpen}
-                  className="px-6 pb-6 pt-0 font-body text-silver leading-relaxed"
+                  className="px-6 pb-6 pt-0 font-body text-silver leading-relaxed [overflow-wrap:anywhere]"
                 >
                   {item.content}
                 </div>

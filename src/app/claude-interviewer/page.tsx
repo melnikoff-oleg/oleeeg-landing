@@ -8,22 +8,38 @@ const steps = [
     content: (
       <div className="space-y-3">
         <p>
-          you can use claude code in the terminal, as a VS Code extension, or in
-          the browser at{" "}
+          the easy way: download the Claude Code desktop app from{" "}
           <a
-            href="https://claude.ai/code"
+            href="https://claude.ai/download"
             target="_blank"
             rel="noopener noreferrer"
             className="text-vivid-blue underline decoration-vivid-blue/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
           >
-            claude.ai/code
-          </a>
-          .
+            claude.ai/download
+          </a>{" "}
+          and sign in. no terminal needed.
+        </p>
+        <p>prefer the terminal? paste this line and press Enter:</p>
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
+          curl -fsSL https://claude.ai/install.sh | bash
+        </div>
+        <p className="text-sm text-silver-muted">
+          on Windows: paste{" "}
+          <code className="rounded bg-vivid-blue/15 px-1.5 py-0.5 font-mono text-sm text-silver">
+            irm https://claude.ai/install.ps1 | iex
+          </code>{" "}
+          in PowerShell instead.
         </p>
         <p>
-          you&apos;ll need a Claude Code subscription at $19/mo. this gives you
-          access to claude&apos;s coding agent that can build apps, write
-          scripts, and automate workflows.
+          then open a new terminal, type{" "}
+          <code className="rounded bg-vivid-blue/15 px-1.5 py-0.5 font-mono text-sm text-silver">
+            claude
+          </code>
+          , and sign in with your Claude account.
+        </p>
+        <p>
+          either way you need a Claude Pro plan at $20/mo. the free plan does
+          not include Claude Code.
         </p>
       </div>
     ),

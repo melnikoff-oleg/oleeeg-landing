@@ -21,7 +21,7 @@ const comic = Comic_Neue({
 });
 
 const TITLE = "Claude and the Riemann hypothesis, explained simply";
-const DESCRIPTION = "An unreleased research version of Claude was asked to take a real stab at the Riemann hypothesis. It failed \u2014 and on the way it raised the proven share of zeta zeros on the critical line from 41.6% to 67.2%, a number decades of mathematicians had crept forward a point at a time. What that actually means, in plain words.";
+const DESCRIPTION = "An unreleased research version of Claude was asked to take a real stab at the Riemann hypothesis. It failed. On the way it raised the proven share of zeta zeros on the critical line from 41.6% to 67.2%, a number decades of mathematicians had crept forward a point at a time. What that actually means, in plain words.";
 const SHORT = "It failed to solve the Riemann hypothesis. On the way it pushed a 167-year-old number from 41.6% to 67.2%, in a day and a half.";
 
 export const metadata: Metadata = {

@@ -277,7 +277,8 @@ export default function MarketingBrainPage() {
                 }}
                 rows={1}
                 placeholder="ask the brain…"
-                className="max-h-40 flex-1 resize-none overflow-y-auto bg-transparent px-3 py-2 font-body text-[15px] text-silver placeholder:text-silver-muted focus:outline-none"
+                // text-base below sm: inputs under 16px make iOS Safari zoom on focus
+                className="max-h-40 flex-1 resize-none overflow-y-auto bg-transparent px-3 py-2 font-body text-base text-silver placeholder:text-silver-muted focus:outline-none sm:text-[15px]"
               />
               <button
                 type="submit"

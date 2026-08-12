@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito, Comic_Neue } from "next/font/google";
+import { FilmedPageOutro } from "@/components/filmed-page-outro";
 
 // The deck's two faces, the same pair /claude-riemann-hypothesis loads and for
 // the same reasons. Nunito carries the slide titles — heavy, round and friendly,
@@ -69,9 +70,17 @@ export default function SamAltmanAiLayout({
 }) {
   // The route owns its own ground, reset and type scale, all of it scoped under
   // .sad-page in page.css. The font variables have to land on the same node.
+  //
+  // The outro sits OUTSIDE that node on purpose: the page's scoped reset must
+  // not reach it, and it must not reach the page. Without it the deck carried
+  // zero internal links, a dead end for anyone arriving from search. Pass
+  // videoId + videoTitle when the companion video is published.
   return (
-    <div className={`sad-page ${nunito.variable} ${comic.variable}`}>
-      {children}
-    </div>
+    <>
+      <div className={`sad-page ${nunito.variable} ${comic.variable}`}>
+        {children}
+      </div>
+      <FilmedPageOutro />
+    </>
   );
 }

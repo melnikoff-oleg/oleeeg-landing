@@ -158,6 +158,13 @@
 }
 
 /* ---------- hero ---------- */
+/* The web-only fold. The film opens cold on section 01 because the on-camera
+   hook has already set the scene; a visitor without the video gets no scene at
+   all, so the phone layout opens on a fold that names the page and the claim.
+   It stays display:none at every filming width: the 1920x1080 recording and
+   the slide screenshots never see it. Shown only inside the narrow media
+   query below. */
+.hero{display:none}
 .hero .stage h2{font-size:clamp(1.9rem,3.3vw,3.5rem);max-width:17ch}
 .kicker{
   font-family:var(--font-comic), cursive;font-weight:700;
@@ -179,6 +186,23 @@
 @media (max-width:900px){
   .slide{grid-template-columns:1fr;align-content:center}
   .read{border-left:none;border-top:2px solid rgba(255,255,255,.10);padding-left:0;padding-top:20px;max-width:none}
+  .hero{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:18px;text-align:center;
+    position:relative;z-index:1;
+    min-height:100svh;
+    padding:44px 26px;
+  }
+  .hero h1{
+    font-weight:900;line-height:1.14;letter-spacing:-.02em;
+    font-size:clamp(1.5rem,7vw,2.1rem);
+    max-width:22ch;text-wrap:balance;
+    color:var(--chalk);
+  }
+  .hero .lede{
+    font-size:1.05rem;line-height:1.6;font-weight:600;
+    color:var(--muted);max-width:36ch;
+  }
 }
 
 

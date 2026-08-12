@@ -165,3 +165,12 @@
 }
 .ru-text p{margin:0 0 13px}
 .ru-text p:last-child{margin:0}
+
+/* Phones and tablets never see the read-me. It is a desktop pre-filming tool:
+   on a touch screen the dot is only a sub-44px mystery control sitting right
+   under the scrolling thumb, and it opens Russian text the visitor cannot
+   read. Filming happens on a desktop (hover + fine pointer), so the filmed
+   frame is untouched by this rule. */
+@media (hover:none) and (pointer:coarse){
+  .cct-page .ru{display:none}
+}

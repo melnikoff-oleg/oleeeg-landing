@@ -150,7 +150,7 @@ export function ResourcePageShell({
 
         {/* YouTube video (click-to-load facade). Omitted when videoId is unset. */}
         {videoId ? (
-          <Reveal as="section" className="pb-24 md:pb-32">
+          <Reveal as="section" className="pb-16 md:pb-32">
             <div className="mx-auto max-w-3xl px-6">
               <YouTubeEmbed videoId={videoId} title={videoTitle ?? title} />
             </div>

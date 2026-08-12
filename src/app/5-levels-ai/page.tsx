@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Fragment, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { ResourceFooter } from "@/components/resource-footer";
 import { YouTubeEmbed } from "@/components/youtube-embed";
 
@@ -140,7 +140,8 @@ const levels: Level[] = [
 ];
 
 // The move between two rungs, shown as a dark band under each level.
-const moves: { to: string; text: ReactNode; cmds: string[] }[] = [
+// `copyable: false` marks chips that are names to look up, not commands to run.
+const moves: { to: string; text: ReactNode; cmds: string[]; copyable?: boolean }[] = [
   {
     to: "level 1",
     text: "Install an agent (Claude Code), give it one real folder of your work, and let it work where the work lives.",
@@ -160,29 +161,78 @@ const moves: { to: string; text: ReactNode; cmds: string[] }[] = [
     to: "level 4",
     text: "Wire agents into your systems with the Agent SDK, the same Claude Code, but launched from your own code. An event fires, an agent runs, and the work is done before you even look.",
     cmds: ["Claude Agent SDK", "CLAUDE.md + skills"],
+    copyable: false,
   },
 ];
 
+// One real command: tap to copy, with the same copied-check feedback as the
+// shared CopyButton. The command text lives in its own span so it can wrap
+// ([overflow-wrap:anywhere]) while the icon stays put; min-h keeps the tap
+// target at 44px.
+function CmdChip({ cmd }: { cmd: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      aria-label={`copy ${cmd}`}
+      onClick={() => {
+        navigator.clipboard.writeText(cmd);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      className="inline-flex min-h-[44px] items-center gap-2 rounded border border-vivid-blue/40 px-3 py-1.5 text-left font-mono text-sm font-medium text-vivid-blue/90 transition-colors hover:border-vivid-blue hover:text-vivid-blue"
+    >
+      <span className="min-w-0 [overflow-wrap:anywhere]">{cmd}</span>
+      {copied ? (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5 shrink-0">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5 shrink-0">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 // Command chips shared by the desktop move-row and the mobile move-card.
+// Real commands are tap-to-copy buttons; the level 4 chips are plain labels
+// (nothing to paste), so they drop the interactive-looking blue border.
 // [overflow-wrap:anywhere] guarantees even the longest command (the npm install
 // line) can never push past the viewport edge on a narrow phone.
-function CmdChips({ cmds }: { cmds: string[] }) {
+function CmdChips({ cmds, copyable = true }: { cmds: string[]; copyable?: boolean }) {
   return (
     <div className="mt-2.5 flex flex-wrap gap-2">
-      {cmds.map((c) => (
-        <span
-          key={c}
-          className="rounded border border-vivid-blue/40 px-2.5 py-1 font-mono text-xs font-medium text-vivid-blue/90 [overflow-wrap:anywhere]"
-        >
-          {c}
-        </span>
-      ))}
+      {cmds.map((c) =>
+        copyable ? (
+          <CmdChip key={c} cmd={c} />
+        ) : (
+          <span
+            key={c}
+            className="rounded border border-hairline px-2.5 py-1.5 font-mono text-sm font-medium text-silver-muted [overflow-wrap:anywhere]"
+          >
+            {c}
+          </span>
+        )
+      )}
     </div>
   );
 }
 
 // Desktop (lg+): the move between two rungs, a dark band spanning the table.
-function MoveRow({ to, text, cmds }: { to: string; text: ReactNode; cmds: string[] }) {
+function MoveRow({
+  to,
+  text,
+  cmds,
+  copyable,
+}: {
+  to: string;
+  text: ReactNode;
+  cmds: string[];
+  copyable?: boolean;
+}) {
   return (
     <tr>
       <td colSpan={4} className="surface-raised border-b border-hairline px-5 py-4 sm:px-6">
@@ -190,7 +240,7 @@ function MoveRow({ to, text, cmds }: { to: string; text: ReactNode; cmds: string
           how to get to {to}
         </span>
         <span className="font-body text-sm text-silver-muted">{text}</span>
-        <CmdChips cmds={cmds} />
+        <CmdChips cmds={cmds} copyable={copyable} />
       </td>
     </tr>
   );
@@ -219,7 +269,7 @@ function LevelRung({ lvl }: { lvl: Level }) {
       <div className="min-w-0 flex-1 surface-card rounded-2xl p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <span className="eyebrow block text-[0.7rem] font-semibold text-silver-muted">
+            <span className="eyebrow block text-xs font-semibold text-silver-muted">
               {lvl.level}
             </span>
             <span className="mt-0.5 block font-display text-lg font-semibold leading-tight text-silver">
@@ -230,14 +280,14 @@ function LevelRung({ lvl }: { lvl: Level }) {
             <span className="block font-display text-2xl font-light leading-none tabular-nums whitespace-nowrap text-silver">
               {lvl.agents}
             </span>
-            <span className="eyebrow mt-1 block text-[0.62rem] font-semibold text-silver-muted">
+            <span className="eyebrow mt-1 block text-xs font-semibold text-silver-muted">
               agents
             </span>
           </div>
         </div>
         <div className="mt-4 space-y-4 border-t border-hairline pt-4">
           <div>
-            <span className="eyebrow block text-[0.7rem] font-semibold text-silver-muted">
+            <span className="eyebrow block text-xs font-semibold text-silver-muted">
               what it looks like
             </span>
             <p className="mt-1.5 font-body text-base leading-relaxed text-silver-muted">
@@ -245,7 +295,7 @@ function LevelRung({ lvl }: { lvl: Level }) {
             </p>
           </div>
           <div className="border-l-2 border-vivid-blue pl-3.5 [&_strong]:font-semibold [&_strong]:text-silver">
-            <span className="eyebrow block text-[0.7rem] font-semibold text-vivid-blue">
+            <span className="eyebrow block text-[13px] font-semibold text-vivid-blue">
               what keeps you stuck
             </span>
             <p className="mt-1.5 font-body text-base leading-relaxed text-silver-muted">
@@ -261,7 +311,17 @@ function LevelRung({ lvl }: { lvl: Level }) {
 // Mobile (below lg): the "step up" between two rungs. A full-width band (so the
 // longest command chip never clips) pinned to the rail by an up-chevron badge
 // straddling its top edge, so the spine reads rung, step up, rung.
-function MoveStep({ to, text, cmds }: { to: string; text: ReactNode; cmds: string[] }) {
+function MoveStep({
+  to,
+  text,
+  cmds,
+  copyable,
+}: {
+  to: string;
+  text: ReactNode;
+  cmds: string[];
+  copyable?: boolean;
+}) {
   return (
     <div className="relative surface-raised rounded-xl border border-hairline px-5 pb-4 pt-5">
       <span
@@ -270,11 +330,11 @@ function MoveStep({ to, text, cmds }: { to: string; text: ReactNode; cmds: strin
       >
         {chevronUp}
       </span>
-      <span className="eyebrow block text-[0.7rem] font-semibold text-vivid-blue">
+      <span className="eyebrow block text-[13px] font-semibold text-vivid-blue">
         how to get to {to}
       </span>
       <p className="mt-1.5 font-body text-base leading-relaxed text-silver-muted">{text}</p>
-      <CmdChips cmds={cmds} />
+      <CmdChips cmds={cmds} copyable={copyable} />
     </div>
   );
 }
@@ -350,7 +410,7 @@ export default function FiveLevelsPage() {
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
           variants={fadeUp}
-          className="pb-24 md:pb-28"
+          className="pb-16 md:pb-28"
         >
           <div className="mx-auto max-w-5xl px-6">
             {/* Desktop (lg+): the full comparison table. */}
@@ -405,9 +465,7 @@ export default function FiveLevelsPage() {
                           {lvl.stuck}
                         </td>
                       </tr>
-                      {i < moves.length && (
-                        <MoveRow to={moves[i].to} text={moves[i].text} cmds={moves[i].cmds} />
-                      )}
+                      {i < moves.length && <MoveRow {...moves[i]} />}
                     </Fragment>
                   ))}
                 </tbody>
@@ -433,15 +491,13 @@ export default function FiveLevelsPage() {
                 {levels.map((lvl, i) => (
                   <Fragment key={lvl.level}>
                     <LevelRung lvl={lvl} />
-                    {i < moves.length && (
-                      <MoveStep to={moves[i].to} text={moves[i].text} cmds={moves[i].cmds} />
-                    )}
+                    {i < moves.length && <MoveStep {...moves[i]} />}
                   </Fragment>
                 ))}
               </div>
             </div>
 
-            <p className="mx-auto mt-6 max-w-2xl text-center font-body text-sm text-silver-muted">
+            <p className="mx-auto mt-6 max-w-2xl text-center font-body text-base text-silver-muted">
               most people stall between level 1 and level 2. the jump is not a
               smarter model, it is learning to review results instead of
               keystrokes.
@@ -456,7 +512,7 @@ export default function FiveLevelsPage() {
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
           variants={fadeUp}
-          className="pb-24 md:pb-32"
+          className="pb-16 md:pb-32"
         >
           <div className="mx-auto max-w-3xl px-6">
             <YouTubeEmbed videoId={VIDEO_ID} title={VIDEO_TITLE} />

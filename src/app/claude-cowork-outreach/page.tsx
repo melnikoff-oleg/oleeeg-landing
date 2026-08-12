@@ -160,7 +160,7 @@ export default function ClaudeCoworkOutreachPage() {
       title="claude cowork for cold outreach (b2b sales)"
       subhead="claude cowork browses linkedin, researches each prospect, writes a personalized message, and sends the connection. you handle the relationships that matter while it does the groundwork."
       steps={steps}
-      troubleshooting={["linkedinBan", "claudeNotFound", "costs"]}
+      troubleshooting={["linkedinBan", "claudeNotFound", "costs", "costsScraping"]}
       jsonLd={{
         title: "Claude Cowork for Cold Outreach: AI LinkedIn Automation",
         description:

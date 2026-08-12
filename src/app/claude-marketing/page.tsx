@@ -37,8 +37,9 @@ const steps = [
           the extension and sign in.
         </p>
         <p>
-          claude code costs $19/mo and gives you access to the full agent. it
-          writes code, runs commands, and builds entire projects from a prompt.
+          claude code costs $20/mo on the pro plan and gives you access to the
+          full agent. it writes code, runs commands, and builds entire projects
+          from a prompt.
         </p>
       </div>
     ),
@@ -92,8 +93,17 @@ const steps = [
             </p>
           </div>
         </div>
-        <p>add both keys to a .env file in your project:</p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <p>now put both keys where claude code can read them:</p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>make an empty folder for your marketing workspace</li>
+          <li>open it in VS Code (File → Open Folder)</li>
+          <li>
+            inside it, create a new file named{" "}
+            <span className="text-silver font-medium">.env</span>
+          </li>
+          <li>paste these two lines into it:</li>
+        </ul>
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           APIFY_API_KEY=your_apify_key_here
           <br />
           KIE_API_KEY=your_kie_ai_key_here
@@ -194,7 +204,7 @@ export default function ClaudeMarketingPage() {
       title="claude code for marketing (smm, ads, outreach)"
       subhead="five real marketing use cases with claude code: instagram reels, competitor analysis, ad campaigns, cold outreach, and content creation. one walkthrough, all the systems oleg actually uses."
       steps={steps}
-      troubleshooting={["claudeNotFound", "crAlias", "noEnvFile", "costs", "creditBalance"]}
+      troubleshooting={["claudeNotFound", "crAlias", "noEnvFile", "costs", "costsScraping", "creditBalance"]}
       jsonLd={{
         title: "Claude Code for Marketing: AI Marketing Automation Guide",
         description: "Five real marketing use cases with Claude Code: Instagram Reels, competitor analysis, ad campaigns, cold outreach, and content automation.",

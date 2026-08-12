@@ -3,12 +3,16 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Accordion } from "@/components/accordion";
+import { CopyButton } from "@/components/copy-button";
 import { ResourceFooter } from "@/components/resource-footer";
+import { Troubleshooting } from "@/components/troubleshooting";
 import { YouTubeEmbed } from "@/components/youtube-embed";
 import { RepoCta } from "@/components/repo-cta";
 import { ArticleJsonLd } from "@/components/json-ld";
 
 const VIDEO_ID = "5_QP6_EmReQ";
+
+const START_PROMPT = "install the app dependencies and start the dev server";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -112,8 +116,8 @@ const steps = [
           <li>
             once installed, it will ask you to sign in. follow the prompts to
             create an account. it costs{" "}
-            <span className="text-silver">$19/month</span> (you can cancel
-            anytime)
+            <span className="text-silver">$20/mo</span> on the pro plan (you
+            can cancel anytime)
           </li>
         </ol>
       </div>
@@ -338,7 +342,7 @@ const steps = [
           </li>
           <li>click on the file to open it. you&apos;ll see something like this:</li>
         </ol>
-        <pre className="overflow-x-auto rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <pre className="whitespace-pre-wrap [overflow-wrap:anywhere] rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
           <code>{`ANTHROPIC_API_KEY=
 GEMINI_API_KEY=
 FIRECRAWL_API_KEY=
@@ -352,7 +356,7 @@ KIE_AI_API_KEY=`}</code>
             example:
           </li>
         </ol>
-        <pre className="overflow-x-auto rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <pre className="whitespace-pre-wrap [overflow-wrap:anywhere] rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
           <code>{`ANTHROPIC_API_KEY=sk-ant-abc123...
 GEMINI_API_KEY=AIzaSy...
 FIRECRAWL_API_KEY=fc-...
@@ -388,9 +392,10 @@ KIE_AI_API_KEY=kie-...`}</code>
             a chat panel will open. type this message and press Enter:
           </li>
         </ol>
-        <pre className="overflow-x-auto rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
-          <code>install the app dependencies and start the dev server</code>
+        <pre className="whitespace-pre-wrap [overflow-wrap:anywhere] rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+          <code>{START_PROMPT}</code>
         </pre>
+        <CopyButton text={START_PROMPT} label="copy the message" />
         <ol className="list-decimal space-y-2 pl-5" start={3}>
           <li>
             Claude Code will run the commands for you. when it&apos;s done,
@@ -637,7 +642,7 @@ export default function AdsAiPage() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
-          className="pb-24 md:pb-32"
+          className="pb-16 md:pb-20"
         >
           <div className="mx-auto max-w-3xl px-6">
             <motion.h2
@@ -660,6 +665,19 @@ export default function AdsAiPage() {
             </motion.div>
           </div>
         </motion.section>
+
+        {/* The recurring failures, answered where people are standing when
+            they hit them: right after the steps. */}
+        <Troubleshooting
+          items={[
+            "claudeNotFound",
+            "noEnvFile",
+            "geminiQuota",
+            "creditBalance",
+            "costs",
+            "costsScraping",
+          ]}
+        />
 
         {/* YouTube video */}
         <motion.section

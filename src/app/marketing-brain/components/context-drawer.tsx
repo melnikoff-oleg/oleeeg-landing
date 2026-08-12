@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { useMemory } from "../use-memory";
 
@@ -21,6 +21,14 @@ export function ContextDrawer({
 }) {
   const [url, setUrl] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // At 390px the drawer covers the backdrop, so Escape must work as an exit too.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
   const onScrape = async () => {
     if (!url.trim() || memory.working) return;
@@ -61,7 +69,8 @@ export function ContextDrawer({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg p-1.5 text-silver-muted transition-colors hover:bg-vivid-blue/10 hover:text-white"
+                // 44px tap target; negative margins keep the header height unchanged
+                className="-my-2 -mr-2 flex size-11 shrink-0 items-center justify-center rounded-lg text-silver-muted transition-colors hover:bg-vivid-blue/10 hover:text-white"
                 aria-label="Close"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="size-5">
@@ -88,13 +97,14 @@ export function ContextDrawer({
                     onChange={(e) => setUrl(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && onScrape()}
                     placeholder="yourbusiness.com"
-                    className="min-w-0 flex-1 rounded-lg border border-hairline surface-raised px-3 py-2 font-body text-sm text-silver placeholder:text-silver-muted focus:border-vivid-blue/50 focus:outline-none"
+                    // text-base: inputs under 16px make iOS Safari zoom on focus
+                    className="min-w-0 flex-1 rounded-lg border border-hairline surface-raised px-3 py-2 font-body text-base text-silver placeholder:text-silver-muted focus:border-vivid-blue/50 focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={onScrape}
                     disabled={!url.trim() || !!memory.working}
-                    className="shrink-0 rounded-full bg-vivid-blue px-4 py-2 font-body text-sm font-medium text-white shadow-[0_10px_40px_-12px_rgba(40,99,240,0.7)] transition-colors hover:bg-[#1b50d8] disabled:opacity-40"
+                    className="inline-flex min-h-[44px] shrink-0 items-center rounded-full bg-vivid-blue px-4 py-2 font-body text-sm font-medium text-white shadow-[0_10px_40px_-12px_rgba(40,99,240,0.7)] transition-colors hover:bg-[#1b50d8] disabled:opacity-40"
                   >
                     {memory.working === "scrape" ? "reading…" : "scrape"}
                   </button>
@@ -136,7 +146,8 @@ export function ContextDrawer({
                   onChange={(e) => memory.setText(e.target.value)}
                   placeholder="e.g. I run Boldane, premium personal branding for founders with real expertise…"
                   rows={12}
-                  className="w-full resize-y rounded-lg border border-hairline surface-raised px-3 py-2 font-body text-sm leading-relaxed text-silver placeholder:text-silver-muted focus:border-vivid-blue/50 focus:outline-none"
+                  // text-base: inputs under 16px make iOS Safari zoom on focus
+                  className="w-full resize-y rounded-lg border border-hairline surface-raised px-3 py-2 font-body text-base leading-relaxed text-silver placeholder:text-silver-muted focus:border-vivid-blue/50 focus:outline-none"
                 />
               </div>
 
@@ -171,7 +182,7 @@ export function ContextDrawer({
                 type="button"
                 onClick={() => memory.save(memory.text)}
                 disabled={!!memory.working}
-                className="w-full rounded-full bg-vivid-blue px-4 py-2.5 font-body text-sm font-medium text-white shadow-[0_10px_40px_-12px_rgba(40,99,240,0.7)] transition-colors hover:bg-[#1b50d8] disabled:opacity-40"
+                className="flex min-h-[44px] w-full items-center justify-center rounded-full bg-vivid-blue px-4 py-2.5 font-body text-sm font-medium text-white shadow-[0_10px_40px_-12px_rgba(40,99,240,0.7)] transition-colors hover:bg-[#1b50d8] disabled:opacity-40"
               >
                 {memory.working === "save" ? "saving…" : "save context"}
               </button>

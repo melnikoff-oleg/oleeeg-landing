@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito, Comic_Neue } from "next/font/google";
+import { FilmedPageOutro } from "@/components/filmed-page-outro";
 
 // The deck's two faces, the same pair /claude-riemann-hypothesis and
 // /boris-cherny-ai load and for the same reasons. Nunito carries the slide
@@ -65,9 +66,18 @@ export default function AndrejKarpathyAiLayout({
 }) {
   // The route owns its own ground, reset and type scale, all of it scoped under
   // .akd-page in page.css. The font variables have to land on the same node.
+  //
+  // FilmedPageOutro sits OUTSIDE the scoped div, the same mount the other
+  // filmed pages use: without it the deck's last link is an external tally and
+  // the page dead-ends. No videoId yet, the Karpathy video is unpublished; add
+  // videoId + videoTitle here (in the port script's template) when it goes
+  // live, then re-port.
   return (
-    <div className={`akd-page ${nunito.variable} ${comic.variable}`}>
-      {children}
-    </div>
+    <>
+      <div className={`akd-page ${nunito.variable} ${comic.variable}`}>
+        {children}
+      </div>
+      <FilmedPageOutro />
+    </>
   );
 }

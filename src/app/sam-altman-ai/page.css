@@ -188,10 +188,40 @@
   color:#DCDCE8;
 }
 
+/* ---------- the masthead (web only) ----------
+   The recording opens cold on slide 01: the title is spoken, never shown. A
+   phone visitor gets no such narration, so below the filming breakpoint this
+   compact band states the promise and the corpus behind it. Above 900px it is
+   display:none, so the filmed frames never change by a pixel. */
+.sad-page .masthead {display:none}
+
 /* Portrait / narrow: the deck is filmed in landscape, so this only exists so
    the page is not broken when he checks it on a phone. */
 @media (max-width:900px){
-  .sad-page .art {width:100%}
+  .sad-page .masthead {
+    display:flex;flex-direction:column;gap:12px;
+    position:relative;z-index:1;
+    scroll-snap-align:start;
+    padding:56px 24px 10px;
+  }
+  .sad-page .masthead h1 {
+    font-weight:900;
+    font-size:clamp(1.9rem,8.4vw,3rem);
+    line-height:1.04;
+    letter-spacing:-.03em;
+    text-wrap:balance;
+  }
+  .sad-page .masthead p {
+    font-weight:700;
+    font-size:14px;
+    line-height:1.5;
+    color:var(--muted);
+  }
+  /* Portrait has no camera rectangle to respect, so the diagram sits directly
+     under the title at its natural height instead of centering in the leftover
+     screen, which read as half a screen of nothing on a phone. */
+  .sad-page .art {width:100%;align-items:flex-start;padding-top:3vh}
+  .sad-page .art svg {height:auto;max-height:56svh}
   .sad-page .ru p {width:min(88vw,780px)}
 }
 
@@ -200,16 +230,16 @@
    out of that page's fold and parked at the end of the deck. No design
    changes: the rules below are style.css lines 194-385 with every selector
    put under .receipts so they cannot reach a slide. */
-.sad-page @font-face {font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url('/sam-altman-ai/fonts/dm-sans-400-normal.woff2') format('woff2');}
-.sad-page @font-face {font-family:'DM Sans';font-style:normal;font-weight:500;font-display:swap;src:url('/sam-altman-ai/fonts/dm-sans-500-normal.woff2') format('woff2');}
-.sad-page @font-face {font-family:'DM Sans';font-style:normal;font-weight:700;font-display:swap;src:url('/sam-altman-ai/fonts/dm-sans-700-normal.woff2') format('woff2');}
-.sad-page @font-face {font-family:'Newsreader';font-style:normal;font-weight:400;font-display:swap;src:url('/sam-altman-ai/fonts/newsreader-400-normal.woff2') format('woff2');}
-.sad-page @font-face {font-family:'Newsreader';font-style:italic;font-weight:400;font-display:swap;src:url('/sam-altman-ai/fonts/newsreader-400-italic.woff2') format('woff2');}
-.sad-page @font-face {font-family:'Space Grotesk';font-style:normal;font-weight:400;font-display:swap;src:url('/sam-altman-ai/fonts/space-grotesk-400-normal.woff2') format('woff2');}
-.sad-page @font-face {font-family:'Space Grotesk';font-style:normal;font-weight:500;font-display:swap;src:url('/sam-altman-ai/fonts/space-grotesk-500-normal.woff2') format('woff2');}
-.sad-page @font-face {font-family:'Roboto';font-style:normal;font-weight:400;font-display:swap;src:url('/sam-altman-ai/fonts/roboto-400-normal.woff2') format('woff2');}
-.sad-page @font-face {font-family:'Roboto';font-style:normal;font-weight:500;font-display:swap;src:url('/sam-altman-ai/fonts/roboto-500-normal.woff2') format('woff2');}
-.sad-page @font-face {font-family:'Roboto';font-style:normal;font-weight:700;font-display:swap;src:url('/sam-altman-ai/fonts/roboto-700-normal.woff2') format('woff2');}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url('/sam-altman-ai/fonts/dm-sans-400-normal.woff2') format('woff2');}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:500;font-display:swap;src:url('/sam-altman-ai/fonts/dm-sans-500-normal.woff2') format('woff2');}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:700;font-display:swap;src:url('/sam-altman-ai/fonts/dm-sans-700-normal.woff2') format('woff2');}
+@font-face{font-family:'Newsreader';font-style:normal;font-weight:400;font-display:swap;src:url('/sam-altman-ai/fonts/newsreader-400-normal.woff2') format('woff2');}
+@font-face{font-family:'Newsreader';font-style:italic;font-weight:400;font-display:swap;src:url('/sam-altman-ai/fonts/newsreader-400-italic.woff2') format('woff2');}
+@font-face{font-family:'Space Grotesk';font-style:normal;font-weight:400;font-display:swap;src:url('/sam-altman-ai/fonts/space-grotesk-400-normal.woff2') format('woff2');}
+@font-face{font-family:'Space Grotesk';font-style:normal;font-weight:500;font-display:swap;src:url('/sam-altman-ai/fonts/space-grotesk-500-normal.woff2') format('woff2');}
+@font-face{font-family:'Roboto';font-style:normal;font-weight:400;font-display:swap;src:url('/sam-altman-ai/fonts/roboto-400-normal.woff2') format('woff2');}
+@font-face{font-family:'Roboto';font-style:normal;font-weight:500;font-display:swap;src:url('/sam-altman-ai/fonts/roboto-500-normal.woff2') format('woff2');}
+@font-face{font-family:'Roboto';font-style:normal;font-weight:700;font-display:swap;src:url('/sam-altman-ai/fonts/roboto-700-normal.woff2') format('woff2');}
 .sad-page .receipts a {text-decoration:none;color:inherit}
 .sad-page .receipts {
   --edge: rgba(208, 214, 224, 0.10);
@@ -412,6 +442,27 @@
   font-variant-numeric: tabular-nums;
 }
 .sad-page .receipts .tw-acts svg { width: 15px; height: 15px; fill: #71767b; flex: none; }
+
+/* Portrait / narrow, the receipts edition: below the filming breakpoint the
+   five-column evidence walls (mark, three cards, tally) stack as full-width
+   rows. Stack, never shrink: at 390px the desktop grid squeezed each card to
+   roughly 25px and the whole proof layer rendered one letter per line. The
+   tally trades its left hairline for a top one, same edge, and closes the
+   wall as a full-width row. */
+@media (max-width:900px){
+  .sad-page .receipts {padding:44px 24px 72px;gap:28px}
+  .sad-page .receipts .yt-wall, .sad-page .receipts .x-wall {grid-template-columns:1fr;gap:16px}
+  .sad-page .receipts .yt-wall {margin-bottom:36px}
+  .sad-page .receipts .mark {align-self:start}
+  .sad-page .receipts .tally {
+    align-self:stretch;
+    width:auto;
+    padding-left:0;
+    padding-top:14px;
+    border-left:0;
+    border-top:1px solid var(--edge);
+  }
+}
 
 /* ===========================================================================
    THE TWENTY

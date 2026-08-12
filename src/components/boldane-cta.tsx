@@ -15,10 +15,10 @@ export function BoldaneLink() {
 
 export function BoldaneCta({ children }: { children: React.ReactNode }) {
   return (
-    <Reveal as="section" className="pb-24 md:pb-32">
+    <Reveal as="section" className="pb-16 md:pb-32">
       <div className="mx-auto max-w-3xl px-6">
         <div className="surface-card rounded-2xl p-6 text-center sm:p-8">
-          <p className="font-body text-sm leading-relaxed text-silver-muted">
+          <p className="font-body text-base leading-relaxed text-silver-muted">
             {children}
           </p>
         </div>

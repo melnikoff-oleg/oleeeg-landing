@@ -1,8 +1,11 @@
 import { ResourcePageShell } from "@/components/resource-page-shell";
 import { BoldaneLink } from "@/components/boldane-cta";
+import { DOWNLOAD_ICON } from "@/components/repo-cta";
 
 const VIDEO_ID = "QOuH88WW7bQ";
 const VIDEO_TITLE = "Claude Code Content Creation System";
+const DRIVE_URL =
+  "https://drive.google.com/drive/folders/15E8VAaO7ULLYOINJOxYedvXeokegjP0D?usp=drive_link";
 
 const steps = [
   {
@@ -118,7 +121,7 @@ const steps = [
         </p>
         <p>
           <a
-            href="https://drive.google.com/drive/folders/15E8VAaO7ULLYOINJOxYedvXeokegjP0D?usp=drive_link"
+            href={DRIVE_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-vivid-blue underline decoration-vivid-blue/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
@@ -162,7 +165,8 @@ export default function ClaudeContentPage() {
       title="claude code content creation system"
       subhead="produce weeks of social media content with custom visuals: infographics, carousels, personal images, all from a single prompt. works for linkedin, instagram, x, and more."
       steps={steps}
-      troubleshooting={["claudeNotFound", "crAlias", "noEnvFile", "costs", "creditBalance"]}
+      repoCta={{ href: DRIVE_URL, label: "get the project files", icon: DOWNLOAD_ICON }}
+      troubleshooting={["claudeNotFound", "crAlias", "noEnvFile", "costs", "costsScraping", "creditBalance"]}
       jsonLd={{
         title: "Content Creation System with Claude Code",
         description:

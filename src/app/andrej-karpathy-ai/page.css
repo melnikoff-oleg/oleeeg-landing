@@ -204,11 +204,45 @@
   color:#DCDCE8;
 }
 
-/* Portrait / narrow: the deck is filmed in landscape, so this only exists so
-   the page is not broken when he checks it on a phone. */
+/* ---------- the masthead ----------
+   Web-only, and phone-only. On camera the video itself is the title, so the
+   filmed deck opens cold on slide 01; a phone visitor from a link gets no such
+   framing. Below the filming breakpoint a masthead names the page and the
+   corpus, and gives the route its one h1. display:none at every filming width:
+   nothing may enter the 16:9 frames. */
+.akd-page .masthead {display:none}
+
+/* Portrait / narrow: the deck is filmed in landscape, so nothing in this block
+   can reach a filmed frame. Phones get a reading layout instead of a projection
+   one: the masthead appears, slides pack to their natural height (100svh with a
+   landscape-shaped diagram left half of every phone screen black), diagrams
+   take their intrinsic width-based height, and the corner rail goes away
+   entirely: both of its controls exist for the person filming, not a reader,
+   they are 22px targets, and the question mark opens Russian. */
 @media (max-width:900px){
-  .akd-page .art {width:100%}
-  .akd-page .ru p {width:min(88vw,780px)}
+  .akd-page .masthead {
+    display:block;
+    position:relative;z-index:1;
+    padding:52px 24px 0;
+  }
+  .akd-page .masthead h1 {
+    font-weight:900;
+    font-size:clamp(1.75rem,8vw,2.6rem);
+    line-height:1.05;
+    letter-spacing:-.03em;
+    text-wrap:balance;
+  }
+  .akd-page .masthead p {
+    margin-top:14px;
+    font-size:15px;
+    font-weight:600;
+    line-height:1.55;
+    color:var(--muted);
+  }
+  .akd-page .slide {min-height:0;scroll-snap-align:none;padding:44px 24px 40px}
+  .akd-page .art {width:100%;flex:initial}
+  .akd-page .art svg {height:auto}
+  .akd-page .rail {display:none}
 }
 
 /* ---------- the receipts ----------

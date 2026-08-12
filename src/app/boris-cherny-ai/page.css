@@ -101,6 +101,27 @@
   background-size:100% 100%;
 }
 
+/* ---------- the masthead, phones only ----------
+   The deck opens cold on slide 01 because the filmed frame starts there. Off
+   camera that cold open is a fold failure: nothing names the page, the subject
+   or the count, and the route ships no h1 at all. This block carries all three.
+   It exists only below the filming breakpoint (the media block at the end of
+   the slide styles turns it on), so it can never enter the 16:9 frame. */
+.bcd-page .masthead {display:none;position:relative;z-index:1;padding:56px 24px 0}
+.bcd-page .masthead .kicker {
+  font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--clay);
+}
+.bcd-page .masthead h1 {
+  margin-top:12px;
+  font-weight:900;font-size:2.05rem;line-height:1.06;letter-spacing:-.03em;
+  text-wrap:balance;
+}
+.bcd-page .masthead .note {
+  margin-top:12px;
+  font-size:15px;line-height:1.55;font-weight:600;color:var(--muted);
+}
+
 /* ---------- the slide ---------- */
 .bcd-page .slide {
   position:relative; z-index:1;
@@ -188,10 +209,18 @@
   color:#DCDCE8;
 }
 
-/* Portrait / narrow: the deck is filmed in landscape, so this only exists so
-   the page is not broken when he checks it on a phone. */
+/* Portrait / narrow: the deck is filmed in landscape, so everything in here
+   exists for the phone reader, never the camera. Filming happens above 900px;
+   below it the 16:9 geometry buys nothing, so the slides pack to content
+   instead of holding 100svh (a title, half a screen of void, then the diagram
+   read as a broken page), the filming rail disappears (two 22px targets and a
+   Russian panel are noise to a reader), and the masthead turns on. */
 @media (max-width:900px){
-  .bcd-page .art {width:100%}
+  .bcd-page .masthead {display:block}
+  .bcd-page .slide {min-height:0;scroll-snap-align:none;padding:44px 24px 52px}
+  .bcd-page .art {width:100%;flex:initial}
+  .bcd-page .art svg {height:auto;max-height:none}
+  .bcd-page .rail {display:none}
   .bcd-page .ru p {width:min(88vw,780px)}
 }
 
@@ -200,16 +229,16 @@
    out of that page's fold and parked at the end of the deck. No design
    changes: the rules below are style.css lines 194-385 with every selector
    put under .receipts so they cannot reach a slide. */
-.bcd-page @font-face {font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url('/boris-cherny-ai/fonts/dm-sans-400-normal.woff2') format('woff2');}
-.bcd-page @font-face {font-family:'DM Sans';font-style:normal;font-weight:500;font-display:swap;src:url('/boris-cherny-ai/fonts/dm-sans-500-normal.woff2') format('woff2');}
-.bcd-page @font-face {font-family:'DM Sans';font-style:normal;font-weight:700;font-display:swap;src:url('/boris-cherny-ai/fonts/dm-sans-700-normal.woff2') format('woff2');}
-.bcd-page @font-face {font-family:'Newsreader';font-style:normal;font-weight:400;font-display:swap;src:url('/boris-cherny-ai/fonts/newsreader-400-normal.woff2') format('woff2');}
-.bcd-page @font-face {font-family:'Newsreader';font-style:italic;font-weight:400;font-display:swap;src:url('/boris-cherny-ai/fonts/newsreader-400-italic.woff2') format('woff2');}
-.bcd-page @font-face {font-family:'Space Grotesk';font-style:normal;font-weight:400;font-display:swap;src:url('/boris-cherny-ai/fonts/space-grotesk-400-normal.woff2') format('woff2');}
-.bcd-page @font-face {font-family:'Space Grotesk';font-style:normal;font-weight:500;font-display:swap;src:url('/boris-cherny-ai/fonts/space-grotesk-500-normal.woff2') format('woff2');}
-.bcd-page @font-face {font-family:'Roboto';font-style:normal;font-weight:400;font-display:swap;src:url('/boris-cherny-ai/fonts/roboto-400-normal.woff2') format('woff2');}
-.bcd-page @font-face {font-family:'Roboto';font-style:normal;font-weight:500;font-display:swap;src:url('/boris-cherny-ai/fonts/roboto-500-normal.woff2') format('woff2');}
-.bcd-page @font-face {font-family:'Roboto';font-style:normal;font-weight:700;font-display:swap;src:url('/boris-cherny-ai/fonts/roboto-700-normal.woff2') format('woff2');}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url('/boris-cherny-ai/fonts/dm-sans-400-normal.woff2') format('woff2');}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:500;font-display:swap;src:url('/boris-cherny-ai/fonts/dm-sans-500-normal.woff2') format('woff2');}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:700;font-display:swap;src:url('/boris-cherny-ai/fonts/dm-sans-700-normal.woff2') format('woff2');}
+@font-face{font-family:'Newsreader';font-style:normal;font-weight:400;font-display:swap;src:url('/boris-cherny-ai/fonts/newsreader-400-normal.woff2') format('woff2');}
+@font-face{font-family:'Newsreader';font-style:italic;font-weight:400;font-display:swap;src:url('/boris-cherny-ai/fonts/newsreader-400-italic.woff2') format('woff2');}
+@font-face{font-family:'Space Grotesk';font-style:normal;font-weight:400;font-display:swap;src:url('/boris-cherny-ai/fonts/space-grotesk-400-normal.woff2') format('woff2');}
+@font-face{font-family:'Space Grotesk';font-style:normal;font-weight:500;font-display:swap;src:url('/boris-cherny-ai/fonts/space-grotesk-500-normal.woff2') format('woff2');}
+@font-face{font-family:'Roboto';font-style:normal;font-weight:400;font-display:swap;src:url('/boris-cherny-ai/fonts/roboto-400-normal.woff2') format('woff2');}
+@font-face{font-family:'Roboto';font-style:normal;font-weight:500;font-display:swap;src:url('/boris-cherny-ai/fonts/roboto-500-normal.woff2') format('woff2');}
+@font-face{font-family:'Roboto';font-style:normal;font-weight:700;font-display:swap;src:url('/boris-cherny-ai/fonts/roboto-700-normal.woff2') format('woff2');}
 .bcd-page .receipts a {text-decoration:none;color:inherit}
 .bcd-page .receipts {
   --edge: rgba(208, 214, 224, 0.10);
@@ -251,17 +280,17 @@
   color: var(--faint);
 }
 
-.bcd-page .receipts /* ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
    YouTube cards. Geometry and colour copied from the real grid: 12px-radius
-   thumbnail, .receipts duration chip bottom-right, .receipts 36px round channel avatar, .receipts two-line
-   Roboto title, .receipts "N views · X ago" underneath. The point is recognition, .receipts so
+   thumbnail, duration chip bottom-right, 36px round channel avatar, two-line
+   Roboto title, "N views · X ago" underneath. The point is recognition, so
    none of the page's own type or colour is allowed in here.
 --------------------------------------------------------------------------- */
 
-/* Both evidence rows read left to right as: whose platform this is, .receipts the three
-   receipts, .receipts how many more there are. The logo does in half a second what a
-   caption would need a sentence for, .receipts and the caption is not allowed. */
-.mark { align-self: center; justify-self: start; }
+/* Both evidence rows read left to right as: whose platform this is, the three
+   receipts, how many more there are. The logo does in half a second what a
+   caption would need a sentence for, and the caption is not allowed. */
+.bcd-page .receipts .mark { align-self: center; justify-self: start; }
 .bcd-page .receipts .mark svg { display: block; }
 .bcd-page .receipts .mark-yt svg { width: 42px; height: 42px; fill: #ff0000; }
 .bcd-page .receipts .mark-x  svg { width: 30px; height: 30px; fill: #e7e9ea; }
@@ -273,11 +302,11 @@
   margin-bottom: 60px;
 }
 
-.bcd-page .receipts /* Framed, .receipts unlike the real YouTube grid. On a near-black page a bare 16:9
+/* Framed, unlike the real YouTube grid. On a near-black page a bare 16:9
    thumbnail has no edge at all — you cannot see where the video stops. The
-   frame is the same hairline the X cards carry, .receipts so the two rows read as one
+   frame is the same hairline the X cards carry, so the two rows read as one
    family of receipts. Everything inside it is still YouTube's own. */
-.yt {
+.bcd-page .receipts .yt {
   display: block;
   color: inherit;
   padding: 10px 10px 12px;
@@ -336,11 +365,12 @@
   color: #aaa;
 }
 
-.bcd-page .receipts /* ---------------------------------------------------------------------------
-   X cards. X's own dark theme — pure black on the navy page, .receipts #2f3336 hairline, .receipts 16px radius, .receipts blue verified badge, .receipts the four action glyphs with their counts.
+/* ---------------------------------------------------------------------------
+   X cards. X's own dark theme — pure black on the navy page, #2f3336 hairline,
+   16px radius, blue verified badge, the four action glyphs with their counts.
 --------------------------------------------------------------------------- */
 
-.x-wall {
+.bcd-page .receipts .x-wall {
   display: grid;
   grid-template-columns: var(--wallmark) repeat(3, minmax(0, 1fr)) auto;
   gap: 22px;
@@ -412,6 +442,23 @@
   font-variant-numeric: tabular-nums;
 }
 .bcd-page .receipts .tw-acts svg { width: 15px; height: 15px; fill: #71767b; flex: none; }
+
+/* Receipts on a phone. The desktop wall is one grid row: the platform mark,
+   three cards, the tally. At 390px that template hands each card ~25px and the
+   text renders one letter per line, five screens of it, so below the filming
+   breakpoint the row becomes a stack: mark, then each card full width, then
+   the tally as a full-width row with its rule turned from a left border into a
+   top one. Never a sideways scroller: the cards stack. */
+@media (max-width:900px){
+  .bcd-page .receipts {padding:48px 24px 72px;gap:28px}
+  .bcd-page .receipts .yt-wall, .bcd-page .receipts .x-wall {grid-template-columns:1fr;gap:18px}
+  .bcd-page .receipts .yt-wall {margin-bottom:44px}
+  .bcd-page .receipts .tally {
+    width:auto;align-self:stretch;
+    padding-left:0;padding-top:16px;
+    border-left:0;border-top:1px solid var(--edge);
+  }
+}
 
 /* ===========================================================================
    THE TWENTY

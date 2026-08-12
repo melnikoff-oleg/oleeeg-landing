@@ -524,6 +524,13 @@
   .elon-page .shelf { position: static; max-width: 420px; }
   .elon-page .said q { font-size: 19px; }
   .elon-page .tw-acts { max-width: none; }
+  /* the chips are the only links inside the rules, and on a phone a thumb has
+     to be able to tell 43:00 from 53:19: 44px minimum, wider gap between them */
+  .elon-page .cites { gap: 12px; }
+  .elon-page .cite { min-height: 44px; align-items: center; padding: 10px 15px; }
+  /* the desktop 116px runway to the end card reads as the end of the page on a
+     phone; one breath is enough */
+  .elon-page .moves { padding-bottom: 48px; }
 }
 
 /* Site-only. In the standalone file this sat on <body>; here the page is a div

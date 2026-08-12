@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { ResourceFooter } from "@/components/resource-footer";
+import { Button } from "@/components/ui/button";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -24,7 +25,7 @@ function CopyButton({ text }: { text: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }}
-      className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-hairline px-4 py-2.5 font-body text-sm font-medium text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
+      className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-hairline px-4 py-2.5 font-body text-sm font-medium text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
     >
       {copied ? (
         <>
@@ -59,6 +60,49 @@ function CopyButton({ text }: { text: string }) {
         </>
       )}
     </button>
+  );
+}
+
+/* Collapsed by default with a bottom fade + expand toggle: a max-h
+   overflow-auto pre is a scroll trap on a phone and hides most of the
+   prompt with no affordance. */
+function PromptBox({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="mt-5">
+      <div className="relative">
+        <pre
+          className={`rounded-lg surface-raised border border-hairline p-4 text-sm leading-relaxed text-silver ${
+            expanded ? "" : "max-h-80 overflow-hidden"
+          }`}
+        >
+          <code className="whitespace-pre-wrap break-words">{text}</code>
+        </pre>
+        {!expanded && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-px bottom-px h-24 rounded-b-lg bg-gradient-to-t from-navy-raised to-transparent"
+          />
+        )}
+      </div>
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
+        className="mt-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 font-body text-sm font-medium text-silver-muted transition-colors hover:text-white"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          className={`size-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+        </svg>
+        {expanded ? "show less" : "show full prompt"}
+      </button>
+    </div>
   );
 }
 
@@ -152,7 +196,7 @@ export default function LinkedInPostPage() {
             href="https://youtube.com/@Oleg-Melnikov"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-hairline px-4 py-2 font-body text-sm font-medium text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-hairline px-4 py-2.5 font-body text-sm font-medium text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" />
@@ -203,6 +247,27 @@ export default function LinkedInPostPage() {
               system. copy the prompts below and start writing posts built
               from what you actually say.
             </motion.p>
+
+            <motion.div variants={fadeUp} className="mt-8">
+              <Button asChild size="lg">
+                <a href="#prompts">
+                  jump to the prompts
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    className="size-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 5v14m0 0l-6-6m6 6l6-6"
+                    />
+                  </svg>
+                </a>
+              </Button>
+            </motion.div>
           </motion.div>
         </section>
 
@@ -273,6 +338,7 @@ export default function LinkedInPostPage() {
 
         {/* Prompts */}
         <motion.section
+          id="prompts"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -287,7 +353,7 @@ export default function LinkedInPostPage() {
                 className="surface-card rounded-2xl p-6 sm:p-8"
               >
                 <div className="flex items-start justify-between gap-4">
-                  <div>
+                  <div className="min-w-0">
                     <span className="font-body text-xs font-medium text-silver-muted">
                       prompt {p.number} &middot; {p.time}
                     </span>
@@ -302,11 +368,7 @@ export default function LinkedInPostPage() {
                   {p.description}
                 </p>
 
-                <pre className="mt-5 max-h-80 overflow-auto rounded-lg surface-raised border border-hairline p-4 text-sm leading-relaxed text-silver scrollbar-thin scrollbar-track-transparent scrollbar-thumb-silver-muted/30">
-                  <code className="whitespace-pre-wrap break-words">
-                    {p.prompt}
-                  </code>
-                </pre>
+                <PromptBox text={p.prompt} />
               </motion.div>
             ))}
           </div>
@@ -318,7 +380,7 @@ export default function LinkedInPostPage() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={fadeUp}
-          className="pb-24 md:pb-32"
+          className="pb-16 md:pb-24"
         >
           <div className="mx-auto max-w-3xl px-6">
             <h2 className="eyebrow font-body text-[13px] text-vivid-blue">
@@ -366,7 +428,7 @@ export default function LinkedInPostPage() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={fadeUp}
-          className="pb-24 md:pb-32"
+          className="pb-16 md:pb-24"
         >
           <div className="mx-auto max-w-3xl px-6">
             <h2 className="eyebrow font-body text-[13px] text-vivid-blue">
@@ -400,7 +462,7 @@ export default function LinkedInPostPage() {
                 href="https://www.linkedin.com/posts/chintanaroad_i-feel-like-theres-no-safe-haven-for-recruiters-activity-7462169996266328064-3gqd"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-5 inline-flex items-center gap-2 rounded-full border border-hairline px-4 py-2.5 font-body text-sm font-medium text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
+                className="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-hairline px-4 py-2.5 font-body text-sm font-medium text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -421,7 +483,7 @@ export default function LinkedInPostPage() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={fadeUp}
-          className="pb-24 md:pb-32"
+          className="pb-16 md:pb-24"
         >
           <div className="mx-auto max-w-3xl px-6">
             <div className="surface-card rounded-2xl p-6 text-center sm:p-8">

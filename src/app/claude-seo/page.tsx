@@ -34,8 +34,9 @@ const steps = [
           extension.
         </p>
         <p>
-          claude code costs $19/mo through the Max plan. it gives you access to
-          claude directly inside your editor, no copy-pasting between tabs.
+          claude code needs a paid claude plan, pro at $20/mo. it gives you
+          access to claude directly inside your editor, no copy-pasting between
+          tabs.
         </p>
       </div>
     ),

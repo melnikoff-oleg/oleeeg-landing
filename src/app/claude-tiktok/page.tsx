@@ -31,7 +31,7 @@ const steps = [
         <p>
           open the terminal in VS Code (Terminal → New Terminal) and run:
         </p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           npm install -g @anthropic-ai/claude-code
         </div>
         <p>
@@ -77,7 +77,7 @@ const steps = [
           the file and open the folder in VS Code via File → Open Folder.
         </p>
         <p>alternatively, clone it from the terminal:</p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           git clone https://github.com/melnikoff-oleg/tiktok-ai.git
         </div>
       </div>
@@ -175,7 +175,7 @@ const steps = [
           if needed.
         </p>
         <p>paste your API keys:</p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           APIFY_API_TOKEN=your_apify_token
           <br />
           GEMINI_API_KEY=your_gemini_key
@@ -219,7 +219,7 @@ export default function ClaudeTiktokPage() {
       title="claude code for tiktok videos that hold attention"
       subhead="study the tiktoks earning real reach in your niche, understand what makes them work, and turn it into thumb-stopping video concepts and scripts with ai."
       steps={steps}
-      troubleshooting={["noEnvFile", "claudeNotFound", "crAlias", "geminiQuota", "creditBalance", "costs", "scrapingSafety"]}
+      troubleshooting={["noEnvFile", "claudeNotFound", "crAlias", "geminiQuota", "creditBalance", "costs", "costsScraping", "scrapingSafety"]}
       jsonLd={{
         title: "AI TikTok Content with Claude Code",
         description:

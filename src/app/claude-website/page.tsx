@@ -1,4 +1,5 @@
 import { ResourcePageShell } from "@/components/resource-page-shell";
+import { DOWNLOAD_ICON } from "@/components/repo-cta";
 
 // The YouTube video for this page was removed from the channel (the id
 // Iew4mx03C3s now 403s), so this page renders no facade and no video schema,
@@ -36,8 +37,9 @@ const steps = [
           search for &quot;Claude Code&quot;. install the extension.
         </p>
         <p>
-          claude code costs $19/mo. it gives you an AI coding agent right
-          inside your editor that can build entire projects from a description.
+          claude code costs $20/mo on the pro plan. it gives you an AI coding
+          agent right inside your editor that can build entire projects from a
+          description.
         </p>
       </div>
     ),
@@ -56,7 +58,7 @@ const steps = [
           >
             free skool community
           </a>
-          .
+          . once you join, the files live in the Classroom section.
         </p>
         <p>
           download it, unzip, and open the folder in VS Code (File → Open
@@ -149,7 +151,7 @@ const steps = [
     content: (
       <div className="space-y-3">
         <p>
-          buy a domain from namecheap, google domains, or any registrar. then in
+          buy a domain from namecheap, cloudflare, or any registrar. then in
           your vercel dashboard, go to Settings → Domains and add your domain.
         </p>
         <p>
@@ -222,6 +224,11 @@ export default function ClaudeWebsitePage() {
       slug="claude-website"
       title="build your personal website with claude code"
       subhead="build a polished personal website with claude code, the kind that actually looks designed. describe what you want, refine it in plain english, and deploy it live on your own domain."
+      repoCta={{
+        href: "https://www.skool.com/ai-automation-7100/about",
+        label: "get the starter template",
+        icon: DOWNLOAD_ICON,
+      }}
       steps={steps}
       troubleshooting={["cantFindCode", "claudeNotFound", "crAlias", "costs"]}
       jsonLd={{

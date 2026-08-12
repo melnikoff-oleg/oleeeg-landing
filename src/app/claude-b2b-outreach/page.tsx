@@ -1,5 +1,6 @@
 import { ResourcePageShell } from "@/components/resource-page-shell";
 import { BoldaneLink } from "@/components/boldane-cta";
+import { DOWNLOAD_ICON } from "@/components/repo-cta";
 
 const VIDEO_ID = "Jjz4YxtlwHQ";
 const VIDEO_TITLE = "Claude Code for B2B Outreach";
@@ -37,8 +38,9 @@ const steps = [
           for &quot;Claude Code&quot;. install the extension by Anthropic.
         </p>
         <p>
-          claude code costs $19/mo. it gives you access to Claude directly
-          inside your editor to build and modify code with natural language.
+          claude code comes with a paid claude plan, pro is $20/mo. it gives
+          you access to Claude directly inside your editor to build and modify
+          code with natural language.
         </p>
       </div>
     ),
@@ -61,8 +63,8 @@ const steps = [
           >
             skool.com/ai-automation-7100
           </a>
-          . it&apos;s free. download the source code from the resources section
-          and open it in VS Code.
+          . it&apos;s free. once you&apos;ve joined, open the Classroom
+          section and download the source code, then open it in VS Code.
         </p>
       </div>
     ),
@@ -137,7 +139,7 @@ const steps = [
           </div>
         </div>
         <p>add all three keys to your .env file:</p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           APIFY_API_KEY=your_apify_key_here
           <br />
           KIE_API_KEY=your_kie_ai_key_here
@@ -249,8 +251,13 @@ export default function ClaudeB2bOutreachPage() {
       videoTitle={VIDEO_TITLE}
       title="claude code for b2b outreach (35% reply rate)"
       subhead="build a personalized b2b outreach system with claude code. it finds the right leads on linkedin, scores them, and writes value-first messages with custom visuals. no generic pitches, just outreach worth replying to."
+      repoCta={{
+        href: "https://www.skool.com/ai-automation-7100/about",
+        label: "get the source code",
+        icon: DOWNLOAD_ICON,
+      }}
       steps={steps}
-      troubleshooting={["cantFindCode", "linkedinBan", "noEnvFile", "claudeNotFound", "costs", "creditBalance"]}
+      troubleshooting={["cantFindCode", "linkedinBan", "noEnvFile", "claudeNotFound", "costs", "costsScraping", "creditBalance"]}
       jsonLd={{
         title: "AI B2B Outreach with Claude Code (35% Reply Rate)",
         description:

@@ -51,9 +51,9 @@ const steps = [
           for &quot;Claude Code&quot;. install the extension and log in.
         </p>
         <p>
-          you need a paid subscription (at least $19/month). once installed, you
-          can interact with claude code through the chat interface in plain
-          english.
+          you need a paid claude plan (pro at $20/mo is enough to start). once
+          installed, you can interact with claude code through the chat
+          interface in plain english.
         </p>
       </div>
     ),
@@ -78,7 +78,7 @@ const steps = [
           click the green <K>Code</K> button, then <K>Download ZIP</K>, then
           unzip it. or if you have git, run this in a terminal:
         </p>
-        <pre className="overflow-x-auto rounded-lg border border-hairline bg-navy-raised p-4 font-mono text-xs text-silver">
+        <pre className="whitespace-pre-wrap [overflow-wrap:anywhere] rounded-lg border border-hairline bg-navy-raised p-4 font-mono text-xs text-silver">
           git clone https://github.com/melnikoff-oleg/x-ai.git
         </pre>
         <p>
@@ -183,7 +183,7 @@ const steps = [
           the repo ships a <K>.env.example</K> you can copy. no quotes, no spaces
           around the <K>=</K>:
         </p>
-        <div className="overflow-x-auto rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="[overflow-wrap:anywhere] rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
           APIFY_API_TOKEN=your_apify_token
           <br />
           GEMINI_API_KEY=your_gemini_key
@@ -328,7 +328,7 @@ export default function ClaudeTwitterPage() {
       title="claude code x/twitter content system"
       subhead="study what actually works in your competitors' tweets, then generate ready-to-publish content written in your own voice and for your own niche."
       steps={steps}
-      troubleshooting={["noEnvFile", "claudeNotFound", "crAlias", "geminiQuota", "creditBalance", "costs", "scrapingSafety"]}
+      troubleshooting={["noEnvFile", "claudeNotFound", "crAlias", "geminiQuota", "creditBalance", "costs", "costsScraping", "scrapingSafety"]}
       jsonLd={{
         title: "X/Twitter Content System with Claude Code",
         description:

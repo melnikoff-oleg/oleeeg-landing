@@ -16,6 +16,9 @@ type Spec = {
   route: string;
   href: RegExp;
   label?: RegExp;
+  /** Pages whose source video is private ship no facade; the CTA must instead
+      sit above the setup guide. */
+  hasVideo?: boolean;
 };
 
 const SPECS: Spec[] = [
@@ -23,13 +26,18 @@ const SPECS: Spec[] = [
   { route: "/claude-tiktok", href: /github\.com\/melnikoff-oleg\/tiktok-ai/, label: /github/i },
   { route: "/ads-ai", href: /github\.com\/melnikoff-oleg\/ads-ai/, label: /github/i },
   { route: "/claude-cowork-outreach", href: /claude\.ai\/download/, label: /download claude cowork/i },
-  { route: "/claude-social-growth", href: /claude\.ai\/download/, label: /get claude code/i },
+  { route: "/claude-social-growth", href: /claude\.com\/claude-code/, label: /get claude code/i },
   { route: "/claude-code-instagram", href: /github\.com\/melnikoff-oleg\/reel-studio/, label: /github/i },
   { route: "/claude-twitter", href: /github\.com\/melnikoff-oleg\/x-ai/, label: /github/i },
+  // Mobile-optimize pass: the fold hands over the promised asset everywhere.
+  { route: "/claude-content", href: /drive\.google\.com/, label: /get the project files/i },
+  { route: "/claude-b2b-outreach", href: /skool\.com\/ai-automation-7100/, label: /get the source code/i },
+  { route: "/claude-trend-scanner", href: /skool\.com\/ai-automation-7100/, label: /get the source code/i, hasVideo: false },
+  { route: "/claude-website", href: /skool\.com\/ai-automation-7100/, label: /get the starter template/i, hasVideo: false },
 ];
 
 for (const spec of SPECS) {
-  test(`hero CTA sits above the video on ${spec.route}`, async ({ page }) => {
+  test(`hero CTA sits above the ${spec.hasVideo === false ? "setup guide" : "video"} on ${spec.route}`, async ({ page }) => {
     await page.goto(spec.route, { waitUntil: "domcontentloaded" });
 
     // The hero CTA is the first external button-link inside <main>.
@@ -38,15 +46,19 @@ for (const spec of SPECS) {
     expect(await cta.getAttribute("href"), `${spec.route} href`).toMatch(spec.href);
     if (spec.label) await expect(cta).toContainText(spec.label);
 
-    // It must appear above the video facade so a skimmer meets the action first.
-    const facade = page.getByTestId("youtube-facade").first();
+    // It must appear above the video facade (or, on the video-less pages, above
+    // the setup guide) so a skimmer meets the action first.
+    const below =
+      spec.hasVideo === false
+        ? page.getByText("setup guide", { exact: false }).first()
+        : page.getByTestId("youtube-facade").first();
     const ctaBox = await cta.boundingBox();
-    const vidBox = await facade.boundingBox();
+    const belowBox = await below.boundingBox();
     expect(ctaBox, `${spec.route} cta box`).not.toBeNull();
-    expect(vidBox, `${spec.route} video box`).not.toBeNull();
+    expect(belowBox, `${spec.route} below-section box`).not.toBeNull();
     expect(
       ctaBox!.y,
-      `${spec.route} hero CTA should sit above the video`
-    ).toBeLessThan(vidBox!.y);
+      `${spec.route} hero CTA should sit above it`
+    ).toBeLessThan(belowBox!.y);
   });
 }

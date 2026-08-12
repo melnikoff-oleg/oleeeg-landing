@@ -66,7 +66,7 @@ export type TroubleshootingItem = { q: string; a: ReactNode };
 export const FIXES: Record<string, TroubleshootingItem> = {
   /* ---- by far the most repeated, across every video ---- */
   claudeNotFound: {
-    q: 'the terminal says "command not found: claude"',
+    q: 'the terminal says “command not found: claude”',
     a: (
       <>
         <p>
@@ -113,7 +113,7 @@ source ~/.zshrc`}
   },
 
   crAlias: {
-    q: 'i typed "cr" and nothing happened, or it says command not found',
+    q: 'i typed “cr” and nothing happened, or it says command not found',
     a: (
       <>
         <p>
@@ -199,24 +199,9 @@ Copy-Item .env.example .env`}
     a: (
       <>
         <p>
-          two separate bills, and mixing them up is what causes most of the
-          confusion.
-        </p>
-        <p>
           <strong>Claude Code</strong> comes with a Claude subscription: Pro at
           $20/month, Max at $100 or $200/month. usage is included, there is no
           per-run charge. the free plan does not include Claude Code at all.
-        </p>
-        <p>
-          <strong>the API keys</strong> the pipelines use are pay per token,
-          prepaid, and completely separate. a Claude subscription does not fund
-          an API key.
-        </p>
-        <p>
-          for the scraping and analysis side, the free tiers genuinely cover
-          trying this out: Apify&apos;s free plan includes $5 of usage a month,
-          and a scrape of a few dozen profiles costs cents. Google AI Studio has
-          a free tier for the analysis.
         </p>
         <p>
           inside Claude Code, <C>/status</C> tells you whether you are on a
@@ -230,8 +215,36 @@ Copy-Item .env.example .env`}
     ),
   },
 
+  /* Only for the pages whose download actually runs a scraping/analysis
+     pipeline (Apify, Google AI Studio). The pure-Claude pages must not carry
+     this answer: it describes bills they do not have. */
+  costsScraping: {
+    q: "do i also need to pay for the api keys?",
+    a: (
+      <>
+        <p>
+          yes, and it is a separate bill. mixing the two up is what causes most
+          of the confusion.
+        </p>
+        <p>
+          <strong>the API keys</strong> the pipelines use are pay per token,
+          prepaid, and completely separate. a Claude subscription does not fund
+          an API key.
+        </p>
+        <p>
+          the free tiers genuinely cover trying this out: Apify&apos;s free plan
+          includes $5 of usage a month, and a scrape of a few dozen profiles
+          costs cents. Google AI Studio has a free tier for the analysis.
+        </p>
+        <p className="text-silver-muted">
+          prices and free tiers move. these were checked in August 2026.
+        </p>
+      </>
+    ),
+  },
+
   creditBalance: {
-    q: 'it says "credit balance too low, add funds"',
+    q: 'it says “credit balance too low, add funds”',
     a: (
       <>
         <p>

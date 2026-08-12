@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
+import { CopyButton } from "@/components/copy-button";
 import { ResourcePageShell } from "@/components/resource-page-shell";
 
 const REPO = "https://github.com/melnikoff-oleg/ads-studio";
@@ -7,13 +8,19 @@ const REPO = "https://github.com/melnikoff-oleg/ads-studio";
 /**
  * Step 6 in one paste-able block. Ads Studio needs Node 22, ffmpeg and Python
  * before it can render anything, and preflight.sh already knows how to name
- * what is missing — so a beginner is told to hand that job to Claude Code
+ * what is missing, so a beginner is told to hand that job to Claude Code
  * rather than walked through three installers by hand.
  */
 const SETUP_PROMPT = `Read CLAUDE.md in this folder. Then run bash scripts/preflight.sh, install anything it says is missing, and run it again until everything passes. Tell me when it is ready.`;
 
 /** Step 7. One sentence, one brand, one ad. */
 const FIRST_AD_PROMPT = `Make me a 15 second ad for ouraring.com. Calm and premium, music only, no voiceover.`;
+
+/** Step 3. The one-line installer for macOS and Linux; Windows stays inline. */
+const INSTALL_CMD = "curl -fsSL https://claude.ai/install.sh | bash";
+
+/** Step 5. The shape of the finished .env line, with a stand-in key. */
+const ENV_EXAMPLE = "FIRECRAWL_API_KEY=fc-abc123yourrealkey";
 
 /** An outbound link in the house style. */
 function A({ href, children }: { href: string; children: ReactNode }) {
@@ -29,11 +36,16 @@ function A({ href, children }: { href: string; children: ReactNode }) {
   );
 }
 
-/** A command or a prompt you paste, exactly as written. */
-function Cmd({ children }: { children: ReactNode }) {
+/** A command or a prompt you paste, exactly as written, with one-tap copy. */
+function Cmd({ text, label }: { text: string; label?: string }) {
   return (
-    <div className="overflow-x-auto rounded-lg surface-raised border border-hairline p-4 font-mono text-sm leading-relaxed text-silver">
-      {children}
+    <div>
+      <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm leading-relaxed text-silver [overflow-wrap:anywhere]">
+        {text}
+      </div>
+      <div className="mt-3 flex justify-end">
+        <CopyButton text={text} label={label} />
+      </div>
     </div>
   );
 }
@@ -165,7 +177,7 @@ const steps = [
           <Step>paste this line and press Enter</Step>
         </Do>
         <div className="mt-3 space-y-3">
-          <Cmd>curl -fsSL https://claude.ai/install.sh | bash</Cmd>
+          <Cmd text={INSTALL_CMD} label="copy command" />
           <p className="text-sm text-silver-muted">
             on Windows: switch the terminal to <UI>PowerShell</UI> first, then
             paste <K>irm https://claude.ai/install.ps1 | iex</K> instead.
@@ -266,7 +278,7 @@ const steps = [
           </Step>
         </Do>
         <div className="mt-4">
-          <Cmd>FIRECRAWL_API_KEY=fc-abc123yourrealkey</Cmd>
+          <Cmd text={ENV_EXAMPLE} label="copy line" />
         </div>
         <Why label="careful with this bit">
           <p>
@@ -297,7 +309,7 @@ const steps = [
           <Step>paste this and press Enter</Step>
         </Do>
         <div className="mt-3">
-          <Cmd>{SETUP_PROMPT}</Cmd>
+          <Cmd text={SETUP_PROMPT} />
         </div>
         <Do>
           <Step>it will ask permission a few times. say yes</Step>
@@ -328,7 +340,7 @@ const steps = [
         <p className="mb-4 text-silver">
           paste one sentence. that is the whole job.
         </p>
-        <Cmd>{FIRST_AD_PROMPT}</Cmd>
+        <Cmd text={FIRST_AD_PROMPT} />
         <Do>
           <Step>it reads the website and picks up the colours and logo</Step>
           <Step>it writes the ad, then renders it</Step>

@@ -172,7 +172,7 @@ export const RESOURCES: Resource[] = [
     slug: "claude-code-instagram",
     title: "Claude Code as a Video Editor",
     description:
-      "Reel Studio: drop your photos and a voice take in, say what you want in one sentence, get a finished Instagram Reel. Local, free, no cost per video",
+      "Reel Studio: drop in photos and a voice take, get a finished Instagram Reel. Free and local",
     icon: Scissors,
   },
   {

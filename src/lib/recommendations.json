@@ -107,6 +107,16 @@
       "claude-code-instagram",
       "ads-ai",
       "marketing-brain"
+    ],
+    "claude-code-second-brain": [
+      "5-levels-ai",
+      "marketing-brain",
+      "claude-content"
+    ],
+    "marketing-brain-knowledge": [
+      "marketing-brain",
+      "5-levels-ai",
+      "claude-code-second-brain"
     ]
   }
 }

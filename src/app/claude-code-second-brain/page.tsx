@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
+import { CopyButton } from "@/components/copy-button";
 import { ResourcePageShell } from "@/components/resource-page-shell";
 
 const VIDEO_ID = "TdYYRm_Ph5E";
@@ -7,11 +8,13 @@ const VIDEO_TITLE =
   "how i actually use my claude code second brain (boring, useful)";
 
 /**
- * The one prompt from the video, verbatim. It is the whole build: Claude Code
- * creates the folders, the CLAUDE.md contract and the slash commands itself,
- * so the page stays six steps of clicking plus one paste.
+ * The one prompt from the video. It is the whole build: Claude Code creates
+ * the folders, the CLAUDE.md contract and the slash commands itself, so the
+ * page stays six steps of clicking plus one paste. Verbatim except the video's
+ * em dash, swapped for a colon per the site-wide no-dash rule (identical
+ * instruction to Claude, so do not "fix" it back).
  */
-const SETUP_PROMPT = `Set this folder up as my second brain — an Obsidian vault that you operate. I'm new to this and don't know yet how I'll use it, so keep it minimal. Run git init. Create inbox/ (where I dump anything, unsorted), projects/ (things with a finish line), areas/ (ongoing parts of my life), wiki/ (notes you write and maintain), archive/ (done or dead), and tmp/ (scratch). Write CLAUDE.md that says: I dump raw thoughts, you do the filing, linking and summarizing; what each folder is for and what you may write where; always link notes with [[wikilinks]]; never rename a file without updating every link to it; no spaces in filenames; scratch goes in tmp/. Every note you create gets frontmatter with type, description, created, tags. Create Home.md as a dashboard listing my active projects and recent notes, and keep it current. Add two slash commands in .claude/commands: /inbox to file everything in inbox/ into the right place, and /today to make a daily note. Then commit.`;
+const SETUP_PROMPT = `Set this folder up as my second brain: an Obsidian vault that you operate. I'm new to this and don't know yet how I'll use it, so keep it minimal. Run git init. Create inbox/ (where I dump anything, unsorted), projects/ (things with a finish line), areas/ (ongoing parts of my life), wiki/ (notes you write and maintain), archive/ (done or dead), and tmp/ (scratch). Write CLAUDE.md that says: I dump raw thoughts, you do the filing, linking and summarizing; what each folder is for and what you may write where; always link notes with [[wikilinks]]; never rename a file without updating every link to it; no spaces in filenames; scratch goes in tmp/. Every note you create gets frontmatter with type, description, created, tags. Create Home.md as a dashboard listing my active projects and recent notes, and keep it current. Add two slash commands in .claude/commands: /inbox to file everything in inbox/ into the right place, and /today to make a daily note. Then commit.`;
 
 /** An outbound link in the house style. */
 function A({ href, children }: { href: string; children: ReactNode }) {
@@ -27,11 +30,16 @@ function A({ href, children }: { href: string; children: ReactNode }) {
   );
 }
 
-/** A command or a prompt you paste, exactly as written. */
-function Cmd({ children }: { children: ReactNode }) {
+/** A command or a prompt you paste, exactly as written, with one-tap copy. */
+function Cmd({ text, label }: { text: string; label?: string }) {
   return (
-    <div className="overflow-x-auto rounded-lg surface-raised border border-hairline p-4 font-mono text-sm leading-relaxed text-silver">
-      {children}
+    <div>
+      <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm leading-relaxed text-silver [overflow-wrap:anywhere]">
+        {text}
+      </div>
+      <div className="mt-3 flex justify-end">
+        <CopyButton text={text} label={label} />
+      </div>
     </div>
   );
 }
@@ -224,7 +232,7 @@ const steps = [
           this is the whole build. in the Claude panel in VS Code, paste this
           and let it work.
         </p>
-        <Cmd>{SETUP_PROMPT}</Cmd>
+        <Cmd text={SETUP_PROMPT} />
         <Do>
           <Step>it will ask permission a few times. say yes</Step>
           <Step>

@@ -1,3 +1,4 @@
+import { DOWNLOAD_ICON } from "@/components/repo-cta";
 import { ResourcePageShell } from "@/components/resource-page-shell";
 
 
@@ -32,8 +33,8 @@ const steps = [
           the extension and log in with your Anthropic account.
         </p>
         <p>
-          the Claude Code subscription is $19/mo. it gives you access to the
-          agent that builds the entire app for you.
+          claude code needs a paid claude plan, pro at $20/mo. it gives you
+          access to the agent that builds the entire app for you.
         </p>
       </div>
     ),
@@ -54,7 +55,10 @@ const steps = [
           </a>
           .
         </p>
-        <p>once downloaded, open the project folder in VS Code.</p>
+        <p>
+          after joining, open the Classroom section, the files are there. then
+          open the project folder in VS Code.
+        </p>
       </div>
     ),
   },
@@ -107,7 +111,8 @@ const steps = [
           </div>
         </div>
         <p>add your keys to a .env file in the project root:</p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        {/* wraps instead of clipping: the accordion hides sideways overflow, so an unwrapped key name gets cut mid-token at 390px */}
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           APIFY_API_KEY=your_apify_key_here
           <br />
           ANTHROPIC_API_KEY=your_anthropic_key_here
@@ -120,7 +125,7 @@ const steps = [
     content: (
       <div className="space-y-3">
         <p>open the terminal in VS Code and run:</p>
-        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
+        <div className="rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver [overflow-wrap:anywhere]">
           npm run dev
         </div>
         <p>
@@ -221,7 +226,12 @@ export default function ClaudeTrendScannerPage() {
       title="claude code trend scanner"
       subhead="scan twitter, reddit, instagram, tiktok, youtube, and any website for trending topics in your niche. get a structured briefing every morning, automatically."
       steps={steps}
-      troubleshooting={["cantFindCode", "noEnvFile", "claudeNotFound", "costs", "scrapingSafety"]}
+      repoCta={{
+        href: "https://www.skool.com/ai-automation-7100/about",
+        label: "get the source code",
+        icon: DOWNLOAD_ICON,
+      }}
+      troubleshooting={["cantFindCode", "noEnvFile", "claudeNotFound", "costs", "costsScraping", "scrapingSafety"]}
       jsonLd={{
         title: "AI Trend Scanner with Claude Code",
         description:
