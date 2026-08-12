@@ -325,6 +325,63 @@ Copy-Item .env.example .env`}
     ),
   },
 
+  /**
+   * For the pages whose download still lives in the Skool community. That
+   * community is live and free, but it has no obvious files section, and the
+   * comments on those videos are the angriest on the channel: "where is the
+   * code", "the links are gone", "you are a scammer". Until those projects have
+   * a public repo, the least this page can do is say where to look and hand over
+   * the public ones that do exist.
+   */
+  cantFindCode: {
+    q: "i cannot find the source code anywhere",
+    a: (
+      <>
+        <p>
+          the community is free and still open, and the files sit in the{" "}
+          <strong>Classroom</strong> section once you have joined:{" "}
+          <A href="https://www.skool.com/ai-automation-7100/about">
+            skool.com/ai-automation-7100
+          </A>
+          . the link in some of the older video descriptions is stale, which is
+          what most of this confusion is.
+        </p>
+        <p>
+          if you would rather skip the signup entirely, these are public on
+          GitHub right now and need no account:
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <A href="https://github.com/melnikoff-oleg/social-media">social-media</A>{" "}
+            for Instagram Reels competitor research
+          </li>
+          <li>
+            <A href="https://github.com/melnikoff-oleg/tiktok-ai">tiktok-ai</A>{" "}
+            for the same on TikTok
+          </li>
+          <li>
+            <A href="https://github.com/melnikoff-oleg/x-ai">x-ai</A> for
+            X/Twitter content
+          </li>
+          <li>
+            <A href="https://github.com/melnikoff-oleg/ads-ai">ads-ai</A> for
+            studying competitors&apos; Meta ads
+          </li>
+          <li>
+            <A href="https://github.com/melnikoff-oleg/high-converting-website">
+              high-converting-website
+            </A>{" "}
+            for a landing page that sells
+          </li>
+        </ul>
+        <p>
+          they are all the same shape as what this page describes, so the setup
+          steps above still apply.
+        </p>
+      </>
+    ),
+  },
+
   /* ---- outreach pages only ---- */
   linkedinBan: {
     q: "will this get my LinkedIn account restricted?",

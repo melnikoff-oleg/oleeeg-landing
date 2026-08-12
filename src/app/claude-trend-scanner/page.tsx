@@ -221,7 +221,7 @@ export default function ClaudeTrendScannerPage() {
       title="claude code trend scanner"
       subhead="scan twitter, reddit, instagram, tiktok, youtube, and any website for trending topics in your niche. get a structured briefing every morning, automatically."
       steps={steps}
-      troubleshooting={["noEnvFile", "claudeNotFound", "costs", "scrapingSafety"]}
+      troubleshooting={["cantFindCode", "noEnvFile", "claudeNotFound", "costs", "scrapingSafety"]}
       jsonLd={{
         title: "AI Trend Scanner with Claude Code",
         description:

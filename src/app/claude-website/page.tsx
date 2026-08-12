@@ -223,7 +223,7 @@ export default function ClaudeWebsitePage() {
       title="build your personal website with claude code"
       subhead="build a polished personal website with claude code, the kind that actually looks designed. describe what you want, refine it in plain english, and deploy it live on your own domain."
       steps={steps}
-      troubleshooting={["claudeNotFound", "crAlias", "costs"]}
+      troubleshooting={["cantFindCode", "claudeNotFound", "crAlias", "costs"]}
       jsonLd={{
         title: "Build a Website with AI Using Claude Code",
         description: "Build a professional personal website from scratch with Claude Code in under 30 minutes. No design skills needed.",
