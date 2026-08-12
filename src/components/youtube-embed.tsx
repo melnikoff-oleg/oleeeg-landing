@@ -17,19 +17,13 @@ export function YouTubeEmbed({
   videoId,
   title,
   className,
-  start,
 }: {
   videoId: string;
   title: string;
   className?: string;
-  /** Seconds into the video to start playback, for pages that have to open a
-   *  clip on the exact sentence they are quoting. */
-  start?: number;
 }) {
   const [playing, setPlaying] = useState(false);
   const [posterOk, setPosterOk] = useState(true);
-
-  const startParam = start && start > 0 ? `&start=${Math.floor(start)}` : "";
 
   return (
     <div
@@ -38,7 +32,7 @@ export function YouTubeEmbed({
       <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
         {playing ? (
           <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1${startParam}`}
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
             title={title}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
