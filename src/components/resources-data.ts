@@ -19,7 +19,6 @@ import {
   ListOrdered,
   Gauge,
   Scissors,
-  Lightbulb,
   FolderTree,
   type LucideIcon,
 } from "lucide-react";
@@ -161,13 +160,6 @@ export const RESOURCES: Resource[] = [
     description:
       "A map from copy-pasting out of a chat window to a thousand agents that launch themselves, with the move to each next rung",
     icon: ListOrdered,
-  },
-  {
-    slug: "elon-ai",
-    title: "How Elon Musk Uses AI Daily",
-    description:
-      "His 7 rules, each with the clip where he says it: the three questions he asks every new model, why he photographs the problem, and why the smartest model is not his",
-    icon: Lightbulb,
   },
   {
     slug: "opus-5",

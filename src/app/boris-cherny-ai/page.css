@@ -40,7 +40,7 @@
    and the platform cards were all built against that ground, so a light mode
    would have every image on the page fighting it.
 
-   Deliberately NO scroll-reveal animation. Same reason src/app/elon-ai/page.tsx
+   Deliberately NO scroll-reveal animation. Same reason src/app/elon-musk-ai/page.tsx
    gives in the oleg-site repo: this gets scrolled fast on camera and an
    intersection observer loses that race, leaving a band blank for a beat.
 

@@ -22,8 +22,8 @@ export function YouTubeEmbed({
   videoId: string;
   title: string;
   className?: string;
-  /** Seconds into the video to start playback. Used by /elon-ai, where each
-   *  clip has to open on the exact sentence the rule came from. */
+  /** Seconds into the video to start playback, for pages that have to open a
+   *  clip on the exact sentence they are quoting. */
   start?: number;
 }) {
   const [playing, setPlaying] = useState(false);

@@ -24,7 +24,7 @@ import { ArticleJsonLd } from "@/components/json-ld";
 // verbatim and still linked to the second it was said.
 //
 // Deliberately NO scroll reveal, unlike every other page here — same reason
-// src/app/elon-ai/page.tsx gives: the site's Reveal starts elements hidden, and
+// src/app/elon-musk-ai/page.tsx gives: the site's Reveal starts elements hidden, and
 // a fast programmatic scroll outruns the observer and leaves a band blank for a
 // beat. Invisible to a reader, fatal on camera. Everything renders. No client
 // JavaScript at all.
