@@ -21,9 +21,9 @@ const comic = Comic_Neue({
   display: "swap",
 });
 
-const TITLE = "20 Things Andrej Karpathy Actually Does With AI";
-const DESCRIPTION = "Twenty rules read out of 37 interviews and 3,035 posts by Andrej Karpathy, one to a slide. Why he rambles at a microphone for ten minutes, why he never asks a model what it thinks, why he asks for HTML instead of text, why his agents' ideas are bad and their hands are good, and why he writes two thousand lines of code to throw away.";
-const SHORT = "Twenty rules from Andrej Karpathy, one to a slide, read out of 37 interviews and 3,035 of his posts.";
+const TITLE = "14 Things Andrej Karpathy Actually Does With AI";
+const DESCRIPTION = "Fourteen rules read out of 37 interviews and 3,035 posts by Andrej Karpathy, one to a slide. Why he rambles at a microphone for ten minutes, why he never asks a model what it thinks, why he asks for HTML instead of text, why his agents' ideas are bad and their hands are good, and why he writes two thousand lines of code to throw away.";
+const SHORT = "Fourteen rules from Andrej Karpathy, one to a slide, read out of 37 interviews and 3,035 of his posts.";
 
 export const metadata: Metadata = {
   title: TITLE,
