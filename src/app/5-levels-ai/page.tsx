@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Fragment, useState, type ReactNode } from "react";
 import { ResourceFooter } from "@/components/resource-footer";
+import { FreeCallCta } from "@/components/free-call-cta";
 import { YouTubeEmbed } from "@/components/youtube-embed";
 
 const VIDEO_ID = "mFYKAsGcnso";
@@ -403,6 +404,9 @@ export default function FiveLevelsPage() {
             </motion.p>
           </motion.div>
         </section>
+
+        {/* Free-call window. Remove after 2026-08-23, see src/lib/free-call.ts. */}
+        <FreeCallCta />
 
         {/* The ladder */}
         <motion.section

@@ -15,6 +15,7 @@ import { CopyButton } from "@/components/copy-button";
 import { ResourceFooter } from "@/components/resource-footer";
 import { Troubleshooting } from "@/components/troubleshooting";
 import { ArticleJsonLd } from "@/components/json-ld";
+import { FreeCallCta } from "@/components/free-call-cta";
 import { Button } from "@/components/ui/button";
 
 const REPO_URL = "https://github.com/melnikoff-oleg/high-converting-website";
@@ -409,6 +410,9 @@ export default function HighConvertingWebsitePage() {
             </motion.div>
           </motion.div>
         </section>
+
+        {/* Free-call window. Remove after 2026-08-23, see src/lib/free-call.ts. */}
+        <FreeCallCta />
 
         {/* Proof line */}
         <section className="pb-16 md:pb-20">

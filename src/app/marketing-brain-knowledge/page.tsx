@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { ResourceFooter } from "@/components/resource-footer";
+import { FreeCallCta } from "@/components/free-call-cta";
 import { books, experts, stats, type Video } from "./data";
 
 // talks shown per expert before the fold; data.ts sorts each expert's
@@ -184,6 +185,9 @@ export default function MarketingBrainKnowledgePage() {
             </motion.div>
           </motion.div>
         </section>
+
+        {/* Free-call window. Remove after 2026-08-23, see src/lib/free-call.ts. */}
+        <FreeCallCta />
 
         {/* Books */}
         <motion.section

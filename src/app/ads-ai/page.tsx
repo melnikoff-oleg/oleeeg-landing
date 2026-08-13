@@ -8,6 +8,7 @@ import { ResourceFooter } from "@/components/resource-footer";
 import { Troubleshooting } from "@/components/troubleshooting";
 import { YouTubeEmbed } from "@/components/youtube-embed";
 import { RepoCta } from "@/components/repo-cta";
+import { FreeCallCta } from "@/components/free-call-cta";
 import { ArticleJsonLd } from "@/components/json-ld";
 
 const VIDEO_ID = "5_QP6_EmReQ";
@@ -635,6 +636,9 @@ export default function AdsAiPage() {
             </motion.div>
           </motion.div>
         </section>
+
+        {/* Free-call window. Remove after 2026-08-23, see src/lib/free-call.ts. */}
+        <FreeCallCta />
 
         {/* Setup guide */}
         <motion.section

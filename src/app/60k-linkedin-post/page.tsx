@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { ResourceFooter } from "@/components/resource-footer";
+import { FreeCallCta } from "@/components/free-call-cta";
 import { Button } from "@/components/ui/button";
 
 const fadeUp = {
@@ -270,6 +271,9 @@ export default function LinkedInPostPage() {
             </motion.div>
           </motion.div>
         </section>
+
+        {/* Free-call window. Remove after 2026-08-23, see src/lib/free-call.ts. */}
+        <FreeCallCta />
 
         {/* How it works */}
         <motion.section

@@ -14,6 +14,7 @@ import { BoldaneCta } from "@/components/boldane-cta";
 import { RepoCta } from "@/components/repo-cta";
 import { YouTubeEmbed } from "@/components/youtube-embed";
 import { Troubleshooting, type FIXES } from "@/components/troubleshooting";
+import { FreeCallCta } from "@/components/free-call-cta";
 import { Reveal, RevealGroup } from "@/components/motion/reveal";
 
 type Step = { title: string; content: ReactNode };
@@ -128,6 +129,11 @@ export function ResourcePageShell({
             ) : null}
           </RevealGroup>
         </section>
+
+        {/* The free-call window. Directly under the hero so it is the next thing
+            after the asset handoff, never before it. Remove after 2026-08-23,
+            see src/lib/free-call.ts. */}
+        <FreeCallCta />
 
         {/* Setup guide */}
         <section className="pb-16 md:pb-20">

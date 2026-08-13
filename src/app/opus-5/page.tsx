@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Reveal, RevealGroup } from "@/components/motion/reveal";
 import { ResourceFooter } from "@/components/resource-footer";
+import { FreeCallCta } from "@/components/free-call-cta";
 import { ArticleJsonLd } from "@/components/json-ld";
 import { RuleRail, type RailItem } from "./rule-rail";
 import { VoxelClawd } from "./voxel-clawd";
@@ -427,6 +428,9 @@ export default function Opus5Page() {
             </div>
           </div>
         </section>
+
+        {/* Free-call window. Remove after 2026-08-23, see src/lib/free-call.ts. */}
+        <FreeCallCta />
 
         {/* ---------------------------------------------------------- rule 1 */}
         <Rule id="r1">
