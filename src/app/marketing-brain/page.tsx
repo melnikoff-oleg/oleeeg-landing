@@ -8,7 +8,6 @@ import { useMemory } from "./use-memory";
 import { ChatMessage } from "./components/chat-message";
 import { ContextDrawer } from "./components/context-drawer";
 import { ExpertStrip } from "./components/expert-strip";
-import { FreeCallCta } from "@/components/free-call-cta";
 
 const STARTERS = [
   "make an irresistible offer",
@@ -142,11 +141,7 @@ export default function MarketingBrainPage() {
         />
 
         {!started ? (
-          // Empty state / hero. The hero itself stays deliberately minimal; the
-          // free-call card sits below it as a separate block so the Jobs-style
-          // empty state keeps its short body copy, and so neither shows up once
-          // a conversation has started.
-          <>
+          // Empty state / hero
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -190,9 +185,6 @@ export default function MarketingBrainPage() {
               </Link>
             </div>
           </motion.div>
-          {/* Free-call window. Remove after 2026-08-23, see src/lib/free-call.ts. */}
-          <FreeCallCta className="pb-10" />
-          </>
         ) : (
           // Conversation
           <div className="mx-auto w-full max-w-3xl flex-1 px-6 pt-8 pb-40">

@@ -22,8 +22,6 @@
 // It lives in each route's layout.tsx, which is the hand-written half of those
 // routes, so the next port from the vault cannot overwrite it.
 
-import { FREE_CALL } from "@/lib/free-call";
-
 const FONT =
   'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 
@@ -39,134 +37,6 @@ const LINK: React.CSSProperties = {
   font: `500 15px/1.2 ${FONT}`,
   textDecoration: "none",
 };
-
-/**
- * The free-call card, hand-built in inline styles because these pages can carry
- * neither Tailwind nor client JS. Visual twin of components/free-call-cta.tsx;
- * the copy comes from the same constants so the two cannot drift.
- * Remove after 2026-08-23 along with the rest, see src/lib/free-call.ts.
- */
-function FreeCallPanel() {
-  return (
-    <div
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        borderRadius: "16px",
-        border: "1px solid rgba(40,99,240,0.28)",
-        background: "#07142a",
-        boxShadow: "0 24px 80px -32px rgba(40,99,240,0.55)",
-        padding: "1.75rem 1.25rem",
-        textAlign: "center",
-        marginBottom: "2.75rem",
-      }}
-    >
-      {/* lit-from-above wash */}
-      <span
-        aria-hidden
-        style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          background:
-            "radial-gradient(ellipse 75% 58% at 50% 0%, rgba(40,99,240,0.34), transparent 70%)",
-        }}
-      />
-      {/* accent hairline along the top edge */}
-      <span
-        aria-hidden
-        style={{
-          position: "absolute",
-          left: "2rem",
-          right: "2rem",
-          top: 0,
-          height: "1px",
-          background:
-            "linear-gradient(90deg, transparent, rgba(40,99,240,0.85), transparent)",
-        }}
-      />
-
-      <div style={{ position: "relative" }}>
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            borderRadius: "999px",
-            border: "1px solid rgba(208,214,224,0.1)",
-            background: "rgba(40,99,240,0.1)",
-            padding: "0.35rem 0.85rem",
-            font: `400 11px/1 ${FONT}`,
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            color: "#d0d6e0",
-          }}
-        >
-          <span
-            aria-hidden
-            style={{
-              width: "6px",
-              height: "6px",
-              borderRadius: "999px",
-              background: "#2863f0",
-            }}
-          />
-          {FREE_CALL.badge}
-        </span>
-
-        <p
-          style={{
-            margin: "1.15rem 0 0",
-            font: `500 26px/1.1 ${FONT}`,
-            letterSpacing: "-0.02em",
-            color: "#f0f2f5",
-          }}
-        >
-          {FREE_CALL.title}
-        </p>
-
-        <p
-          style={{
-            margin: "0.9rem auto 0",
-            maxWidth: "30rem",
-            font: `400 16px/1.6 ${FONT}`,
-            color: "#d0d6e0",
-          }}
-        >
-          {FREE_CALL.body}
-        </p>
-
-        <a
-          href={FREE_CALL.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            ...LINK,
-            marginTop: "1.5rem",
-            padding: "0.85rem 1.6rem",
-            background: "#2863f0",
-            borderColor: "#2863f0",
-            color: "#ffffff",
-            font: `500 16px/1.2 ${FONT}`,
-            boxShadow: "0 10px 40px -12px rgba(40,99,240,0.7)",
-          }}
-        >
-          {FREE_CALL.action}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" aria-hidden>
-            <path d="M5 12h14M13 6l6 6-6 6" />
-          </svg>
-        </a>
-
-        <p style={{ margin: "1.2rem 0 0", font: `500 14px/1.5 ${FONT}`, color: "#d0d6e0" }}>
-          {FREE_CALL.limit}
-        </p>
-        <p style={{ margin: "0.35rem 0 0", font: `400 14px/1.5 ${FONT}`, color: "#8a93a3" }}>
-          {FREE_CALL.note}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 export function FilmedPageOutro({
   videoId,
@@ -188,8 +58,6 @@ export function FilmedPageOutro({
       }}
     >
       <div style={{ margin: "0 auto", maxWidth: "42rem" }}>
-        <FreeCallPanel />
-
         <p
           style={{
             margin: 0,
