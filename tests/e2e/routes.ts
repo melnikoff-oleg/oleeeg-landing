@@ -36,6 +36,7 @@ export const ROUTES = [
   "/claude-code-ads",
   "/marketing-brain",
   "/marketing-brain-knowledge",
+  "/ideas",
 ] as const;
 
 // Pages that render the cross-linked ResourceFooter (all except the homepage
