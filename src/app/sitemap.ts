@@ -171,6 +171,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: "https://oleg.ae/ideas",
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.6,
+    },
+    {
       url: "https://oleg.ae/marketing-brain",
       lastModified: new Date(),
       changeFrequency: "monthly",

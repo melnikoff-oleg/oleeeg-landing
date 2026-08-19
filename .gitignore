@@ -56,3 +56,6 @@ marketing-brain-memory/
 # large local raw assets (kept out of the repo, not needed to build the site)
 reference/5sec.mov
 /thumb raw materials/
+# every env file, including the .env.local vercel link writes (belt and braces:
+# .env is already listed above, this catches anything new)
+.env*
