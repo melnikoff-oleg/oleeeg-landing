@@ -20,6 +20,7 @@ import {
   Gauge,
   Scissors,
   FolderTree,
+  Library,
   type LucideIcon,
 } from "lucide-react";
 
@@ -188,6 +189,13 @@ export const RESOURCES: Resource[] = [
     description:
       "Ads Studio: paste a company's website, get a finished video ad in their own colours, fonts and logo. Local, free per ad, no editing skills",
     icon: Clapperboard,
+  },
+  {
+    slug: "viral-reels",
+    title: "Viral Reels Database",
+    description:
+      "Search hundreds of Instagram reels that beat their creator's audience 5x, each with its hook, what held the viewer and what they got",
+    icon: Library,
   },
 ];
 

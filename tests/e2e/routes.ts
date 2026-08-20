@@ -36,6 +36,7 @@ export const ROUTES = [
   "/claude-code-ads",
   "/marketing-brain",
   "/marketing-brain-knowledge",
+  "/viral-reels",
   "/ideas",
 ] as const;
 
