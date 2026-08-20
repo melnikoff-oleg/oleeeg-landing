@@ -6,14 +6,39 @@
 // server module at all, rather than relying on the bundler to shake it out.
 
 export const QUERY_MAX = 200;
-/** How many hits the API asks pgvector for. The page shows three and keeps the
- *  rest behind one click, so "more like this" costs no second round trip. */
-export const RESULT_COUNT = 12;
-/** How many of those are on screen before the visitor asks for more. */
-export const TOP_COUNT = 3;
+/** How many reels one search returns, and shows. All of them, no second click. */
+export const RESULT_COUNT = 10;
 
-/** One row of `match_reels`. Every field is nullable because the database is
- *  still being enriched and a half-written reel must not break the page. */
+/**
+ * The recency filter.
+ *
+ * `days: null` is all time. Everything else is a window counted back from today
+ * by reel_search_match, which drops any reel whose posted_on is unknown as soon
+ * as a window is asked for.
+ */
+export const WINDOWS = [
+  { label: "7 days", days: 7 },
+  { label: "30 days", days: 30 },
+  { label: "60 days", days: 60 },
+  { label: "90 days", days: 90 },
+  { label: "1 year", days: 365 },
+  { label: "all time", days: null },
+] as const;
+
+export type WindowDays = (typeof WINDOWS)[number]["days"];
+
+const ALLOWED_DAYS: ReadonlySet<number> = new Set(
+  WINDOWS.flatMap((w) => (w.days === null ? [] : [w.days as number])),
+);
+
+/** Anything that is not one of the six offered windows becomes all time. */
+export function normalizeDays(raw: unknown): WindowDays {
+  const n = typeof raw === "string" ? Number(raw) : raw;
+  return typeof n === "number" && ALLOWED_DAYS.has(n) ? (n as WindowDays) : null;
+}
+
+/** One row of `reel_search_match`. Every field is nullable because the database
+ *  is still being enriched and a half-written reel must not break the page. */
 export type ReelHit = {
   shortcode: string;
   url: string;

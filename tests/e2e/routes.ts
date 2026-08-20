@@ -40,8 +40,14 @@ export const ROUTES = [
   "/ideas",
 ] as const;
 
-// Pages that render the cross-linked ResourceFooter (all except the homepage
-// and the chat).
-export const FOOTER_ROUTES = ROUTES.filter(
+// /viral-reels is in ROUTES (it must still return 200, render one h1 and log no
+// console errors) but renders no shared shell at all: no wordmark, no footer, no
+// copy. That is the page, not an oversight — it is a search box and its results
+// and nothing else — so the two shell specs skip it by name.
+export const SHELL_ROUTES = ROUTES.filter((r) => r !== "/viral-reels");
+
+// Pages that render the cross-linked ResourceFooter (all except the homepage,
+// the chat and the bare search).
+export const FOOTER_ROUTES = SHELL_ROUTES.filter(
   (r) => r !== "/" && r !== "/marketing-brain",
 );

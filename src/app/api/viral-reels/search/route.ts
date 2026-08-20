@@ -3,7 +3,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, getClientIp } from "@/lib/marketing-brain/rate-limit";
 import { reelSearchConfigured, searchReels } from "@/lib/reels/search";
-import { normalizeQuery, RESULT_COUNT } from "@/lib/reels/types";
+import { normalizeDays, normalizeQuery, RESULT_COUNT } from "@/lib/reels/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,6 +29,9 @@ export async function POST(req: Request) {
   if (!query) {
     return NextResponse.json({ error: "missing_query" }, { status: 400 });
   }
+  // Anything that is not one of the six offered windows falls back to all time,
+  // so a hand-made request can never reach the RPC with an arbitrary interval.
+  const days = normalizeDays(raw.days);
 
   if (!reelSearchConfigured) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
@@ -43,8 +46,8 @@ export async function POST(req: Request) {
   }
 
   try {
-    const results = await searchReels(query, RESULT_COUNT, req.signal);
-    return NextResponse.json({ query, results });
+    const results = await searchReels(query, days, RESULT_COUNT, req.signal);
+    return NextResponse.json({ query, days, results });
   } catch (err) {
     console.error("reel search failed", err);
     return NextResponse.json({ error: "search_failed" }, { status: 502 });

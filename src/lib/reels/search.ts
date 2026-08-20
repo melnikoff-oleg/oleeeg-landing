@@ -6,7 +6,7 @@
 //
 // A search is two hops: embed the visitor's words with the same model the rows
 // were embedded with, then let pgvector rank the corpus by cosine distance in
-// the `match_reels` function. Both hops are small, so a cold search lands in
+// the `reel_search_match` function. Both hops are small, so a cold search lands in
 // well under a second and a repeated one is served from memory.
 //
 // If the env vars are missing the module degrades instead of throwing: the page
@@ -18,7 +18,7 @@
 // the proof this can happen by accident: its module-level env expression is
 // visible in the shipped /ideas client chunk.
 import "server-only";
-import { RESULT_COUNT, type ReelHit } from "./types";
+import { RESULT_COUNT, type ReelHit, type WindowDays } from "./types";
 
 const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
@@ -87,6 +87,7 @@ async function embedQuery(query: string, signal: AbortSignal): Promise<number[]>
 async function matchReels(
   embedding: number[],
   count: number,
+  sinceDays: WindowDays,
   signal: AbortSignal,
 ): Promise<ReelHit[]> {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${MATCH_FN}`, {
@@ -96,7 +97,14 @@ async function matchReels(
       Authorization: `Bearer ${SERVICE_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ query_embedding: embedding, match_count: count }),
+    // The window is applied in SQL, before the limit, so a filtered search
+    // still returns a full page of reels rather than whatever survives
+    // filtering an unfiltered top ten.
+    body: JSON.stringify({
+      query_embedding: embedding,
+      match_count: count,
+      since_days: sinceDays,
+    }),
     signal,
   });
   if (!res.ok) throw new Error(`${MATCH_FN} failed: ${res.status}`);
@@ -113,10 +121,13 @@ async function matchReels(
  */
 export async function searchReels(
   query: string,
+  sinceDays: WindowDays = null,
   count: number = RESULT_COUNT,
   callerSignal?: AbortSignal,
 ): Promise<ReelHit[]> {
-  const key = `${count}:${query.toLowerCase()}`;
+  // The window is part of the key: the same words with a different window are a
+  // different answer, and serving one for the other is the classic cache bug.
+  const key = `${count}:${sinceDays ?? "all"}:${query.toLowerCase()}`;
   const cached = cacheGet(key);
   if (cached) return cached;
 
@@ -129,41 +140,10 @@ export async function searchReels(
   callerSignal?.addEventListener("abort", () => controller.abort(), { once: true });
   try {
     const embedding = await embedQuery(query, controller.signal);
-    const hits = await matchReels(embedding, count, controller.signal);
+    const hits = await matchReels(embedding, count, sinceDays, controller.signal);
     cacheSet(key, hits);
     return hits;
   } finally {
     clearTimeout(timer);
-  }
-}
-
-/**
- * How many reels are in the index right now. Used for the page's one number.
- *
- * Returns 0 rather than throwing on any failure, because this renders inside a
- * server component: an unhandled rejection here would 500 the whole page over a
- * badge that already reads "viral reel library" when the count is 0.
- */
-export async function reelCount(): Promise<number> {
-  if (!reelSearchConfigured) return 0;
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/reel_search?select=shortcode`, {
-      headers: {
-        apikey: SERVICE_KEY,
-        Authorization: `Bearer ${SERVICE_KEY}`,
-        // Ask for the count in the Content-Range header instead of the rows.
-        Prefer: "count=exact",
-        Range: "0-0",
-      },
-      // A slow Supabase must not hold the render open to the platform maximum.
-      signal: AbortSignal.timeout(4000),
-      next: { revalidate: 300 },
-    });
-    if (!res.ok) return 0;
-    const total = res.headers.get("content-range")?.split("/")[1];
-    const n = Number(total);
-    return Number.isFinite(n) ? n : 0;
-  } catch {
-    return 0;
   }
 }

@@ -57,16 +57,24 @@ test.describe("66 - viral reels api validation", () => {
 
 // ── The page ─────────────────────────────────────────────────────────────────
 
-test("67 - viral reels: the search box and the example chips render", async ({
+test("67 - viral reels: the page is the search box and the window filter, nothing else", async ({
   page,
 }) => {
   await settle(page, "/viral-reels");
   await expect(page.locator("#reel-query")).toBeVisible();
   await expect(page.getByRole("button", { name: "search" })).toBeVisible();
-  // Six seeds, each landing somewhere different in the corpus.
-  await expect(
-    page.getByRole("button", { name: "before and after transformation" }),
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "all time" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "7 days" })).toBeVisible();
+
+  // The whole point of the redesign: no shell, no copy, no links out.
+  await expect(page.getByRole("link", { name: /oleg melnikov/i })).toHaveCount(0);
+  await expect(page.getByTestId("see-all-resources")).toHaveCount(0);
+  // The one heading is present for screen readers and search engines but takes
+  // no space on screen. Playwright counts an sr-only clip as visible, so this
+  // measures the box instead of asking.
+  await expect(page.locator("h1")).toHaveCount(1);
+  const h1 = await page.locator("h1").boundingBox();
+  expect(h1!.height).toBeLessThanOrEqual(1);
 });
 
 test("68 - viral reels: the search button is disabled until there is a query", async ({
@@ -79,9 +87,21 @@ test("68 - viral reels: the search button is disabled until there is a query", a
   await expect(button).toBeEnabled();
 });
 
-test("69 - viral reels: a ?q= link prefills the box", async ({ page }) => {
-  await settle(page, "/viral-reels?q=street%20interview");
+test("69 - viral reels: a ?q= link prefills the box and ?d= picks the window", async ({
+  page,
+}) => {
+  await settle(page, "/viral-reels?q=street%20interview&d=30");
   await expect(page.locator("#reel-query")).toHaveValue("street interview");
+  await expect(page.getByRole("button", { name: "30 days" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  // All time is the default, and an unknown window falls back to it.
+  await settle(page, "/viral-reels?q=street%20interview&d=13");
+  await expect(page.getByRole("button", { name: "all time" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
 });
 
 test("70 - viral reels: no em dashes in the copy", async ({ page }) => {
@@ -112,7 +132,7 @@ test("72 - viral reels: the search controls are >=44px tap targets", async ({
   const targets = [
     page.locator("#reel-query"),
     page.getByRole("button", { name: "search" }),
-    page.getByRole("button", { name: "day in my life" }),
+    page.getByRole("button", { name: "all time" }),
   ];
   for (const t of targets) {
     const box = await t.boundingBox();

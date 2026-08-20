@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { ROUTES, FOOTER_ROUTES } from "./routes";
+import { ROUTES, SHELL_ROUTES, FOOTER_ROUTES } from "./routes";
 
 // Tests 1-6: route health across the whole site.
 
@@ -23,7 +23,7 @@ test("2 - every route has exactly one h1", async ({ page }) => {
 
 // Test 3: the header wordmark renders on every route.
 test("3 - header wordmark present on every route", async ({ page }) => {
-  for (const route of ROUTES) {
+  for (const route of SHELL_ROUTES) {
     await page.goto(route, { waitUntil: "domcontentloaded" });
     const wordmark = page.getByRole("link", { name: /oleg melnikov/i }).first();
     await expect(wordmark, `${route} wordmark`).toBeVisible();
