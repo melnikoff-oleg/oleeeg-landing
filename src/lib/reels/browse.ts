@@ -115,10 +115,13 @@ export async function browseReels(
       Prefer: "count=exact",
     },
     signal,
-    // The rows change only when sync.py runs. A minute of edge cache turns a
-    // burst of paging into one database read without ever showing a stale page
-    // for long enough to notice.
-    next: { revalidate: 60 },
+    // Never cached. A 60-second `revalidate` was here first and it was wrong:
+    // Vercel's Data Cache kept serving the pre-sync answer long past its TTL,
+    // so the day the library went from 694 reels to 1033 the page still said
+    // 7 reels under a million followers in the last 60 days when the database
+    // said 108. A count that lags the database is worse than a count that
+    // costs one indexed query, and this query is one indexed query.
+    cache: "no-store",
   });
   if (!res.ok) throw new Error(`browse failed: ${res.status}`);
 
