@@ -152,30 +152,40 @@ export function ReelSearch({
         </button>
       </form>
 
-      {/* The one control besides the box: how new the reel has to be. */}
-      <div
-        role="group"
-        aria-label="how new the reel is"
-        className="mt-3 flex flex-wrap gap-2"
-      >
-        {WINDOWS.map((w) => {
-          const active = w.days === days;
-          return (
-            <button
-              key={w.label}
-              type="button"
-              aria-pressed={active}
-              onClick={() => pickWindow(w.days)}
-              className={`inline-flex min-h-11 items-center rounded-full border px-4 font-body text-xs transition-colors ${
-                active
-                  ? "border-vivid-blue bg-vivid-blue/10 text-white"
-                  : "border-hairline text-silver-muted hover:border-vivid-blue/50 hover:text-white"
-              }`}
-            >
-              {w.label}
-            </button>
-          );
-        })}
+      {/* The one control besides the box: how new the reel has to be. The link
+          beside it is the only thing on this page that is not the search, and
+          it is here because the library page is otherwise unreachable. */}
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div
+          role="group"
+          aria-label="how new the reel is"
+          className="flex flex-wrap gap-2"
+        >
+          {WINDOWS.map((w) => {
+            const active = w.days === days;
+            return (
+              <button
+                key={w.label}
+                type="button"
+                aria-pressed={active}
+                onClick={() => pickWindow(w.days)}
+                className={`inline-flex min-h-11 items-center rounded-full border px-4 font-body text-xs transition-colors ${
+                  active
+                    ? "border-vivid-blue bg-vivid-blue/10 text-white"
+                    : "border-hairline text-silver-muted hover:border-vivid-blue/50 hover:text-white"
+                }`}
+              >
+                {w.label}
+              </button>
+            );
+          })}
+        </div>
+        <a
+          href="/viral-reels/browse"
+          className="ml-auto inline-flex min-h-11 items-center font-body text-xs text-silver-muted underline decoration-hairline underline-offset-4 transition-colors hover:text-white"
+        >
+          browse all
+        </a>
       </div>
 
       <div className="scroll-mt-6">

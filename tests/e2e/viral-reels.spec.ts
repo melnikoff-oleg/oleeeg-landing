@@ -67,7 +67,9 @@ test("67 - viral reels: the page is the search box and the window filter, nothin
   await expect(page.getByRole("button", { name: "7 days" })).toBeVisible();
 
   // The whole point of the redesign: no shell, no copy, no links out.
-  await expect(page.getByRole("link", { name: /oleg melnikov/i })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /oleg melnikov/i })).toHaveCount(
+    0,
+  );
   await expect(page.getByTestId("see-all-resources")).toHaveCount(0);
   // The one heading is present for screen readers and search engines but takes
   // no space on screen. Playwright counts an sr-only clip as visible, so this
@@ -137,6 +139,108 @@ test("72 - viral reels: the search controls are >=44px tap targets", async ({
   for (const t of targets) {
     const box = await t.boundingBox();
     expect(box, "tap target box").not.toBeNull();
+    expect(box!.height).toBeGreaterThanOrEqual(MIN_TAP);
+  }
+});
+
+// ── /viral-reels/browse: the whole library, filtered and paged ───────────────
+//
+// Same deal as above: everything here is deterministic without a secret. With
+// no Supabase key the page renders its filters and says the library is not
+// connected, which is the same DOM a live environment builds before its rows
+// arrive.
+
+test.describe("73 - viral reels browse api validation", () => {
+  test("an unknown window and a junk page still answer, never 500", async ({
+    request,
+  }) => {
+    const res = await request.get(
+      "/api/viral-reels/browse?d=13&page=-4&fmin=99&fmax=abc",
+    );
+    // 503 with no key configured, 200 with one. Never a crash, and never a 400:
+    // every parameter on this route is clamped rather than rejected.
+    expect([200, 503]).toContain(res.status());
+    const json = await res.json();
+    if (res.status() === 200) {
+      expect(json.days).toBeNull();
+      expect(json.page).toBe(1);
+      expect(json.minIndex).toBeLessThanOrEqual(json.maxIndex);
+      expect(Array.isArray(json.results)).toBe(true);
+      expect(json.results.length).toBeLessThanOrEqual(20);
+    }
+  });
+});
+
+test("74 - viral reels browse: filters render, and the page stays bare", async ({
+  page,
+}) => {
+  await settle(page, "/viral-reels/browse");
+  await expect(
+    page.getByRole("group", { name: "how new the reel is" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("slider", { name: "smallest audience" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("slider", { name: "largest audience" }),
+  ).toBeVisible();
+  // No shell, exactly like the search page.
+  await expect(page.getByTestId("see-all-resources")).toHaveCount(0);
+  await expect(page.locator("h1")).toHaveCount(1);
+  const h1 = await page.locator("h1").boundingBox();
+  expect(h1!.height).toBeLessThanOrEqual(1);
+});
+
+test("75 - viral reels browse: the two pages link to each other", async ({
+  page,
+}) => {
+  await settle(page, "/viral-reels");
+  await page.getByRole("link", { name: "browse all" }).click();
+  await expect(page).toHaveURL(/\/viral-reels\/browse/);
+  await page.getByRole("link", { name: "search instead" }).click();
+  await expect(page).toHaveURL(/\/viral-reels(\?|$)/);
+});
+
+test("76 - viral reels browse: the url carries the filters", async ({
+  page,
+}) => {
+  await settle(page, "/viral-reels/browse?d=90&fmin=2&fmax=8");
+  await expect(page.getByRole("button", { name: "90 days" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(
+    page.getByRole("slider", { name: "smallest audience" }),
+  ).toHaveValue("2");
+  await expect(
+    page.getByRole("slider", { name: "largest audience" }),
+  ).toHaveValue("8");
+  // A min dragged past the max is clamped, not accepted, so the pair the page
+  // renders is always a range the database can answer.
+  await settle(page, "/viral-reels/browse?fmin=9&fmax=3");
+  const min = Number(
+    await page.getByRole("slider", { name: "smallest audience" }).inputValue(),
+  );
+  const max = Number(
+    await page.getByRole("slider", { name: "largest audience" }).inputValue(),
+  );
+  expect(min).toBeLessThanOrEqual(max);
+});
+
+test("77 - viral reels browse: no em dashes in the copy", async ({ page }) => {
+  await settle(page, "/viral-reels/browse");
+  const text = await page.locator("body").innerText();
+  expect(text).not.toMatch(/[–—]/);
+});
+
+test("78 - viral reels browse: the window pills are >=44px tap targets", async ({
+  page,
+}, testInfo) => {
+  MOBILE_ONLY(testInfo);
+  await settle(page, "/viral-reels/browse");
+  for (const name of ["all time", "30 days"]) {
+    const box = await page.getByRole("button", { name }).boundingBox();
+    expect(box, `tap target ${name}`).not.toBeNull();
     expect(box!.height).toBeGreaterThanOrEqual(MIN_TAP);
   }
 });

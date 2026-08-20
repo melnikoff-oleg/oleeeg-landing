@@ -150,3 +150,57 @@ body {
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
+
+/* ---- Dual-thumb range slider (/viral-reels/browse follower filter) ----
+   Two native inputs stacked over one drawn track, which is the only way to get
+   a two-ended range that is still keyboard operable and still announces itself.
+   The inputs take no pointer events and their thumbs take them back, so where
+   the two thumbs overlap the one on top is the one that gets the drag. */
+.range-input {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.range-input::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+.range-input::-moz-range-track {
+  background: transparent;
+}
+
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  height: 22px;
+  width: 22px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 2px solid var(--color-vivid-blue);
+  cursor: grab;
+  box-shadow: 0 1px 6px rgba(2, 11, 24, 0.7);
+}
+
+.range-input::-moz-range-thumb {
+  pointer-events: auto;
+  height: 22px;
+  width: 22px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 2px solid var(--color-vivid-blue);
+  cursor: grab;
+  box-shadow: 0 1px 6px rgba(2, 11, 24, 0.7);
+}
+
+.range-input:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--color-vivid-blue);
+  outline-offset: 3px;
+}
+
+.range-input:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--color-vivid-blue);
+  outline-offset: 3px;
+}

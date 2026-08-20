@@ -18,7 +18,7 @@ import {
   formatDuration,
   formatScore,
 } from "@/lib/reels/format";
-import type { ReelHit } from "@/lib/reels/types";
+import type { ReelRow } from "@/lib/reels/types";
 
 /** One number under one label. The whole metrics strip is built from these. */
 function Stat({
@@ -93,7 +93,7 @@ function Field({
   );
 }
 
-export function ReelCard({ reel, rank }: { reel: ReelHit; rank: number }) {
+export function ReelCard({ reel, rank }: { reel: ReelRow; rank: number }) {
   const handle = `@${reel.account}`;
   // Never empty: an empty <h3> is both an accessibility violation and a hole in
   // the card. A reel always has at least an account.
