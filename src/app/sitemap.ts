@@ -177,10 +177,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: "https://oleg.ae/viral-reels/browse",
+      url: "https://oleg.ae/viral-reels-browse",
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.7,
+    },
+    {
+      url: "https://oleg.ae/viral-reels-ideas",
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
     {
       url: "https://oleg.ae/ideas",

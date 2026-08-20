@@ -1,4 +1,5 @@
 import { normalizeDays, normalizeQuery } from "@/lib/reels/types";
+import { ReelNav } from "@/components/reel-nav";
 import { ReelSearch } from "./components/reel-search";
 
 // Deliberately bare. No header, no wordmark, no hero, no footer, no copy: the
@@ -20,6 +21,7 @@ export default async function ViralReelsPage({
   return (
     <main className="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-6 sm:pt-10">
       <h1 className="sr-only">viral reels database</h1>
+      <ReelNav current="/viral-reels" />
       <ReelSearch initialQuery={initialQuery} initialDays={initialDays} />
     </main>
   );

@@ -11,6 +11,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        // The library page lived here for a day, was linked from the search
+        // page, and is in the sitemap Google already fetched. Permanent, so the
+        // ranking follows it to the flat slug rather than being split.
+        source: "/viral-reels/browse",
+        destination: "/viral-reels-browse",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

@@ -7,6 +7,7 @@ import {
   normalizePage,
   type ReelRow,
 } from "@/lib/reels/types";
+import { ReelNav } from "@/components/reel-nav";
 import { ReelBrowser } from "./components/reel-browser";
 
 const title = "Viral Reels Library: Every Reel in the Database, Ranked";
@@ -27,10 +28,10 @@ export const metadata: Metadata = {
     title,
     description,
     type: "website",
-    url: "https://oleg.ae/viral-reels/browse",
+    url: "https://oleg.ae/viral-reels-browse",
   },
   twitter: { card: "summary_large_image", title, description },
-  alternates: { canonical: "https://oleg.ae/viral-reels/browse" },
+  alternates: { canonical: "https://oleg.ae/viral-reels-browse" },
 };
 
 // The list depends on searchParams and on a table that sync.py rewrites, so it
@@ -44,7 +45,8 @@ export const dynamic = "force-dynamic";
  * The first page is fetched on the server so the list is there in the HTML: it
  * is the half of /viral-reels that a crawler can read and that works before any
  * JavaScript arrives. Every later page and every filter change is the client
- * component talking to /api/viral-reels/browse.
+ * component talking to /api/viral-reels/browse (the API path keeps its folder;
+ * only the page slug is flat).
  */
 export default async function BrowsePage({
   searchParams,
@@ -83,6 +85,7 @@ export default async function BrowsePage({
   return (
     <main className="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-6 sm:pt-10">
       <h1 className="sr-only">viral reels library</h1>
+      <ReelNav current="/viral-reels-browse" />
       <ReelBrowser
         initial={initial}
         initialRows={rows}

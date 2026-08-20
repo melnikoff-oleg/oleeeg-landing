@@ -9,7 +9,7 @@ import {
   type ReelRow,
   type WindowDays,
 } from "@/lib/reels/types";
-import { ReelCard } from "../../components/reel-card";
+import { ReelCard } from "@/components/reel-card";
 import { FollowerRange } from "./follower-range";
 
 // The slider fires an onChange for every step it crosses, and a fast drag from
@@ -149,13 +149,6 @@ export function ReelBrowser({
               );
             })}
           </div>
-          {/* The way back to the search. The only link on either page. */}
-          <a
-            href="/viral-reels"
-            className="ml-auto inline-flex min-h-11 items-center font-body text-xs text-silver-muted underline decoration-hairline underline-offset-4 transition-colors hover:text-white"
-          >
-            search instead
-          </a>
         </div>
 
         <div className="mt-3 border-t border-hairline pt-3">

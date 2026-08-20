@@ -9,7 +9,7 @@ import {
   type ReelHit,
   type WindowDays,
 } from "@/lib/reels/types";
-import { ReelCard } from "./reel-card";
+import { ReelCard } from "@/components/reel-card";
 
 type State =
   | { kind: "idle" }
@@ -152,9 +152,8 @@ export function ReelSearch({
         </button>
       </form>
 
-      {/* The one control besides the box: how new the reel has to be. The link
-          beside it is the only thing on this page that is not the search, and
-          it is here because the library page is otherwise unreachable. */}
+      {/* The one control besides the box: how new the reel has to be. Moving
+          between the three pages is ReelNav's job, above this component. */}
       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
         <div
           role="group"
@@ -180,12 +179,6 @@ export function ReelSearch({
             );
           })}
         </div>
-        <a
-          href="/viral-reels/browse"
-          className="ml-auto inline-flex min-h-11 items-center font-body text-xs text-silver-muted underline decoration-hairline underline-offset-4 transition-colors hover:text-white"
-        >
-          browse all
-        </a>
       </div>
 
       <div className="scroll-mt-6">

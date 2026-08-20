@@ -55,12 +55,22 @@ const COLUMNS = [
   "thumb_url",
 ].join(",");
 
+/** Ceiling on rows per read. Well above a page, well below a table scan. */
+const BROWSE_MAX_LIMIT = 100;
+
 export type BrowseFilters = {
   days: WindowDays;
   /** Indices into FOLLOWER_STOPS. Both ends are open, see the constant. */
   minIndex: number;
   maxIndex: number;
   page: number;
+  /** Rows per page. The browse page always uses the default; the ideas chat
+   *  asks for fewer, because it pays per token for every row it reads. */
+  limit?: number;
+  /** Keep only reels carrying at least one of these tags. Exact matches, which
+   *  is workable because the only caller picks them out of library_overview's
+   *  own tag list rather than inventing them. */
+  tags?: string[];
 };
 
 export type BrowsePage = {
@@ -82,14 +92,18 @@ export async function browseReels(
   signal?: AbortSignal,
 ): Promise<BrowsePage> {
   const { days, minIndex, maxIndex, page } = filters;
+  // The /viral-reels-browse route never passes a limit, so it always gets the
+  // page size. The ideas chat does, because its effort and diversity filters are
+  // applied in TypeScript and need more rows than they keep.
+  const limit = Math.min(BROWSE_MAX_LIMIT, Math.max(1, filters.limit ?? BROWSE_PAGE_SIZE));
   const params = new URLSearchParams();
   params.set("select", COLUMNS);
   // Highest outlier first, and a reel whose score never got computed sorts to
   // the very end rather than to the top, which is where Postgres puts nulls in
   // a descending sort by default.
   params.set("order", "score.desc.nullslast,posted_on.desc");
-  params.set("limit", String(BROWSE_PAGE_SIZE));
-  params.set("offset", String((page - 1) * BROWSE_PAGE_SIZE));
+  params.set("limit", String(limit));
+  params.set("offset", String((page - 1) * limit));
 
   // Index 0 and the last index are the open ends of the slider, so they add no
   // filter at all. Anything in between becomes a real bound.
@@ -104,6 +118,17 @@ export async function browseReels(
   // answer "in the last 30 days". `gte` on a null date already excludes it.
   const start = windowStart(days);
   if (start) params.set("posted_on", `gte.${start}`);
+
+  // `ov` is array overlap: keep a row if any of its tags is any of these. The
+  // braces and quoting are PostgREST's array literal syntax, and a tag with a
+  // comma or a quote in it would break out of the list, so both are stripped.
+  const tags = (filters.tags ?? [])
+    .map((t) => t.replace(/["'{},\\]/g, " ").replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .slice(0, 12);
+  if (tags.length) {
+    params.set("tags", `ov.{${tags.map((t) => `"${t}"`).join(",")}}`);
+  }
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?${params}`, {
     headers: {
