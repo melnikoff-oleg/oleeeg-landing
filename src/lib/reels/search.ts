@@ -18,7 +18,7 @@
 // the proof this can happen by accident: its module-level env expression is
 // visible in the shipped /ideas client chunk.
 import "server-only";
-import { RESULT_COUNT, type ReelHit, type WindowDays } from "./types";
+import { MIN_SIMILARITY, RESULT_COUNT, type ReelHit, type WindowDays } from "./types";
 
 const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
@@ -140,7 +140,12 @@ export async function searchReels(
   callerSignal?.addEventListener("abort", () => controller.abort(), { once: true });
   try {
     const embedding = await embedQuery(query, controller.signal);
-    const hits = await matchReels(embedding, count, sinceDays, controller.signal);
+    const ranked = await matchReels(embedding, count, sinceDays, controller.signal);
+    // pgvector orders by distance and stops at the limit; it never judges
+    // whether the nearest reel is near at all. Dropping the far ones here is
+    // what lets the page say "nothing is close" instead of filling ten slots
+    // with the least-far reels in the window.
+    const hits = ranked.filter((r) => r.similarity >= MIN_SIMILARITY);
     cacheSet(key, hits);
     return hits;
   } finally {

@@ -10,6 +10,23 @@ export const QUERY_MAX = 200;
 export const RESULT_COUNT = 10;
 
 /**
+ * How close a reel has to be before it is worth showing.
+ *
+ * Cosine similarity between a query and a write-up. Without a floor the search
+ * always fills its ten slots, so a query the library has no answer for came
+ * back looking confident and wrong: "relationships" narrowed to 30 days
+ * returned a Zach King transition reel at 0.17 rather than saying nothing was
+ * close.
+ *
+ * Measured over the live index at 694 reels. A query the library really covers
+ * lands at 0.29 to 0.53 and has 25 reels above 0.22. A query it does not cover
+ * at all ("how to file taxes in germany") tops out at 0.08 with nothing above
+ * 0.20. The junk a narrow window used to surface sat at 0.09 to 0.17. The two
+ * populations are well separated, and 0.20 sits in the gap.
+ */
+export const MIN_SIMILARITY = 0.2;
+
+/**
  * The recency filter.
  *
  * `days: null` is all time. Everything else is a window counted back from today
