@@ -370,6 +370,18 @@ A full 30-route mobile audit at 390px (multi-agent, real-screenshot-driven, judg
 - **Small content fixes**: claude-marketing step 3 now creates the workspace before referencing it; claude-interviewer step 1 has real install actions; claude-website recommends live registrars (Google Domains is defunct); second-brain's setup prompt lost its em dash (doc comment warns not to revert).
 - **Filmed pages, all six, fixed in the VAULT and re-ported** (dantane repo, `areas/youtube_videos/*`; the port scripts re-ran cleanly and the filming contract was verified: nothing changes above each page's mobile breakpoint). The deck pages (boris, sam, karpathy) got a mobile-only masthead h1 + slides packed to natural height (no more 100svh voids); the receipts/evidence walls stack to one column below 900px (boris and sam were unreadable 22-28px letter columns, the audit's two criticals; boris 13.1k → 7.6k px, karpathy 18.8k → 11.9k). The `.prefix @font-face` port bug (invalid selector, fonts silently never loaded) is fixed in the boris/sam port scripts. Russian filming rails/notes are hidden on touch devices. Riemann's prose em dashes were rewritten at the vault source and it gained a web-only hero fold (its first h1), shown only below 900px. Elon's cite chips are 44px with 12px gaps. See the `FilmedPageOutro` bullet for the layout.tsx ownership caveat this pass corrected.
 
+## /viral-reels, the reel search (2026-08-20)
+
+Semantic search over Oleg's database of viral Instagram reels. A visitor describes the reel they want to make and gets the closest reels that already went viral, each with its thumbnail, Instagram link, full metrics, date and the five-field write-up (idea, hook, retain, reward, tags).
+
+- **The corpus is not in this repo.** It is built in the vault (`dantane`, `areas/youtube_videos/2026-08-17_viral_reels_database/search/`) by `sync.py`, which embeds each reel and upserts it into the shared Boldane Supabase project. Adding reels needs no deploy here: the page reads Supabase live. The SQL that created `reel_search`, `match_reels` and the `reel-thumbs` bucket lives in that same folder as `schema.sql`.
+- **A search is two hops**: embed the query with OpenAI, then rank by cosine distance in the `match_reels` pgvector function. Measured about 600 ms end to end. `src/lib/reels/search.ts` also holds a 15-minute in-memory LRU so the example chips and repeat queries cost nothing on a warm instance.
+- **The model and the dimension count (`text-embedding-3-large`, 3072) are written in two places**, `src/lib/reels/search.ts` and the vault's `sync.py`. Changing one without the other silently breaks every search, because the query and the rows would then live in different vector spaces.
+- **`src/lib/reels/types.ts` exists so the client never imports the server module.** `search.ts` reads the service-role and OpenAI keys at import time; the client components need `ReelHit`, `QUERY_MAX` and `TOP_COUNT`, so those live in a module with no secrets in it rather than relying on the bundler to shake the rest out.
+- **The API validates before it checks config**, same order as `/api/ideas`, so the guard-rail branches in `tests/e2e/viral-reels.spec.ts` (tests 66-72) are deterministic in a key-free environment. Per-IP cap is 300 searches a day.
+- **Env:** `OPENAI_API_KEY` (added to Vercel production 2026-08-20) alongside the `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` the ideas board already uses.
+- **Thumbnails are plain `<img>`, not `next/image`**, on purpose: they are 360x640 JPEGs served immutable from Supabase storage and painted at 96-128px, so an optimizer pass would only spend Vercel transformation quota.
+
 ## Notes
 
 - Keep context minimal but sufficient — avoid bloat

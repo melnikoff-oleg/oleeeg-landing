@@ -34,14 +34,14 @@
       "60k-linkedin-post"
     ],
     "claude-content": [
+      "viral-reels",
       "claude-reels",
-      "claude-tiktok",
-      "claude-twitter"
+      "claude-tiktok"
     ],
     "claude-reels": [
+      "viral-reels",
       "claude-code-instagram",
-      "claude-tiktok",
-      "claude-content"
+      "claude-tiktok"
     ],
     "claude-tiktok": [
       "claude-code-instagram",
@@ -99,9 +99,9 @@
       "claude-reels"
     ],
     "claude-code-instagram": [
+      "viral-reels",
       "claude-code-ads",
-      "claude-reels",
-      "claude-content"
+      "claude-reels"
     ],
     "claude-code-ads": [
       "claude-code-instagram",
@@ -117,6 +117,11 @@
       "marketing-brain",
       "5-levels-ai",
       "claude-code-second-brain"
+    ],
+    "viral-reels": [
+      "claude-code-instagram",
+      "claude-reels",
+      "claude-content"
     ]
   }
 }
