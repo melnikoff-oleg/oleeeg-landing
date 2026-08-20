@@ -15,6 +15,17 @@ export type IdeasMessage = {
 
 /** What the model is doing right now, shown as a line above the answer. */
 export type ToolActivity = {
+  /**
+   * The tool_use block's own id.
+   *
+   * Every call is announced twice, once when the block opens and again once its
+   * arguments have finished streaming, and the client replaces the first with
+   * the second. Matching them on the label prefix looked fine until a turn
+   * called two different tools, at which point the second call's provisional
+   * line no longer sat at the tail and both survived, so one turn drew four
+   * steps for two calls. An id cannot get that wrong.
+   */
+  id: string;
   /** The tool it called, already turned into something a person can read. */
   label: string;
 };
@@ -28,6 +39,11 @@ export type IdeasFrame =
   // always has its card data by the time the text mentioning it streams in.
   | { type: "reels"; reels: ReelRow[] }
   | { type: "delta"; text: string }
+  // The answer stopped early but what arrived is real and worth keeping: the
+  // length cap, the research budget, the wall clock. Distinct from `error`,
+  // which means there is nothing usable, because folding the two together is
+  // how a half-finished answer gets presented as a finished one.
+  | { type: "notice"; message: string }
   | { type: "error"; message: string }
   // Last frame of a clean run. No `done` frame means the stream was cut off.
   | { type: "done"; reason: string };

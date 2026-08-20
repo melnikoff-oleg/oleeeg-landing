@@ -33,10 +33,25 @@ const MODEL = "claude-sonnet-5";
  * a backstop against a loop, not a budget the model is meant to spend.
  */
 const MAX_ROUNDS = 6;
+/**
+ * How many times a long server-tool turn may be resumed.
+ *
+ * Anthropic pauses a turn that spends a while in web search and returns
+ * `stop_reason: "pause_turn"` with the work so far, expecting the same content
+ * handed straight back. Treating that as the end of the answer was silently
+ * dropping the whole turn, and the visitor got a blank reply. Resumes do not
+ * count against MAX_ROUNDS, because no tool result came back to this route, but
+ * they are capped so a pathological pause loop still terminates.
+ */
+const MAX_PAUSES = 4;
 /** Stop starting new rounds after this. Leaves the platform limit as headroom
  *  for the last round to finish writing rather than being cut mid-sentence. */
 const WALL_CLOCK_MS = 210_000;
-const MAX_TOKENS = 8000;
+// Generous, because the intended answer is ten ideas of four lines each plus
+// ten citations, and `thinking: adaptive` spends from the same budget. At 8000
+// a full answer could be cut mid-sentence, which is the one failure the visitor
+// cannot tell apart from a finished answer.
+const MAX_TOKENS = 16000;
 /** Server tools are billed per use, so they get an explicit ceiling. */
 const MAX_WEB_SEARCHES = 5;
 const MAX_WEB_FETCHES = 3;
@@ -185,6 +200,7 @@ export async function POST(req: Request) {
 
       try {
         let stopReason = "end_turn";
+        let pauses = 0;
 
         for (let round = 0; round < MAX_ROUNDS; round += 1) {
           const llm = client.messages.stream(
@@ -227,7 +243,10 @@ export async function POST(req: Request) {
               // the block is complete; this first one just proves it is working.
               send(controller, {
                 type: "tool",
-                activity: { label: describe(event.content_block.name, null) },
+                activity: {
+                  id: event.content_block.id,
+                  label: describe(event.content_block.name, null),
+                },
               });
             }
           }
@@ -247,6 +266,15 @@ export async function POST(req: Request) {
           // all. Dropping them breaks the signature check on the next request.
           history.push({ role: "assistant", content: final.content });
 
+          // A paused server-tool turn carries no client tool_use block, so the
+          // loop below would read it as "the model has finished" and throw the
+          // whole turn away. Hand the content straight back instead.
+          if (final.stop_reason === "pause_turn" && pauses < MAX_PAUSES) {
+            pauses += 1;
+            round -= 1;
+            continue;
+          }
+
           // Every client-side tool_use block, not just the ones we recognise.
           // A block left without a result would make the next request invalid,
           // so an unknown name gets an error result rather than silence.
@@ -259,7 +287,7 @@ export async function POST(req: Request) {
           for (const call of calls) {
             send(controller, {
               type: "tool",
-              activity: { label: describe(call.name, call.input) },
+              activity: { id: call.id, label: describe(call.name, call.input) },
             });
           }
 
@@ -304,25 +332,27 @@ export async function POST(req: Request) {
           history.push({ role: "user", content: results });
 
           if (Date.now() - started > WALL_CLOCK_MS) {
-            send(controller, {
-              type: "error",
-              message:
-                "this one took too long to research. try asking for fewer ideas, or narrow the brand down.",
-            });
             stopReason = "timeout";
             break;
           }
         }
 
-        // Ran out of rounds while still looking things up: the visitor has the
-        // step lines and no answer, so say that rather than closing silently.
-        if (stopReason === "tool_use") {
-          send(controller, {
-            type: "error",
-            message:
-              "i spent all my research steps on that one without landing an answer. try narrowing it down, or ask for one kind of idea at a time.",
-          });
-        }
+        // Every way of stopping that is not a finished answer gets said out
+        // loud. Silence here is the worst outcome the feature has: a half
+        // answer with no banner reads exactly like a whole one, and the visitor
+        // acts on ideas that were cut off mid-list.
+        const INCOMPLETE: Record<string, string> = {
+          tool_use:
+            "i spent all my research steps on that one without landing an answer. try narrowing it down, or ask for one kind of idea at a time.",
+          max_tokens:
+            "that answer hit its length limit and stops mid-way. ask for fewer ideas, or ask again for just the half you want.",
+          pause_turn:
+            "that one spent too long on the web and stopped early. try again, or tell me about the brand yourself instead of giving me a link.",
+          timeout:
+            "this one took too long to research. try asking for fewer ideas, or narrow the brand down.",
+        };
+        const notice = INCOMPLETE[stopReason];
+        if (notice) send(controller, { type: "notice", message: notice });
 
         send(controller, { type: "done", reason: stopReason });
       } catch (err) {

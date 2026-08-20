@@ -1,19 +1,35 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { IdeasFrame, IdeasMessage } from "@/lib/reels/ideas-types";
 import type { ReelRow } from "@/lib/reels/types";
+
+/** One step line, keyed by the tool_use block it describes. */
+export type UiStep = { id: string; label: string };
 
 export type UiTurn = {
   role: "user" | "assistant";
   content: string;
   /** The steps the model took, in order, newest last. */
-  steps?: string[];
+  steps?: UiStep[];
   streaming?: boolean;
+  /** Hard failure: there is nothing usable and `content` holds the reason. */
   error?: boolean;
-  /** The stream ended without a `done` frame: cut off, not finished. */
+  /**
+   * The answer stopped before it was finished. Held apart from `content` so a
+   * half answer keeps everything that streamed AND says it is a half answer.
+   * Folding the two together meant the message was dropped whenever any text
+   * had already arrived, which is exactly when the warning matters.
+   */
+  notice?: string;
+  /** Not finished, for any reason. Gates the retry button. */
   interrupted?: boolean;
+  /** The visitor pressed stop. Not a failure, so no banner. */
+  stopped?: boolean;
 };
+
+/** The only stop reasons that mean the model said everything it meant to. */
+const CLEAN_STOPS = new Set(["end_turn", "stop_sequence"]);
 
 const ENDPOINT = "/api/viral-reels/ideas";
 
@@ -27,9 +43,10 @@ const ENDPOINT = "/api/viral-reels/ideas";
 async function consume(
   body: ReadableStream<Uint8Array>,
   on: {
-    tool: (label: string) => void;
+    tool: (step: UiStep) => void;
     reels: (reels: ReelRow[]) => void;
     delta: (text: string) => void;
+    notice: (message: string) => void;
     error: (message: string) => void;
   },
 ): Promise<string | null> {
@@ -52,9 +69,10 @@ async function consume(
       } catch {
         continue;
       }
-      if (frame.type === "tool") on.tool(frame.activity.label);
+      if (frame.type === "tool") on.tool(frame.activity);
       else if (frame.type === "reels") on.reels(frame.reels);
       else if (frame.type === "delta") on.delta(frame.text);
+      else if (frame.type === "notice") on.notice(frame.message);
       else if (frame.type === "error") on.error(frame.message);
       else if (frame.type === "done") doneReason = frame.reason;
     }
@@ -76,6 +94,11 @@ export function useIdeasChat() {
   const busy = useRef(false);
   const turnsRef = useRef(turns);
   turnsRef.current = turns;
+  // Lets the visitor stop a run, and lets an unmount stop it for them. Without
+  // this, leaving the page mid-answer leaves the agent loop running to
+  // completion against a connection nobody is reading, which is billed.
+  const abort = useRef<AbortController | null>(null);
+  useEffect(() => () => abort.current?.abort(), []);
 
   const run = useCallback(async (history: UiTurn[]) => {
     busy.current = true;
@@ -89,10 +112,14 @@ export function useIdeasChat() {
     let doneReason: string | null = null;
     let sawError = false;
 
+    const controller = new AbortController();
+    abort.current = controller;
+
     try {
       const res = await fetch(ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           messages: history.map(
             (t): IdeasMessage => ({ role: t.role, content: t.content }),
@@ -127,18 +154,18 @@ export function useIdeasChat() {
       }
 
       doneReason = await consume(res.body, {
-        tool: (label) =>
+        tool: (step) =>
           patch((t) => {
-            // The route sends a step twice, once when the call starts (before
-            // the arguments have streamed in) and once when they are known. The
-            // second is strictly better, so it replaces the first.
+            // Each call is announced twice: once when its block opens, before
+            // the arguments have streamed, and again once they are known. The
+            // second is strictly better, so it replaces the first, matched on
+            // the block id rather than on how the label happens to read.
             const steps = t.steps ?? [];
-            const last = steps[steps.length - 1];
-            if (last && label.startsWith(last)) {
-              return { ...t, steps: [...steps.slice(0, -1), label] };
-            }
-            if (last === label) return t;
-            return { ...t, steps: [...steps, label] };
+            const at = steps.findIndex((s) => s.id === step.id);
+            if (at === -1) return { ...t, steps: [...steps, step] };
+            const next = [...steps];
+            next[at] = step;
+            return { ...t, steps: next };
           }),
         reels: (rows) =>
           setReels((prev) => {
@@ -147,18 +174,36 @@ export function useIdeasChat() {
             return next;
           }),
         delta: (text) => patch((t) => ({ ...t, content: t.content + text })),
+        notice: (message) => patch((t) => ({ ...t, notice: message })),
         error: (message) => {
           sawError = true;
-          patch((t) => ({ ...t, error: !t.content, content: t.content || message }));
+          // A hard failure with text already on screen keeps the text and puts
+          // the reason in the banner. Only an empty answer becomes the reason.
+          patch((t) =>
+            t.content
+              ? { ...t, notice: message }
+              : { ...t, error: true, content: message },
+          );
         },
       });
-    } catch {
-      // Dropped mid-flight. Whatever streamed stays; `finally` marks it cut off.
+    } catch (err) {
+      // The visitor pressed stop, or left. Not a failure.
+      if ((err as { name?: string } | null)?.name === "AbortError") {
+        patch((t) => ({ ...t, stopped: true }));
+      }
+      // Anything else dropped mid-flight; `finally` marks it cut off.
     } finally {
+      abort.current = null;
       patch((t) => {
         const base = { ...t, streaming: false };
-        if (sawError || t.error) return base;
-        if (doneReason === null) return { ...base, interrupted: true };
+        if (t.stopped || t.error) return base;
+        // Not finished is not the same as failed, and every way of not
+        // finishing has to reach the retry button: no `done` frame at all, or a
+        // `done` whose reason says the model stopped for a reason of its own.
+        if (doneReason === null || !CLEAN_STOPS.has(doneReason)) {
+          return { ...base, interrupted: true };
+        }
+        if (sawError) return { ...base, interrupted: true };
         return base;
       });
       setIsStreaming(false);
@@ -183,5 +228,9 @@ export function useIdeasChat() {
     await run(msgs);
   }, [run]);
 
-  return { turns, reels, isStreaming, send, retry };
+  /** Cut the current answer short. The route sees the disconnect and stops
+   *  generating, so this stops the spend as well as the spinner. */
+  const stop = useCallback(() => abort.current?.abort(), []);
+
+  return { turns, reels, isStreaming, send, retry, stop };
 }

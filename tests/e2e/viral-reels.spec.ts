@@ -352,3 +352,128 @@ test("83 - viral reels ideas: send and the nav are >=44px tap targets", async ({
     expect(box!.height).toBeGreaterThanOrEqual(MIN_TAP);
   }
 });
+
+
+// The stream is mocked here, deliberately. These four behaviours are the ones an
+// adversarial review found broken, they all live entirely in the client, and
+// none of them can be reached from a real answer on demand: a length cut-off, a
+// turn that calls two tools, a citation the model chose to bold, and stopping.
+
+const REEL = {
+  shortcode: "DUGuTROETvH",
+  url: "https://www.instagram.com/reel/DUGuTROETvH/",
+  account: "julianomass",
+  creator: null,
+  posted_on: "2026-05-02",
+  score: 436.55,
+  views: 41_000_000,
+  likes: 900_000,
+  comments: null,
+  shares: null,
+  saves: null,
+  followers: 869_318,
+  duration_sec: 21,
+  shots: "1",
+  music: null,
+  idea: "a salesman gets hung up on and dances anyway",
+  hook_summary: null,
+  hook_points: null,
+  retain_summary: null,
+  retain_points: null,
+  reward_summary: null,
+  reward_points: null,
+  tags: null,
+  caption: null,
+  thumb_url: null,
+};
+
+const ndjson = (frames: unknown[]) =>
+  frames.map((f) => JSON.stringify(f)).join("\n") + "\n";
+
+async function mockIdeas(page: Page, frames: unknown[]) {
+  await page.route("**/api/viral-reels/ideas", (route) =>
+    route.fulfill({
+      status: 200,
+      headers: { "Content-Type": "application/x-ndjson" },
+      body: ndjson(frames),
+    }),
+  );
+}
+
+async function ask(page: Page, text = "i sell handmade candles") {
+  await page.getByLabel("describe your brand").fill(text);
+  await expect(page.getByRole("button", { name: "send" })).toBeEnabled();
+  await page.getByRole("button", { name: "send" }).click();
+}
+
+test("84 - viral reels ideas: an answer cut short says so and offers a retry", async ({
+  page,
+}) => {
+  // A truncated answer that renders as a finished one is the worst outcome this
+  // page has: the visitor acts on a list that stopped halfway.
+  await mockIdeas(page, [
+    { type: "delta", text: "here are two ideas, and the third would have been" },
+    { type: "notice", message: "that answer hit its length limit and stops mid-way." },
+    { type: "done", reason: "max_tokens" },
+  ]);
+  await settle(page, "/viral-reels-ideas");
+  await ask(page);
+  await expect(page.getByText("hit its length limit")).toBeVisible();
+  await expect(page.getByRole("button", { name: "try again" })).toBeVisible();
+});
+
+test("85 - viral reels ideas: two tools in one turn draw two steps", async ({
+  page,
+}) => {
+  // Every call is announced twice, once before its arguments have streamed. The
+  // refined line must replace its own placeholder, not append beside it.
+  await mockIdeas(page, [
+    { type: "tool", activity: { id: "a", label: "searching the library" } },
+    { type: "tool", activity: { id: "b", label: "pulling the top reels" } },
+    { type: "tool", activity: { id: "a", label: "searching the library for candles" } },
+    { type: "tool", activity: { id: "b", label: "pulling the top reels tagged comedy" } },
+    { type: "delta", text: "done." },
+    { type: "done", reason: "end_turn" },
+  ]);
+  await settle(page, "/viral-reels-ideas");
+  await ask(page);
+  await expect(page.getByText("done.")).toBeVisible();
+  await expect(page.locator("ol > li")).toHaveCount(2);
+  await expect(page.getByText("searching the library for candles")).toBeVisible();
+});
+
+test("86 - viral reels ideas: a citation inside bold still becomes a card", async ({
+  page,
+}) => {
+  // The prompt asks for the citation on its own line, but the model writes
+  // markdown and bolds things. A raw [[reel:...]] in the middle of a sentence is
+  // the visible failure.
+  await mockIdeas(page, [
+    { type: "reels", reels: [REEL] },
+    { type: "delta", text: "copy this one: **the format is [[reel:DUGuTROETvH]] exactly**" },
+    { type: "done", reason: "end_turn" },
+  ]);
+  await settle(page, "/viral-reels-ideas");
+  await ask(page);
+  await expect(page.getByText("@julianomass")).toBeVisible();
+  await expect(page.locator("body")).not.toContainText("[[reel:");
+});
+
+test("87 - viral reels ideas: a running answer can be stopped", async ({
+  page,
+}) => {
+  // Never leave a visitor watching an answer they do not want being generated
+  // and billed. The route sees the disconnect, so this stops the spend too.
+  await page.route("**/api/viral-reels/ideas", async (route) => {
+    // Headers only, body never ends: the request stays open until it is aborted.
+    await new Promise(() => {});
+    void route;
+  });
+  await settle(page, "/viral-reels-ideas");
+  await ask(page);
+  const stop = page.getByRole("button", { name: "stop" });
+  await expect(stop).toBeVisible();
+  await stop.click();
+  await expect(page.getByRole("button", { name: "send" })).toBeVisible();
+  await expect(page.getByText("you stopped this one.")).toBeVisible();
+});

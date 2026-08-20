@@ -278,12 +278,27 @@ function applyBounds<T extends ReelRow>(rows: T[], b: Bounds): T[] {
   });
 }
 
-/** The names of whichever filters could have thinned a result set. */
-function activeFilters(b: Bounds, cap: number): string[] {
+/**
+ * The filters that actually dropped a row, measured rather than assumed.
+ *
+ * The first version named every filter that was *set*, which meant the
+ * per-creator cap was blamed for every shortfall, since it is always set. A note
+ * that says "widen the 2-per-creator cap" when the cap removed nothing sends the
+ * model to widen the one thing that was not the problem.
+ */
+function whatCut(counts: {
+  scanned: number;
+  afterBounds: number;
+  afterDiversity: number;
+}, b: Bounds): string[] {
   const names: string[] = [];
-  if (b.min !== null || b.max !== null) names.push("the follower range");
-  if (b.effort !== null) names.push("the effort limit");
-  if (cap < MAX_RESULTS) names.push(`the ${cap}-per-creator cap`);
+  if (counts.afterBounds < counts.scanned) {
+    if (b.min !== null || b.max !== null) names.push("the follower range");
+    if (b.effort !== null) names.push("the effort limit");
+  }
+  if (counts.afterDiversity < counts.afterBounds) {
+    names.push("the per-creator cap");
+  }
   return names;
 }
 
@@ -296,22 +311,21 @@ function activeFilters(b: Bounds, cap: number): string[] {
  * lets it widen and try again.
  */
 function shortfallNote(
-  kept: number,
   asked: number,
-  scanned: number,
+  counts: { scanned: number; afterBounds: number; afterDiversity: number },
   b: Bounds,
-  cap: number,
 ): string | undefined {
+  const kept = Math.min(counts.afterDiversity, asked);
   if (kept >= asked) return undefined;
-  const names = activeFilters(b, cap);
+  const names = whatCut(counts, b);
   if (!names.length) {
     return kept === 0
       ? undefined
       : `Only ${kept} reels matched. That is everything the library has for this.`;
   }
-  const filters = names.join(", ");
+  const filters = names.join(" and ");
   if (kept === 0) {
-    return `${scanned} reels matched before filtering and none survived ${filters}. Try again with a wider range, or without it.`;
+    return `${counts.scanned} reels matched before filtering and none survived ${filters}. Try again with a wider range, or without it.`;
   }
   return `Only ${kept} of the ${asked} you asked for survived ${filters}. Widen it if you need more, or use what is here.`;
 }
@@ -364,11 +378,20 @@ export async function runReelTool(
       signal,
     );
     const inBounds = applyBounds(hits, bounds);
-    const kept = diversify(inBounds, cap).slice(0, limit);
+    const diverse = diversify(inBounds, cap);
+    const kept = diverse.slice(0, limit);
     const note =
       hits.length === 0
         ? "Nothing in the library is close to this. Say so rather than inventing a reel, then try a query about the FORMAT or the FEELING instead of the topic."
-        : shortfallNote(kept.length, limit, hits.length, bounds, cap);
+        : shortfallNote(
+            limit,
+            {
+              scanned: hits.length,
+              afterBounds: inBounds.length,
+              afterDiversity: diverse.length,
+            },
+            bounds,
+          );
 
     return {
       reels: kept,
@@ -411,11 +434,21 @@ export async function runReelTool(
     );
     // The follower bounds went to SQL as slider stops, which are wider than
     // what was asked for, so the exact numbers are enforced again here.
-    const kept = diversify(applyBounds(rows, bounds), cap).slice(0, limit);
+    const inBounds = applyBounds(rows, bounds);
+    const diverse = diversify(inBounds, cap);
+    const kept = diverse.slice(0, limit);
     const note =
       rows.length === 0
         ? "No reel in the library matches those filters. If you passed tags, take the exact strings from library_overview, or drop them and filter by follower size instead."
-        : shortfallNote(kept.length, limit, rows.length, bounds, cap);
+        : shortfallNote(
+            limit,
+            {
+              scanned: rows.length,
+              afterBounds: inBounds.length,
+              afterDiversity: diverse.length,
+            },
+            bounds,
+          );
 
     return {
       reels: kept,

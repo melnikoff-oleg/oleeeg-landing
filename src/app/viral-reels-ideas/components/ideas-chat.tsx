@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUp, Check, Loader2 } from "lucide-react";
-import { useIdeasChat } from "../use-ideas-chat";
+import { ArrowUp, Check, Loader2, Square } from "lucide-react";
+import { useIdeasChat, type UiStep } from "../use-ideas-chat";
 import { Answer } from "./answer";
 
 /**
@@ -23,7 +23,7 @@ const EXAMPLES = [
 // second line the composer had no height for, so it read as a truncated word.
 const PLACEHOLDER = "describe your brand, and who it's for";
 
-function Steps({ steps, running }: { steps: string[]; running: boolean }) {
+function Steps({ steps, running }: { steps: UiStep[]; running: boolean }) {
   if (!steps.length) return null;
   return (
     <ol className="space-y-1.5">
@@ -32,7 +32,7 @@ function Steps({ steps, running }: { steps: string[]; running: boolean }) {
         const spinning = running && last;
         return (
           <li
-            key={`${s}-${i}`}
+            key={s.id}
             className="flex items-start gap-2 font-body text-xs text-silver-muted"
           >
             {spinning ? (
@@ -40,7 +40,7 @@ function Steps({ steps, running }: { steps: string[]; running: boolean }) {
             ) : (
               <Check className="mt-0.5 size-3 shrink-0 text-silver-muted/60" aria-hidden />
             )}
-            <span className="min-w-0">{s}</span>
+            <span className="min-w-0">{s.label}</span>
           </li>
         );
       })}
@@ -49,7 +49,7 @@ function Steps({ steps, running }: { steps: string[]; running: boolean }) {
 }
 
 export function IdeasChat() {
-  const { turns, reels, isStreaming, send, retry } = useIdeasChat();
+  const { turns, reels, isStreaming, send, retry, stop } = useIdeasChat();
   const [draft, setDraft] = useState("");
   const boxRef = useRef<HTMLTextAreaElement>(null);
   const tailRef = useRef<HTMLDivElement>(null);
@@ -74,6 +74,10 @@ export function IdeasChat() {
 
   const submit = (text: string) => {
     if (!text.trim() || isStreaming) return;
+    // Sending is an explicit "show me this", so it always re-pins the view. Ask
+    // a follow-up while scrolled up without this and the question and its whole
+    // answer land off-screen, which reads as the page having frozen.
+    pinned.current = true;
     setDraft("");
     // Reset the grown textarea, or an empty box keeps the height of the brand
     // description that was just sent.
@@ -136,17 +140,26 @@ export function IdeasChat() {
               />
             )}
 
-            {!turn.streaming && turn.interrupted && (
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 font-body text-sm text-red-300">
-                <span>that answer was cut off before it finished.</span>
+            {/* Not finished, for whatever reason. The notice says which, when
+                the route knew; otherwise the stream simply died. */}
+            {!turn.streaming && turn.interrupted && !turn.stopped && (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 font-body text-sm text-amber-300">
+                <span>
+                  {turn.notice ??
+                    "that answer was cut off before it finished. it wasn't you."}
+                </span>
                 <button
                   type="button"
                   onClick={() => void retry()}
-                  className="rounded-full bg-red-500/20 px-3 py-1.5 font-medium text-red-100 transition-colors hover:bg-red-500/30"
+                  className="rounded-full bg-amber-500/20 px-3 py-1.5 font-medium text-amber-100 transition-colors hover:bg-amber-500/30"
                 >
                   try again
                 </button>
               </div>
+            )}
+
+            {!turn.streaming && turn.stopped && (
+              <p className="font-body text-xs text-silver-muted">you stopped this one.</p>
             )}
           </div>
         ),
@@ -189,18 +202,28 @@ export function IdeasChat() {
           }}
           className="max-h-[220px] min-h-11 flex-1 resize-none bg-transparent px-3 py-2.5 font-body text-base text-silver outline-none placeholder:text-silver-muted/70"
         />
-        <button
-          type="submit"
-          disabled={!draft.trim() || isStreaming}
-          aria-label="send"
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-vivid-blue text-white transition-opacity disabled:opacity-40"
-        >
-          {isStreaming ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden />
-          ) : (
+        {/* While an answer is running the same slot becomes a stop button, so
+            a visitor who asked the wrong thing is never stuck watching an
+            answer they do not want being generated and billed. */}
+        {isStreaming ? (
+          <button
+            type="button"
+            onClick={stop}
+            aria-label="stop"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-silver/10 text-silver transition-colors hover:bg-silver/20"
+          >
+            <Square className="size-3.5 fill-current" aria-hidden />
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={!draft.trim()}
+            aria-label="send"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-vivid-blue text-white transition-opacity disabled:opacity-40"
+          >
             <ArrowUp className="size-4" aria-hidden />
-          )}
-        </button>
+          </button>
+        )}
       </form>
     </div>
   );
