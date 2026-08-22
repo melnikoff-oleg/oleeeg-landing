@@ -91,14 +91,23 @@ export async function GET(req: Request) {
     // real answer, not a failure: page 200 of a 141-page library is empty. The
     // page's own "more reels" button can never ask for it, but a hand-typed
     // ?page=200 could, and a 502 there would read as the library being down.
-    if (err instanceof Error && err.message.endsWith("416")) {
+    //
+    // Sniffed out of the message rather than caught as a type, because
+    // browse.ts throws `new Error(\`browse failed: ${res.status}\`)` at
+    // browse.ts:151 and that file may not be edited from here. If that string
+    // is ever reworded this branch stops firing and an over-range page quietly
+    // reverts to 502, so the dependency is named here on purpose.
+    if (err instanceof Error && /\b416\b/.test(err.message)) {
+      // `total` is deliberately absent, not zero. The count for these filters is
+      // unknown on this path, and a fabricated 0 reads as data: the client does
+      // `count = json.total ?? results.length` and prints "N of M", so a zero
+      // would have the page announce that the library is empty.
       return NextResponse.json({
         days,
         minIndex,
         maxIndex,
         page,
         topics,
-        total: 0,
         results: [],
       });
     }

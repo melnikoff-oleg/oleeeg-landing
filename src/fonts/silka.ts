@@ -32,9 +32,14 @@ export const silka = localFont({
   src: [
     {
       path: "./silka-regular.woff2",
-      // 300, not 400. This is the file metacci serves as its body weight, and
-      // it is genuinely light, so registering it as 400 would make every
-      // unstyled paragraph look one step too heavy against the real 500.
+      // 300, because that is the weight metacci declares this exact file at and
+      // reels.css is written against metacci's numbers. Worth knowing before
+      // anyone changes it: the file's own OS/2 usWeightClass says 400, so the
+      // label here and the label inside the font disagree. Only the @font-face
+      // number matters to CSS matching, and the consequence of this one is that
+      // the family has no 400 face at all: `font-weight: normal` on /reels
+      // resolves upward to the 500 medium cut, not to this file. Reach it with
+      // `font-weight: 300`, which is what reels.css's .prose does.
       weight: "300",
       style: "normal",
     },

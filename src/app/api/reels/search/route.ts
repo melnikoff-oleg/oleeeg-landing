@@ -90,7 +90,11 @@ export async function POST(req: Request) {
     const hits = await searchReels(query, days, count, req.signal);
     // Exact string overlap, the same rule browseReels' PostgREST `ov` filter
     // applies, so a chip means the same thing on the wall and in the search.
-    // The stored tags are already lower case, checked against the live table.
+    // Both sides are lower case, which is load-bearing rather than incidental:
+    // this Set.has and PostgREST's `ov` on the wall are each case-sensitive, so
+    // a single capital would hide a reel from one chip on both paths while
+    // every count still agreed. One reel did carry "AI art"; sync.py's
+    // split_tags now lower-cases on ingest so it cannot come back.
     const results: ReelHit[] = tags.size
       ? hits.filter((r) => (r.tags ?? []).some((t) => tags.has(t))).slice(0, RESULT_COUNT)
       : hits;

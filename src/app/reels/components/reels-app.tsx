@@ -135,7 +135,10 @@ export function ReelsApp({
           if (!res.ok) throw new Error(String(res.status));
           const json = await res.json();
           results = json.results ?? [];
-          count = json.total ?? results.length;
+          // The browse route omits `total` when it cannot know it, which today
+          // is only the past-the-end page. Keeping the count we already have
+          // beats printing the length of an empty array as the library size.
+          count = typeof json.total === "number" ? json.total : total;
         }
         if (id !== seq.current) return;
         setRows((prev) => (append ? [...prev, ...results] : results));
