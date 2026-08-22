@@ -59,3 +59,4 @@ reference/5sec.mov
 # every env file, including the .env.local vercel link writes (belt and braces:
 # .env is already listed above, this catches anything new)
 .env*
+public/reels/stickers/raw/
