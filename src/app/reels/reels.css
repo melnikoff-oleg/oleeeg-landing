@@ -1,0 +1,527 @@
+/* The design system for /reels, and nothing else on the site.
+ *
+ * Every rule is nested under .reels-root, which the page's layout puts on its
+ * own wrapper. The rest of oleg.ae is premium dark navy and stays that way:
+ * this page is a warm paper desk covered in risograph stickers, which is a
+ * deliberate departure, not a drift. Scoping it here rather than in globals.css
+ * is what keeps the two from leaking into each other, and it means this file
+ * can be deleted whole if the page ever goes away.
+ *
+ * Type comes from metacci.com, measured rather than guessed: Silka at weight
+ * 500, line-height 0.95 on the display size, letter-spacing -0.02em on every
+ * size that is not a caption, and the three breakpoints 1600 / 1024 / 640 with
+ * nothing in between. The numbers below are that site's computed styles.
+ *
+ * Colour follows the rule the metacci and glebfedorenko reads both landed on:
+ * the type is one clean colour and all the colour moves into the elements. Ink
+ * for every word, and blue, coral, marigold, green and pink only in stickers,
+ * borders, chips and badges. A tinted heading would undo the whole page.
+ */
+
+.reels-root {
+  /* Paper */
+  --paper: #f5eee1;
+  --paper-deep: #ece0cc;
+  --paper-card: #fffaf1;
+
+  /* The single ink, and its two quieter voices. No fourth text colour. */
+  --ink: #16233f;
+  --ink-soft: #5d6478;
+  --ink-faint: #8d92a1;
+
+  /* The five inks a riso press would actually be loaded with. */
+  --blue: #2c5be6;
+  --coral: #f04e37;
+  --marigold: #ffbe3d;
+  --green: #2fa46a;
+  --pink: #ff9ecf;
+
+  --hair: rgba(22, 35, 63, 0.14);
+
+  /* metacci's motion scale. */
+  --fast: 0.15s;
+  --medium: 0.25s;
+  --slow: 0.4s;
+
+  font-family: var(--font-silka), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: normal;
+  color: var(--ink);
+  background: var(--paper);
+  color-scheme: light;
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+  min-height: 100svh;
+}
+
+/* The desk itself: a faint blue grid the way the reference posters are printed
+ * on graph paper, plus a paper grain. Both are pseudo-elements on the root so
+ * nothing in the page has to carry a background image of its own. */
+.reels-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(to right, rgba(44, 91, 230, 0.055) 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(to bottom, rgba(44, 91, 230, 0.055) 1px, transparent 1px) 0 0 / 28px 28px,
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 190, 61, 0.16), transparent 60%),
+    radial-gradient(90% 60% at 100% 100%, rgba(44, 91, 230, 0.09), transparent 65%),
+    var(--paper);
+  pointer-events: none;
+}
+
+/* Paper grain. An inline feTurbulence, so it costs no request and cannot
+ * become a broken image. Kept very low or it reads as a dirty screen. */
+.reels-root::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.5;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.28'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+/* ------------------------------------------------------------------ type */
+
+.reels-root .display {
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  font-size: clamp(2.25rem, 11vw, 3rem);
+}
+@media (min-width: 641px) {
+  .reels-root .display {
+    font-size: 56px;
+  }
+}
+@media (min-width: 1025px) {
+  .reels-root .display {
+    font-size: clamp(3.5rem, 5vw, 4.5rem);
+  }
+}
+@media (min-width: 1601px) {
+  .reels-root .display {
+    font-size: 88px;
+  }
+}
+
+.reels-root .sub {
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--ink-soft);
+  font-size: 16px;
+}
+@media (min-width: 641px) {
+  .reels-root .sub {
+    font-size: 18px;
+  }
+}
+@media (min-width: 1025px) {
+  .reels-root .sub {
+    font-size: 20px;
+  }
+}
+@media (min-width: 1601px) {
+  .reels-root .sub {
+    font-size: 24px;
+  }
+}
+
+/* Captions are the one place letter-spacing goes positive. */
+.reels-root .eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+}
+.reels-root .caption {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+}
+.reels-root .prose {
+  font-weight: 300;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
+}
+.reels-root .ui {
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+/* ------------------------------------------------------------- furniture */
+
+/* A card is a piece of paper on the desk: a real ink border and a hard offset
+ * shadow rather than a blur, because a blurred shadow reads as glass and this
+ * page is printed matter. */
+.reels-root .paper-card {
+  background: var(--paper-card);
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.reels-root .paper-card-flat {
+  background: var(--paper-card);
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+}
+
+/* A chip is a small sticker. Unselected it is outline only, so a row of twelve
+ * does not turn into a fruit salad; selected it takes its topic's ink. */
+.reels-root .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 9999px;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  cursor: pointer;
+  transition:
+    transform var(--fast) linear,
+    background-color var(--fast) ease,
+    box-shadow var(--fast) ease;
+}
+.reels-root .chip:hover {
+  background: rgba(22, 35, 63, 0.06);
+  transform: translateY(-1px);
+}
+.reels-root .chip:active {
+  transform: translateY(0) scale(0.99);
+}
+.reels-root .chip[data-on="true"] {
+  background: var(--chip, var(--blue));
+  color: #fffaf1;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.reels-root .chip[data-on="true"]:hover {
+  background: var(--chip, var(--blue));
+}
+
+/* Buttons keep metacci's metrics: 52px tall, 24px of padding, 8px radius, 16px
+ * at weight 600. The riso part is the border and the hard shadow. */
+.reels-root .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 24px;
+  border-radius: 10px;
+  border: 2px solid var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: normal;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition:
+    transform var(--fast) linear,
+    box-shadow var(--fast) linear,
+    background-color var(--fast) ease;
+}
+.reels-root .btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+/* The press: the button travels onto its own shadow rather than shrinking, so
+ * the label never moves relative to the border. */
+.reels-root .btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--ink);
+}
+.reels-root .btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.reels-root .btn-coral {
+  background: var(--coral);
+  color: #fffaf1;
+}
+.reels-root .btn-paper {
+  background: var(--paper-card);
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------- stickers */
+
+/* Every generated PNG is dropped in through this class so the whole set shares
+ * one shadow and one idle drift. The rotation and the delay are per element,
+ * set inline, because a grid of identically tilted stickers reads as a mistake
+ * rather than as a desk. */
+.reels-root .sticker {
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(2px 3px 0 rgba(22, 35, 63, 0.18));
+  transform: rotate(var(--tilt, 0deg));
+}
+.reels-root .sticker-float {
+  animation: reels-float 7s ease-in-out infinite;
+  animation-delay: var(--drift, 0s);
+}
+@keyframes reels-float {
+  0%,
+  100% {
+    transform: rotate(var(--tilt, 0deg)) translateY(0);
+  }
+  50% {
+    transform: rotate(var(--tilt, 0deg)) translateY(-9px);
+  }
+}
+
+/* ----------------------------------------------------------------- tiles */
+
+/* One reel. The thumbnail is the whole tile; everything else sits on top of it
+ * or under it. Hover lifts the paper and straightens the tilt, which is the
+ * cheapest way to make a wall of them feel like objects. */
+.reels-root .tile {
+  position: relative;
+  display: block;
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  background: var(--paper-card);
+  box-shadow: 3px 3px 0 var(--ink);
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition:
+    transform var(--medium) cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow var(--medium) cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reels-root .tile:hover,
+.reels-root .tile:focus-visible {
+  transform: translate(-2px, -4px);
+  box-shadow: 7px 8px 0 var(--ink);
+}
+.reels-root .tile:hover .tile-img,
+.reels-root .tile:focus-visible .tile-img {
+  transform: scale(1.06);
+}
+.reels-root .tile:hover .tile-play,
+.reels-root .tile:focus-visible .tile-play {
+  opacity: 1;
+  transform: scale(1);
+}
+.reels-root .tile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--slow) cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reels-root .tile-play {
+  opacity: 0;
+  transform: scale(0.82);
+  transition:
+    opacity var(--medium) ease,
+    transform var(--medium) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* The score badge. The one number that says why a reel is in the library. */
+.reels-root .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid var(--ink);
+  border-radius: 9999px;
+  background: var(--marigold);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding: 2px 8px 2px 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------- inputs */
+
+.reels-root input[type="text"],
+.reels-root input[type="search"] {
+  font-family: inherit;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  width: 100%;
+}
+.reels-root input::placeholder {
+  color: var(--ink-faint);
+}
+
+/* The follower range. Two native sliders stacked over one drawn track, so it
+ * stays keyboard operable; the same construction /viral-reels-browse uses, in
+ * this page's ink. */
+.reels-root .rail {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+.reels-root .rail::-webkit-slider-runnable-track,
+.reels-root .rail::-moz-range-track {
+  background: transparent;
+}
+.reels-root .rail::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  height: 22px;
+  width: 22px;
+  border-radius: 9999px;
+  background: var(--paper-card);
+  border: 2px solid var(--ink);
+  box-shadow: 1px 2px 0 var(--ink);
+  cursor: grab;
+}
+.reels-root .rail::-moz-range-thumb {
+  pointer-events: auto;
+  height: 22px;
+  width: 22px;
+  border-radius: 9999px;
+  background: var(--paper-card);
+  border: 2px solid var(--ink);
+  box-shadow: 1px 2px 0 var(--ink);
+  cursor: grab;
+}
+.reels-root .rail:focus-visible::-webkit-slider-thumb,
+.reels-root .rail:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.reels-root ::selection {
+  background: var(--marigold);
+  color: var(--ink);
+}
+.reels-root :focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* A tape strip, for the two places a card is stuck to the desk rather than
+ * resting on it. Semi-transparent marigold with a soft edge, the way real
+ * washi tape sits over whatever is under it. */
+.reels-root .tape {
+  position: absolute;
+  height: 26px;
+  width: 96px;
+  background: rgba(255, 190, 61, 0.72);
+  border-left: 1px dashed rgba(22, 35, 63, 0.18);
+  border-right: 1px dashed rgba(22, 35, 63, 0.18);
+  box-shadow: 0 1px 2px rgba(22, 35, 63, 0.14);
+  pointer-events: none;
+}
+
+/* One shared entrance. Tiles use it with a per-tile delay so a page of results
+ * deals itself onto the desk instead of appearing all at once. */
+@keyframes reels-deal {
+  from {
+    opacity: 0;
+    transform: translateY(14px) rotate(var(--tilt, 0deg));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+}
+.reels-root .deal {
+  animation: reels-deal 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--deal-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reels-root .sticker-float,
+  .reels-root .deal {
+    animation: none !important;
+  }
+  .reels-root .tile,
+  .reels-root .tile-img,
+  .reels-root .btn,
+  .reels-root .chip {
+    transition: none !important;
+  }
+}
+
+/* ----------------------------------------------------------------- sheet */
+
+/* The detail dialog. A native <dialog>, so the browser hands us the top layer,
+ * Escape, the inert background and focus return for free. It still sits inside
+ * .reels-root in the DOM, which is why these descendant selectors reach it even
+ * though it paints in the top layer.
+ *
+ * The default UA box is a centred, sized, bordered thing; all of that is undone
+ * here so the dialog element itself becomes the full-viewport hit area and the
+ * card inside it is what a visitor sees. That is also what makes the
+ * click-outside test in reel-sheet.tsx work: a click on the element rather than
+ * on the card is a click on the backdrop. */
+.reels-root .reel-sheet {
+  max-width: 100vw;
+  max-height: 100svh;
+  width: 100vw;
+  height: 100svh;
+  margin: 0;
+  padding: 24px 16px;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+  display: none;
+  place-items: center;
+  color: var(--ink);
+}
+.reels-root .reel-sheet[open] {
+  display: grid;
+}
+.reels-root .reel-sheet::backdrop {
+  background: rgba(22, 35, 63, 0.55);
+  backdrop-filter: blur(3px);
+}
+.reels-root .reel-sheet[open] > * {
+  animation: reels-sheet-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes reels-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reels-root .reel-sheet[open] > * {
+    animation: none !important;
+  }
+}
+
+/* The site's <body> is painted navy in globals.css, which this page may not
+ * edit. Without this the paper stops at the last element and a rubber-band
+ * scroll on iOS reveals navy above and below a cream page. :has on the body is
+ * the scoped way to say "only while /reels is the page". */
+body:has(.reels-root) {
+  background: #f5eee1;
+}
