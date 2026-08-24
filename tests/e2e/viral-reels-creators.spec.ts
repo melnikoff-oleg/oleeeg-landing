@@ -289,6 +289,38 @@ test("98d - creators: moving a thumb narrows the count and writes the URL", asyn
   await expect(page).not.toHaveURL(/edu=/);
 });
 
+test("98e - creators: opening a creator and coming back keeps the filters", async ({
+  page,
+}) => {
+  await settle(page, "/viral-reels-creators");
+  test.skip((await chartTotal(page, "audience size")) <= 0, "needs a live index");
+
+  const min = page.getByTestId("range-followers-min");
+  await min.focus();
+  for (let i = 0; i < 5; i++) await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/aud=5-12/);
+  const narrowed = await page.getByText(/of \d+ creators match/).innerText();
+
+  // Click somewhere neutral first: the roster is still settling from the
+  // filter, and a row that is replaced between mousedown and mouseup eats the
+  // click. A person pauses; a test has to say so.
+  await page.mouse.click(10, 10);
+  const card = page.locator("a[href^='/viral-reels-creators/']").first();
+  const href = await card.getAttribute("href");
+  await card.click();
+  await expect(page).toHaveURL(new RegExp(`${href}$`));
+
+  // The filters are written with replaceState, so the router's cached entry for
+  // this route is the render the server did for the UNFILTERED url. Back serves
+  // that: right address, every thumb reset. The URL has to win.
+  await page.goBack();
+  await expect(page).toHaveURL(/aud=5-12/);
+  await expect(page.getByTestId("range-followers-min")).toHaveValue("5");
+  await expect(page.getByText("500K+")).toBeVisible();
+  await expect(page.getByText(/of \d+ creators match/)).toHaveText(narrowed);
+  await expect(page.getByRole("button", { name: /clear filters/i })).toBeVisible();
+});
+
 test("99 - creators: an arbitrary range never reaches the RPC", async ({
   request,
 }) => {

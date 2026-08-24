@@ -5,6 +5,8 @@ import { Loader2, Search } from "lucide-react";
 import {
   CREATOR_QUERY_MAX,
   FILTER_KEYS,
+  normalizeCreatorQuery,
+  readCreatorFilters,
   CREATOR_RESULT_COUNT,
   filtersAreEmpty,
   filtersToBody,
@@ -16,8 +18,14 @@ import {
   type CreatorHit,
   type CreatorRow,
 } from "@/lib/creators/types";
+import { normalizePage } from "@/lib/reels/types";
 import { CreatorCard } from "@/components/creator-card";
 import { CreatorFilterBar } from "./creator-filters";
+
+/** One string standing for a whole filter set, for comparing two of them. */
+function filtersKey(f: CreatorFilters): string {
+  return FILTER_KEYS.map((k) => f[k].join("-")).join("|");
+}
 
 /** The roster's own URL, carrying every set filter with it. */
 function pageHref(page: number, filters: CreatorFilters): string {
@@ -241,13 +249,55 @@ export function CreatorSearch({
     }
   }, []);
 
-  // A shared link arrives with ?q= already filled in and searches on its own.
-  // Deliberately keyed on the INITIAL values, not the live ones: keying it on
-  // `filters` would re-fire this effect on every filter change and race the
-  // explicit search that the change already triggers.
+  /**
+   * Take the URL as the truth about what should be on screen.
+   *
+   * This exists because the filters are written with `replaceState`, which
+   * changes the address bar and tells Next's router nothing. So the router's
+   * cached entry for this route is still the render the server did for the
+   * UNFILTERED url, and opening a creator and pressing Back serves exactly
+   * that: the right address, every thumb reset, the whole index listed. The
+   * page that arrives is stale, but the URL beside it never is, so the URL is
+   * what gets believed.
+   *
+   * It runs on mount, which is when a back lands here, and on popstate, which
+   * is when a back or a forward lands here without a remount. On an ordinary
+   * first load it finds the URL and the render already agreeing and does
+   * nothing beyond the one thing it has always done: run the search a shared
+   * ?q= link arrived with.
+   */
+  const syncFromUrl = useCallback(
+    (firstRun: boolean) => {
+      const params = new URLSearchParams(globalThis.location.search);
+      const urlFilters = readCreatorFilters(Object.fromEntries(params.entries()));
+      const urlQuery = normalizeCreatorQuery(params.get("q") ?? "");
+      const urlPage = normalizePage(params.get("page"));
+
+      const changed =
+        urlQuery !== applied.current.query ||
+        filtersKey(urlFilters) !== filtersKey(applied.current.filters);
+
+      if (changed) {
+        applied.current = { query: urlQuery, filters: urlFilters };
+        live.current = urlFilters;
+        setFilters(urlFilters);
+        setInput(urlQuery);
+        if (!urlQuery) setState({ kind: "idle" });
+      }
+      if (urlQuery && (changed || firstRun)) void run(urlQuery, urlFilters);
+      // Self-guarding: it returns without a request when what it is asked for
+      // is already what is on screen, which is the ordinary first load.
+      void loadRoster(urlPage, urlFilters);
+    },
+    [run, loadRoster],
+  );
+
   useEffect(() => {
-    if (initialQuery.trim()) void run(initialQuery, initialFilters);
-  }, [initialQuery, initialFilters, run]);
+    syncFromUrl(true);
+    const onPop = () => syncFromUrl(false);
+    globalThis.addEventListener("popstate", onPop);
+    return () => globalThis.removeEventListener("popstate", onPop);
+  }, [syncFromUrl]);
 
   /** Shareable, and a reload reproduces exactly what is on screen. */
   const syncUrl = (next: CreatorFilters, nextPage: number, query: string) => {
@@ -290,9 +340,10 @@ export function CreatorSearch({
     setFilters(next);
 
     const query = input.trim();
-    const key = (f: CreatorFilters, q: string) =>
-      `${q}|${FILTER_KEYS.map((k) => f[k].join("-")).join("|")}`;
-    if (key(next, query) === key(applied.current.filters, applied.current.query)) {
+    if (
+      query === applied.current.query &&
+      filtersKey(next) === filtersKey(applied.current.filters)
+    ) {
       return;
     }
     applied.current = { query, filters: next };

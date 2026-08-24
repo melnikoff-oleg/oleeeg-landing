@@ -65,7 +65,11 @@ export async function POST(req: Request) {
     );
     return NextResponse.json({ query, filters, results });
   } catch (err) {
-    console.error("creator search failed", err);
+    // A dropped request is not a failure. Every filter change can abort the one
+    // before it, and clicking into a creator aborts whatever was in flight, so
+    // logging these would bury the failures that matter under the ones that
+    // never happened. Nobody is listening for the body either way.
+    if (!req.signal.aborted) console.error("creator search failed", err);
     return NextResponse.json({ error: "search_failed" }, { status: 502 });
   }
 }
