@@ -5,8 +5,10 @@ import { test, expect, type Page } from "@playwright/test";
 //
 // Everything here is deterministic without a secret. The API guard rails all
 // return before the route reaches OpenAI or Supabase, and the page renders its
-// search box, its depth filter and its nav before any search runs, so a key-free
-// environment exercises the same code paths a live one does.
+// search box, its four range filters and its nav before any search runs, so a
+// key-free environment exercises the same code paths a live one does. The
+// filters are drawn from the scales, not from the data, so every structural
+// assertion below holds with an empty index too.
 //
 // The happy path (a query -> twelve ranked creators, and a creator page with
 // their reels in score order) needs a live index and an embedding call, and is
@@ -56,17 +58,16 @@ test.describe("88 - creator search api validation", () => {
     expect((await res.json()).error).toBe("missing_query");
   });
 
-  test("an arbitrary depth is clamped to one of the four, never passed on", async ({
-    request,
-  }) => {
+  test("a malformed range is dropped, never passed on", async ({ request }) => {
     const res = await request.post("/api/viral-reels/creators", {
-      data: { query: "people who cook", minReels: 999 },
+      data: { query: "people who cook", aud: "not-a-range", edu: { $ne: null } },
     });
-    // 503 with no key configured, 200 with one. Never a crash, and never the 999.
+    // 503 with no key configured, 200 with one. Never a crash.
     expect([200, 503]).toContain(res.status());
     if (res.status() === 200) {
       const json = await res.json();
-      expect([1, 5, 20, 50]).toContain(json.minReels);
+      expect(json.filters.followers).toEqual([0, 12]);
+      expect(json.filters.educational).toEqual([0, 10]);
       expect(Array.isArray(json.results)).toBe(true);
     }
   });
@@ -74,14 +75,15 @@ test.describe("88 - creator search api validation", () => {
 
 // ── The page ─────────────────────────────────────────────────────────────────
 
-test("89 - creators: the page is the search box, the depth filter and the roster", async ({
+test("89 - creators: the page is the search box, the filters and the roster", async ({
   page,
 }) => {
   await settle(page, "/viral-reels-creators");
   await expect(page.locator("#creator-query")).toBeVisible();
   await expect(page.getByRole("button", { name: "search" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "any", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "50+ reels" })).toBeVisible();
+  // Four ranges, eight thumbs. The reel-count filter was removed outright.
+  await expect(page.locator("input[type=range]")).toHaveCount(8);
+  await expect(page.getByRole("button", { name: /reels$/ })).toHaveCount(0);
 
   // Same rule as the other reel pages: no shell, no copy, no links out.
   await expect(page.getByRole("link", { name: /oleg melnikov/i })).toHaveCount(0);
@@ -104,21 +106,9 @@ test("90 - creators: the search button is disabled until there is a query", asyn
   await expect(button).toBeEnabled();
 });
 
-test("91 - creators: a ?q= link prefills the box and ?r= picks the depth", async ({
-  page,
-}) => {
-  await settle(page, "/viral-reels-creators?q=fitness%20coaches&r=20");
+test("91 - creators: a ?q= link prefills the box", async ({ page }) => {
+  await settle(page, "/viral-reels-creators?q=fitness%20coaches");
   await expect(page.locator("#creator-query")).toHaveValue("fitness coaches");
-  await expect(page.getByRole("button", { name: "20+ reels" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  // "any" is the default, and an unknown depth falls back to it rather than
-  // reaching the RPC as an arbitrary threshold.
-  await settle(page, "/viral-reels-creators?q=fitness%20coaches&r=13");
-  await expect(
-    page.getByRole("button", { name: "any", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
 });
 
 test("92 - creators: no em dashes in the copy", async ({ page }) => {
@@ -169,7 +159,6 @@ test("96 - creators: the search controls are >=44px tap targets", async ({
   const targets = [
     page.locator("#creator-query"),
     page.getByRole("button", { name: "search" }),
-    page.getByRole("button", { name: "any", exact: true }),
   ];
   for (const t of targets) {
     const box = await t.boundingBox();
@@ -180,96 +169,180 @@ test("96 - creators: the search controls are >=44px tap targets", async ({
 
 // ── The filters ──────────────────────────────────────────────────────────────
 //
-// Tests 97+: the audience band and the three 1-10 value floors, added 2026-08-24.
-// Every one of them is optional, and the point of these tests is that an unset
-// filter is genuinely unset rather than a zero that quietly excludes every
-// creator the scoring pass has not reached yet.
+// Tests 97+: four range filters, drawn as histograms with two thumbs across
+// them, rewritten from the min-only floors on 2026-08-24.
+//
+// Two rules carry the feature and both are tested here. Every filter is
+// OPTIONAL, so an untouched one sits at full extent and asks nothing rather
+// than quietly excluding every creator the scoring pass has not reached yet.
+// And the filters COMPOSE: each histogram counts only the creators the other
+// three allow, so the shape on screen describes what is actually left.
+
+/** The bar counts a chart is drawn from, read off its own label. */
+async function chartTotal(page: Page, label: string): Promise<number> {
+  const text = await page
+    .getByRole("img", { name: new RegExp(`^${label}:`) })
+    .getAttribute("aria-label");
+  return Number(/how the (\d+) creators/.exec(text ?? "")?.[1] ?? -1);
+}
 
 test("97 - creators: the filters render and start unset", async ({ page }) => {
   await settle(page, "/viral-reels-creators");
-  await expect(
-    page.getByRole("button", { name: "any size", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
-  for (const id of ["#f-entertaining", "#f-educational", "#f-inspirational"]) {
-    await expect(page.locator(id)).toHaveValue("");
+
+  // Both thumbs at the ends of their tracks on all four scales: 0 to 12 on the
+  // audience ladder, 0 to 10 on each 1-10 scale.
+  for (const [key, top] of [
+    ["followers", 12],
+    ["entertaining", 10],
+    ["educational", 10],
+    ["inspirational", 10],
+  ] as const) {
+    await expect(page.getByTestId(`range-${key}-min`)).toHaveValue("0");
+    await expect(page.getByTestId(`range-${key}-max`)).toHaveValue(String(top));
   }
+  await expect(page.getByText("any size")).toBeVisible();
+
   // Nothing is set, so there is nothing to clear. A permanent "clear filters"
   // beside untouched controls reads as though the page is already filtering.
   await expect(page.getByRole("button", { name: /clear filters/i })).toHaveCount(0);
 });
 
-test("98 - creators: a filtered URL selects its controls", async ({ page }) => {
-  await settle(page, "/viral-reels-creators?band=3&edu=7&ent=5");
-  await expect(
-    page.getByRole("button", { name: "1M - 10M", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator("#f-educational")).toHaveValue("7");
-  await expect(page.locator("#f-entertaining")).toHaveValue("5");
-  await expect(page.locator("#f-inspirational")).toHaveValue("");
+test("98 - creators: a filtered URL positions the thumbs", async ({ page }) => {
+  // The audience ladder carries thumb indices; the 1-10 scales carry their real
+  // values, so "edu=4-8" reads as the sentence it is. A top thumb is one past
+  // the last value inside the range, because a bar covers [edge, nextEdge).
+  await settle(page, "/viral-reels-creators?aud=3-9&edu=4-8");
+  await expect(page.getByTestId("range-followers-min")).toHaveValue("3");
+  await expect(page.getByTestId("range-followers-max")).toHaveValue("9");
+  await expect(page.getByTestId("range-educational-min")).toHaveValue("3");
+  await expect(page.getByTestId("range-educational-max")).toHaveValue("8");
+  await expect(page.getByText("100K to 10M")).toBeVisible();
+  await expect(page.getByText("4 to 8")).toBeVisible();
+
+  // Untouched, and saying so.
+  await expect(page.getByTestId("range-entertaining-min")).toHaveValue("0");
+  await expect(page.getByTestId("range-entertaining-max")).toHaveValue("10");
   await expect(page.getByRole("button", { name: /clear filters/i })).toBeVisible();
 });
 
-test("98b - creators: out-of-range filters fall back to unset, never clamped", async ({
+test("98b - creators: a junk range falls back to unset, never clamped", async ({
   page,
 }) => {
-  // Clamping a 99 into "10+" would silently answer a question nobody asked and
-  // return almost nothing, which reads as an empty database rather than as a
-  // rejected input.
-  await settle(page, "/viral-reels-creators?band=99&edu=99&ent=-3&insp=abc");
-  await expect(
-    page.getByRole("button", { name: "any size", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
-  for (const id of ["#f-entertaining", "#f-educational", "#f-inspirational"]) {
-    await expect(page.locator(id)).toHaveValue("");
+  // Clamping would silently answer a question nobody asked and return almost
+  // nothing, which reads as an empty database rather than as a rejected input.
+  // The backwards pair is the one that matters: it is the only junk a real
+  // control could ever emit.
+  await settle(page, "/viral-reels-creators?aud=9-3&edu=99-1&ent=abc&insp=");
+  for (const [key, top] of [
+    ["followers", 12],
+    ["entertaining", 10],
+    ["educational", 10],
+    ["inspirational", 10],
+  ] as const) {
+    await expect(page.getByTestId(`range-${key}-min`)).toHaveValue("0");
+    await expect(page.getByTestId(`range-${key}-max`)).toHaveValue(String(top));
   }
+  await expect(page.getByRole("button", { name: /clear filters/i })).toHaveCount(0);
 });
 
-test("99 - creators: an arbitrary filter never reaches the RPC", async ({
+test("98c - creators: a filter redraws the other histograms, never its own", async ({
+  page,
+}) => {
+  await settle(page, "/viral-reels-creators");
+  const wholeIndex = await chartTotal(page, "audience size");
+  test.skip(wholeIndex <= 0, "needs a live index");
+
+  const eduBefore = await chartTotal(page, "educational");
+
+  const min = page.getByTestId("range-followers-min");
+  await min.focus();
+  for (let i = 0; i < 5; i++) await page.keyboard.press("ArrowRight");
+  await expect(min).toHaveValue("5");
+
+  // The other charts describe the creators this filter left behind. That is the
+  // whole point of the cross-filter: the next filter is chosen against what is
+  // actually left rather than against a library that is no longer on screen.
+  expect(await chartTotal(page, "educational")).toBeLessThan(eduBefore);
+  // Its own chart does not move, or dragging a thumb would eat the bars it is
+  // being dragged across.
+  expect(await chartTotal(page, "audience size")).toBe(wholeIndex);
+});
+
+test("98d - creators: moving a thumb narrows the count and writes the URL", async ({
+  page,
+}) => {
+  await settle(page, "/viral-reels-creators");
+  test.skip((await chartTotal(page, "audience size")) <= 0, "needs a live index");
+
+  const max = page.getByTestId("range-educational-max");
+  await max.focus();
+  for (let i = 0; i < 4; i++) await page.keyboard.press("ArrowLeft");
+  await expect(max).toHaveValue("6");
+  await expect(page.getByText("6 or less")).toBeVisible();
+
+  // Shareable, and without a page load: the roster is re-fetched, not reloaded.
+  await expect(page).toHaveURL(/edu=1-6/);
+  await expect(page.getByText(/of \d+ creators match/)).toBeVisible();
+
+  await page.getByRole("button", { name: /clear filters/i }).click();
+  await expect(page.getByTestId("range-educational-max")).toHaveValue("10");
+  await expect(page).not.toHaveURL(/edu=/);
+});
+
+test("99 - creators: an arbitrary range never reaches the RPC", async ({
   request,
 }) => {
   const res = await request.post("/api/viral-reels/creators", {
     data: {
       query: "people who cook",
-      band: 999,
-      minEducational: 99,
-      minEntertaining: "; drop table creator_search",
-      minInspirational: -1,
+      aud: "0-999",
+      edu: "; drop table creator_search",
+      ent: "-1-4",
+      insp: "8-2",
     },
   });
   expect([200, 503]).toContain(res.status());
   if (res.status() === 200) {
     const json = await res.json();
     expect(json.filters).toEqual({
-      band: 0,
-      minEntertaining: null,
-      minEducational: null,
-      minInspirational: null,
+      followers: [0, 12],
+      entertaining: [0, 10],
+      educational: [0, 10],
+      inspirational: [0, 10],
     });
   }
 });
 
 test("99b - creators: the filters survive a roster page link", async ({ page }) => {
-  await settle(page, "/viral-reels-creators?band=2");
+  await settle(page, "/viral-reels-creators?aud=0-6");
   const next = page.getByRole("link", { name: "more" });
   if ((await next.count()) && (await next.getAttribute("href"))) {
     // Paging must not silently drop the filter: page two of a filtered roster
     // has to still be filtered.
-    expect(await next.getAttribute("href")).toContain("band=2");
+    expect(await next.getAttribute("href")).toContain("aud=0-6");
   }
 });
 
-test("99c - creators: the filter selects are >=44px tap targets", async ({
+test("99c - creators: the range tracks are >=44px tap targets", async ({
   page,
 }, testInfo) => {
   MOBILE_ONLY(testInfo);
   await settle(page, "/viral-reels-creators");
-  for (const id of ["#f-entertaining", "#f-educational", "#f-inspirational"]) {
-    const box = await page.locator(id).boundingBox();
-    expect(box, `tap target ${id}`).not.toBeNull();
-    expect(box!.height).toBeGreaterThanOrEqual(MIN_TAP);
+  for (const key of ["followers", "entertaining", "educational", "inspirational"]) {
+    for (const end of ["min", "max"]) {
+      const box = await page.getByTestId(`range-${key}-${end}`).boundingBox();
+      expect(box, `tap target ${key} ${end}`).not.toBeNull();
+      expect(box!.height).toBeGreaterThanOrEqual(MIN_TAP);
+    }
   }
-  const band = await page
-    .getByRole("button", { name: "any size", exact: true })
-    .boundingBox();
-  expect(band!.height).toBeGreaterThanOrEqual(MIN_TAP);
+});
+
+test("99d - creators: the roster survives an unreachable filter", async ({
+  page,
+}) => {
+  // Nobody is 10 out of 10 on all three scales at once. An empty answer has to
+  // read as an empty answer rather than as a broken page.
+  await settle(page, "/viral-reels-creators?ent=10-10&edu=10-10&insp=10-10");
+  await expect(page.locator("input[type=range]")).toHaveCount(8);
+  await expect(page.getByRole("button", { name: /clear filters/i })).toBeVisible();
 });

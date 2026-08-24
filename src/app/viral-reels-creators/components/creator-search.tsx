@@ -4,43 +4,26 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Search } from "lucide-react";
 import {
   CREATOR_QUERY_MAX,
+  FILTER_KEYS,
   CREATOR_RESULT_COUNT,
-  DEPTH_STOPS,
   filtersAreEmpty,
+  filtersToBody,
+  NO_FILTERS,
+  ROSTER_PAGE_SIZE,
+  writeCreatorFilters,
+  type CreatorFact,
   type CreatorFilters,
   type CreatorHit,
   type CreatorRow,
-  type DepthReels,
 } from "@/lib/creators/types";
 import { CreatorCard } from "@/components/creator-card";
 import { CreatorFilterBar } from "./creator-filters";
 
-/**
- * Put the filters on a URLSearchParams, omitting every one that is unset.
- *
- * Omitting rather than writing an empty value keeps a shared link honest: a URL
- * with no `edu=` in it filters on nothing, which is exactly what it looks like.
- * Shared by the roster's page links and by the search's replaceState.
- */
-function writeFilters(params: URLSearchParams, f: CreatorFilters) {
-  if (f.band > 0) params.set("band", String(f.band));
-  else params.delete("band");
-  for (const [key, value] of [
-    ["ent", f.minEntertaining],
-    ["edu", f.minEducational],
-    ["insp", f.minInspirational],
-  ] as const) {
-    if (value === null) params.delete(key);
-    else params.set(key, String(value));
-  }
-}
-
-/** The roster's own URL, carrying the depth and every set filter with it. */
-function pageHref(page: number, depth: DepthReels, filters: CreatorFilters): string {
+/** The roster's own URL, carrying every set filter with it. */
+function pageHref(page: number, filters: CreatorFilters): string {
   const params = new URLSearchParams();
   if (page > 1) params.set("page", String(page));
-  if (depth > 1) params.set("r", String(depth));
-  writeFilters(params, filters);
+  writeCreatorFilters(params, filters);
   const query = params.toString();
   return query ? `/viral-reels-creators?${query}` : "/viral-reels-creators";
 }
@@ -48,10 +31,12 @@ function pageHref(page: number, depth: DepthReels, filters: CreatorFilters): str
 function PageLink({
   href,
   disabled,
+  onClick,
   children,
 }: {
   href: string;
   disabled: boolean;
+  onClick: () => void;
   children: React.ReactNode;
 }) {
   const base =
@@ -64,7 +49,18 @@ function PageLink({
     );
   }
   return (
-    <a href={href} className={`${base} text-silver hover:border-vivid-blue/50 hover:text-white`}>
+    <a
+      href={href}
+      // A real href, intercepted. The anchor is what a crawler follows and what
+      // a middle click opens; the handler is what makes a page turn feel like
+      // one, since the roster is already a client fetch away.
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        onClick();
+      }}
+      className={`${base} text-silver hover:border-vivid-blue/50 hover:text-white`}
+    >
       {children}
     </a>
   );
@@ -95,41 +91,113 @@ function Skeletons() {
 }
 
 /**
- * The creator search, and the roster underneath it.
+ * The creator search, the four range filters, and the roster underneath them.
  *
  * Unlike /viral-reels, this page shows something before a visitor types: the
  * creators the database has read the most of, server-rendered. A search box over
  * an empty page asks the visitor to guess what is in here; a roster answers that
  * before they ask, and a search then replaces it.
+ *
+ * The filters drive both halves. With words in the box they narrow the search;
+ * with an empty box they narrow the roster, which is re-fetched rather than
+ * reloaded: four sliders that each cost a full page load would be unusable, and
+ * the histograms have to keep redrawing while a thumb is moving.
  */
 export function CreatorSearch({
   initialQuery,
-  initialDepth,
   initialFilters,
+  facts,
   roster,
   rosterTotal,
   rosterPage,
-  rosterPages,
 }: {
   initialQuery: string;
-  initialDepth: DepthReels;
   initialFilters: CreatorFilters;
+  /** Every creator as four numbers, for the histograms. Empty when the index
+   *  is unreachable, which leaves the sliders working over empty charts. */
+  facts: CreatorFact[];
   roster: CreatorRow[];
   rosterTotal: number;
   rosterPage: number;
-  rosterPages: number;
 }) {
   const [input, setInput] = useState(initialQuery);
-  const [depth, setDepth] = useState<DepthReels>(initialDepth);
   const [filters, setFilters] = useState<CreatorFilters>(initialFilters);
   const [state, setState] = useState<State>({ kind: "idle" });
-  const inflight = useRef<AbortController | null>(null);
+  const [rows, setRows] = useState(roster);
+  const [total, setTotal] = useState(rosterTotal);
+  const [page, setPage] = useState(rosterPage);
+  const [rosterBusy, setRosterBusy] = useState(false);
+  const [rosterError, setRosterError] = useState("");
 
-  const run = useCallback(async (
-    raw: string,
-    minReels: DepthReels,
-    active: CreatorFilters,
-  ) => {
+  const inflight = useRef<AbortController | null>(null);
+  const rosterInflight = useRef<AbortController | null>(null);
+  const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // What is actually on screen. A commit that matches it changes nothing, and
+  // three things fire commits that often will: a pointerup on a thumb that
+  // never moved, a blur from tabbing past a slider, and a keyboard step that
+  // lands back where it started.
+  const applied = useRef({ query: initialQuery.trim(), filters: initialFilters });
+  // What the visible roster was fetched with. A commit that matches it is a
+  // click on a thumb that never moved, and re-fetching for that would put a
+  // spinner on the page every time someone touched a slider without dragging.
+  const rosterKey = useRef(pageHref(rosterPage, initialFilters));
+  // The live filters, readable from an event handler without waiting for a
+  // render. A pointerup and the last change of a drag are separate DOM events,
+  // and a commit must never apply the range from before the drag.
+  const live = useRef(initialFilters);
+
+  const pages = Math.max(1, Math.ceil(total / ROSTER_PAGE_SIZE));
+
+  // Cancel a pending commit when the page goes away, so a fetch cannot land
+  // against an unmounted component.
+  useEffect(() => () => {
+    if (commitTimer.current) clearTimeout(commitTimer.current);
+  }, []);
+
+  const loadRoster = useCallback(
+    async (nextPage: number, active: CreatorFilters) => {
+      const key = pageHref(nextPage, active);
+      if (key === rosterKey.current) return;
+      rosterKey.current = key;
+
+      rosterInflight.current?.abort();
+      const controller = new AbortController();
+      rosterInflight.current = controller;
+      setRosterBusy(true);
+      setRosterError("");
+
+      const params = new URLSearchParams();
+      if (nextPage > 1) params.set("page", String(nextPage));
+      writeCreatorFilters(params, active);
+
+      try {
+        const res = await fetch(`/api/viral-reels/creators/roster?${params}`, {
+          signal: controller.signal,
+        });
+        const json = (await res.json().catch(() => ({}))) as {
+          results?: CreatorRow[];
+          total?: number;
+          error?: string;
+        };
+        if (controller.signal.aborted) return;
+        if (!res.ok) {
+          setRosterError("the roster did not come back. try again in a moment.");
+          return;
+        }
+        setRows(json.results ?? []);
+        setTotal(json.total ?? 0);
+        setPage(nextPage);
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+        setRosterError("the roster did not come back. try again in a moment.");
+      } finally {
+        if (!controller.signal.aborted) setRosterBusy(false);
+      }
+    },
+    [],
+  );
+
+  const run = useCallback(async (raw: string, active: CreatorFilters) => {
     const query = raw.trim();
     if (!query) return;
 
@@ -141,20 +209,11 @@ export function CreatorSearch({
 
     setState({ kind: "loading" });
 
-    // Shareable, and a reload keeps both the words and the depth. replaceState
-    // rather than a router push so the back button still leaves the page.
-    const url = new URL(globalThis.location.href);
-    url.searchParams.set("q", query);
-    if (minReels <= 1) url.searchParams.delete("r");
-    else url.searchParams.set("r", String(minReels));
-    writeFilters(url.searchParams, active);
-    globalThis.history.replaceState(null, "", url);
-
     try {
       const res = await fetch("/api/viral-reels/creators", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, minReels, ...active }),
+        body: JSON.stringify({ query, ...filtersToBody(active) }),
         signal: controller.signal,
       });
       const json = (await res.json().catch(() => ({}))) as {
@@ -187,48 +246,78 @@ export function CreatorSearch({
   // `filters` would re-fire this effect on every filter change and race the
   // explicit search that the change already triggers.
   useEffect(() => {
-    if (initialQuery.trim()) void run(initialQuery, initialDepth, initialFilters);
-  }, [initialQuery, initialDepth, initialFilters, run]);
+    if (initialQuery.trim()) void run(initialQuery, initialFilters);
+  }, [initialQuery, initialFilters, run]);
+
+  /** Shareable, and a reload reproduces exactly what is on screen. */
+  const syncUrl = (next: CreatorFilters, nextPage: number, query: string) => {
+    const url = new URL(globalThis.location.href);
+    if (query) url.searchParams.set("q", query);
+    else url.searchParams.delete("q");
+    if (nextPage > 1) url.searchParams.set("page", String(nextPage));
+    else url.searchParams.delete("page");
+    writeCreatorFilters(url.searchParams, next);
+    // replaceState rather than a router push, so the back button still leaves
+    // the page rather than walking back through every slider position.
+    globalThis.history.replaceState(null, "", url);
+  };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    void run(input, depth, filters);
+    const query = input.trim();
+    applied.current = { query, filters: live.current };
+    syncUrl(live.current, page, query);
+    void run(query, live.current);
   };
 
-  // Changing the depth re-runs the current words straight away: a filter that
-  // needs a second click on "search" reads as broken. With nothing typed it
-  // still has to reload, because the roster underneath is server-rendered.
-  const pickDepth = (next: DepthReels) => {
-    setDepth(next);
-    if (input.trim()) {
-      void run(input, next, filters);
-      return;
-    }
-    const url = new URL(globalThis.location.href);
-    url.searchParams.delete("page");
-    if (next <= 1) url.searchParams.delete("r");
-    else url.searchParams.set("r", String(next));
-    globalThis.location.assign(url.toString());
+  /** Live, on every step of a drag. Redraws the charts and the count, asks the
+   *  server nothing at all. */
+  const onFilterInput = (next: CreatorFilters) => {
+    live.current = next;
+    setFilters(next);
   };
 
   /**
-   * Same contract as the depth chips: a filter applies the moment it is set.
+   * On release. This is the one that costs a round trip.
    *
-   * With words in the box that is a new search. With an empty box the roster
-   * underneath is server-rendered, so the only way to re-filter it is a reload,
-   * and page is dropped because page 7 of an unfiltered roster is rarely a page
-   * of the filtered one.
+   * Page 1, because page 7 of an unfiltered roster is rarely a page of the
+   * filtered one. The search is re-run only when there are words in the box;
+   * the roster is re-fetched either way, so clearing the box lands on a roster
+   * that already agrees with the filters rather than one from before them.
    */
-  const pickFilters = (next: CreatorFilters) => {
+  const commit = (next: CreatorFilters) => {
+    live.current = next;
     setFilters(next);
-    if (input.trim()) {
-      void run(input, depth, next);
+
+    const query = input.trim();
+    const key = (f: CreatorFilters, q: string) =>
+      `${q}|${FILTER_KEYS.map((k) => f[k].join("-")).join("|")}`;
+    if (key(next, query) === key(applied.current.filters, applied.current.query)) {
       return;
     }
-    const url = new URL(globalThis.location.href);
-    url.searchParams.delete("page");
-    writeFilters(url.searchParams, next);
-    globalThis.location.assign(url.toString());
+    applied.current = { query, filters: next };
+
+    // The URL and the page number move now; only the two network calls wait.
+    // Holding the URL back would make a link copied mid-interaction wrong, and
+    // leaving the page number behind would print "page 3 of 1" for as long as
+    // the fetch takes.
+    syncUrl(next, 1, query);
+    setPage(1);
+
+    // A held arrow key steps the thumb once per repeat and fires a commit on
+    // every keyup. Without this, crossing five notches is five round trips,
+    // four of them aborted a moment after they were sent.
+    if (commitTimer.current) clearTimeout(commitTimer.current);
+    commitTimer.current = setTimeout(() => {
+      if (query) void run(query, next);
+      void loadRoster(1, next);
+    }, 250);
+  };
+
+  const goToPage = (nextPage: number) => {
+    syncUrl(live.current, nextPage, input.trim());
+    void loadRoster(nextPage, live.current);
+    globalThis.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const results = state.kind === "done" ? state.results : [];
@@ -247,7 +336,16 @@ export function CreatorSearch({
         <input
           id="creator-query"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            setInput(e.target.value);
+            // Emptying the box puts the roster back rather than leaving the
+            // last answer stranded on screen with nothing that produced it.
+            if (!e.target.value.trim() && state.kind !== "idle") {
+              setState({ kind: "idle" });
+              applied.current = { query: "", filters: live.current };
+              syncUrl(live.current, page, "");
+            }
+          }}
           maxLength={CREATOR_QUERY_MAX}
           autoComplete="off"
           enterKeyHint="search"
@@ -267,36 +365,16 @@ export function CreatorSearch({
         </button>
       </form>
 
-      {/* The one control besides the box: how much of a creator the database has
-          to have read before they count. */}
-      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <div
-          role="group"
-          aria-label="how many of their reels the database has read"
-          className="flex flex-wrap gap-2"
-        >
-          {DEPTH_STOPS.map((d) => {
-            const active = d.reels === depth;
-            return (
-              <button
-                key={d.label}
-                type="button"
-                aria-pressed={active}
-                onClick={() => pickDepth(d.reels)}
-                className={`inline-flex min-h-11 items-center rounded-full border px-4 font-body text-xs transition-colors ${
-                  active
-                    ? "border-vivid-blue bg-vivid-blue/10 text-white"
-                    : "border-hairline text-silver-muted hover:border-vivid-blue/50 hover:text-white"
-                }`}
-              >
-                {d.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <CreatorFilterBar filters={filters} onChange={pickFilters} />
+      <CreatorFilterBar
+        facts={facts}
+        filters={filters}
+        onInput={onFilterInput}
+        // Read from the ref, not from a prop: the ref is written by the very
+        // change event that moved the thumb, so it is right even if React has
+        // not re-rendered between that event and this one.
+        onCommit={() => commit(live.current)}
+        onReset={() => commit(NO_FILTERS)}
+      />
 
       <div className="scroll-mt-6">
         <div aria-live="polite" aria-atomic="true" className="sr-only">
@@ -323,54 +401,53 @@ export function CreatorSearch({
         {state.kind === "done" && results.length === 0 && (
           <p className="mt-8 rounded-2xl border border-hairline px-5 py-4 text-sm text-silver-muted">
             {!filtersAreEmpty(filters)
-              ? "nobody matching those filters is close to that. try loosening one."
-              : depth > 1
-                ? "nobody the database knows that well is close to that. try the shallower filter."
-                : "nobody in the database is close to that. try describing what they make rather than naming them."}
+              ? "nobody matching those filters is close to that. try widening one."
+              : "nobody in the database is close to that. try describing what they make rather than naming them."}
           </p>
         )}
 
         {state.kind === "done" && results.length > 0 && (
           <div className="mt-8 space-y-4">
-            {results.slice(0, CREATOR_RESULT_COUNT).map((creator, i) => (
+            {results.slice(0, CREATOR_RESULT_COUNT).map((creator) => (
               <CreatorCard key={creator.account} creator={creator} />
             ))}
           </div>
         )}
 
         {showRoster && (
-          <div className="mt-8">
+          <div className={`mt-8 ${rosterBusy ? "opacity-60" : ""}`}>
             <p className="mb-4 text-xs text-silver-muted">
-              {filtersAreEmpty(filters)
-                ? `${rosterTotal} creators in the database, the ones it has read the most of first`
-                : `${rosterTotal} ${rosterTotal === 1 ? "creator matches" : "creators match"} those filters`}
+              {rosterError
+                ? rosterError
+                : total === 0
+                  ? "nobody matches those filters. try widening one."
+                  : "the ones the database has read the most of first"}
             </p>
             <div className="space-y-4">
-              {roster.map((creator) => (
+              {rows.map((creator) => (
                 <CreatorCard key={creator.account} creator={creator} />
               ))}
             </div>
 
-            {/* Plain links, not buttons. Paging the roster is a new server
-                render either way, so a router push would only add JavaScript to
-                do what an anchor already does, and each page stays shareable. */}
-            {rosterPages > 1 && (
+            {pages > 1 && (
               <nav
                 aria-label="roster pages"
                 className="mt-6 flex items-center justify-between gap-3"
               >
                 <PageLink
-                  href={pageHref(rosterPage - 1, depth, filters)}
-                  disabled={rosterPage <= 1}
+                  href={pageHref(page - 1, filters)}
+                  disabled={page <= 1 || rosterBusy}
+                  onClick={() => goToPage(page - 1)}
                 >
                   newer
                 </PageLink>
                 <span className="font-body text-xs tabular-nums text-silver-muted">
-                  page {rosterPage} of {rosterPages}
+                  page {page} of {pages}
                 </span>
                 <PageLink
-                  href={pageHref(rosterPage + 1, depth, filters)}
-                  disabled={rosterPage >= rosterPages}
+                  href={pageHref(page + 1, filters)}
+                  disabled={page >= pages || rosterBusy}
+                  onClick={() => goToPage(page + 1)}
                 >
                   more
                 </PageLink>

@@ -9,8 +9,7 @@ import { creatorSearchConfigured, searchCreators } from "@/lib/creators/search";
 import {
   CREATOR_RESULT_COUNT,
   normalizeCreatorQuery,
-  normalizeDepth,
-  readFilters,
+  readCreatorFilters,
 } from "@/lib/creators/types";
 
 export const runtime = "nodejs";
@@ -39,13 +38,11 @@ export async function POST(req: Request) {
   if (!query) {
     return NextResponse.json({ error: "missing_query" }, { status: 400 });
   }
-  // Anything that is not one of the four offered depths becomes "any", so a
-  // hand-made request can never reach the RPC with an arbitrary threshold.
-  const minReels = normalizeDepth(raw.minReels);
-  // Same validation the page does, for the same reason: a hand-made request
-  // must not be able to put an arbitrary value into a SQL filter. Anything
-  // outside the offered set reads as "unset".
-  const filters = readFilters(raw);
+  // Same parser the page runs on its own query string, for the same reason: a
+  // hand-made request must not be able to put an arbitrary value into a SQL
+  // filter. Anything that is not a well-formed range on the offered scale reads
+  // as "unset" rather than being clamped into a question nobody asked.
+  const filters = readCreatorFilters(raw);
 
   if (!creatorSearchConfigured) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
@@ -62,12 +59,11 @@ export async function POST(req: Request) {
   try {
     const results = await searchCreators(
       query,
-      minReels,
       filters,
       CREATOR_RESULT_COUNT,
       req.signal,
     );
-    return NextResponse.json({ query, minReels, filters, results });
+    return NextResponse.json({ query, filters, results });
   } catch (err) {
     console.error("creator search failed", err);
     return NextResponse.json({ error: "search_failed" }, { status: 502 });

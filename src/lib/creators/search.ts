@@ -20,13 +20,13 @@
 // bundle. It reads three secrets at import time.
 import "server-only";
 import {
-  AUDIENCE_BANDS,
+  boundsOf,
   CREATOR_MIN_SIMILARITY,
   CREATOR_RESULT_COUNT,
+  FILTER_KEYS,
   NO_FILTERS,
   type CreatorFilters,
   type CreatorHit,
-  type DepthReels,
 } from "./types";
 
 const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
@@ -100,11 +100,23 @@ async function embedQuery(query: string, signal: AbortSignal): Promise<number[]>
 async function matchCreators(
   embedding: number[],
   count: number,
-  minReels: DepthReels,
   filters: CreatorFilters,
   signal: AbortSignal,
 ): Promise<CreatorHit[]> {
-  const band = AUDIENCE_BANDS[filters.band] ?? AUDIENCE_BANDS[0];
+  // The RPC takes a min and an exclusive max per filter, named after the
+  // column, so the four ranges expand into eight arguments the same way the
+  // roster's expand into eight query params.
+  //
+  // null, not 0 or -1, for an end that is asking nothing: the function treats
+  // null as "do not filter", and a creator judged after the last scoring pass
+  // has null scores that any numeric bound would exclude.
+  const bounds: Record<string, number | null> = {};
+  for (const key of FILTER_KEYS) {
+    const { min, below } = boundsOf(key, filters[key]);
+    bounds[`min_${key}`] = min;
+    bounds[`below_${key}`] = below;
+  }
+
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${MATCH_FN}`, {
     method: "POST",
     headers: {
@@ -115,19 +127,10 @@ async function matchCreators(
     // Every filter is applied in SQL, before the limit, so a filtered search
     // still returns a full page of creators rather than whatever survives
     // filtering an unfiltered top twelve.
-    //
-    // null, not 0 or -1, for an unset filter: the function treats null as "do
-    // not filter", and a creator judged after the last scoring pass has null
-    // scores that any numeric floor would exclude.
     body: JSON.stringify({
       query_embedding: embedding,
       match_count: count,
-      min_reels: minReels,
-      min_followers: band.min,
-      max_followers: band.max,
-      min_entertaining: filters.minEntertaining,
-      min_educational: filters.minEducational,
-      min_inspirational: filters.minInspirational,
+      ...bounds,
     }),
     signal,
   });
@@ -145,7 +148,6 @@ async function matchCreators(
  */
 export async function searchCreators(
   query: string,
-  minReels: DepthReels = 1,
   filters: CreatorFilters = NO_FILTERS,
   count: number = CREATOR_RESULT_COUNT,
   callerSignal?: AbortSignal,
@@ -155,11 +157,7 @@ export async function searchCreators(
   // it would look exactly like a filter that does nothing.
   const key = [
     count,
-    minReels,
-    filters.band,
-    filters.minEntertaining ?? "",
-    filters.minEducational ?? "",
-    filters.minInspirational ?? "",
+    ...FILTER_KEYS.map((k) => filters[k].join("-")),
     query.toLowerCase(),
   ].join(":");
   const cached = cacheGet(key);
@@ -174,13 +172,7 @@ export async function searchCreators(
   callerSignal?.addEventListener("abort", () => controller.abort(), { once: true });
   try {
     const embedding = await embedQuery(query, controller.signal);
-    const ranked = await matchCreators(
-      embedding,
-      count,
-      minReels,
-      filters,
-      controller.signal,
-    );
+    const ranked = await matchCreators(embedding, count, filters, controller.signal);
     // pgvector orders by distance and stops at the limit; it never judges
     // whether the nearest creator is near at all. Dropping the far ones here is
     // what lets the page say "nobody is close" instead of filling twelve slots

@@ -12,14 +12,15 @@
 
 import "server-only";
 import {
-  AUDIENCE_BANDS,
+  boundsOf,
   CREATOR_REELS_PAGE_SIZE,
+  FILTER_KEYS,
   NO_FILTERS,
   ROSTER_PAGE_SIZE,
+  type CreatorFact,
   type CreatorFilters,
   type CreatorReel,
   type CreatorRow,
-  type DepthReels,
 } from "./types";
 
 const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
@@ -28,6 +29,8 @@ const TABLE = "creator_search";
 // Every reel the scrape holds, not the fifth of them Gemini has read. See the
 // CreatorReel type for why this is not reel_search.
 const REELS_TABLE = "creator_reel";
+/** How many creators the histograms will read. See listCreatorFacts. */
+const FACTS_LIMIT = 2000;
 
 export const creatorRosterConfigured = Boolean(SUPABASE_URL && SERVICE_KEY);
 
@@ -83,24 +86,25 @@ const REEL_COLUMNS = [
 ].join(",");
 
 /**
- * Turn the optional filters into PostgREST query params.
+ * Turn the four ranges into PostgREST query params.
  *
- * A null filter adds nothing at all rather than a `gte.0`: a creator judged
- * after the last pass has null scores, and `gte.0` would drop every one of them
- * from a filter the visitor never set.
+ * A range at full extent adds nothing at all rather than a bound at its own
+ * end: a creator judged after the last scoring pass has null scores, and any
+ * numeric bound would drop every one of them from a filter the visitor never
+ * set. PostgREST drops null rows from `gte`/`lt` comparisons, which is exactly
+ * the behaviour the histogram already assumes.
+ *
+ * The upper bound is `lt`, not `lte`, because a bar covers [edge, nextEdge) and
+ * the count under the chart has to be the same number the chart draws.
  */
 function applyFilters(params: URLSearchParams, f: CreatorFilters) {
-  const band = AUDIENCE_BANDS[f.band] ?? AUDIENCE_BANDS[0];
-  // Two params on one column is legal in PostgREST and ANDs, which is what a
-  // band between two bounds needs.
-  if (band.min !== null) params.append("followers", `gte.${band.min}`);
-  if (band.max !== null) params.append("followers", `lte.${band.max}`);
-  if (f.minEntertaining !== null)
-    params.append("entertaining", `gte.${f.minEntertaining}`);
-  if (f.minEducational !== null)
-    params.append("educational", `gte.${f.minEducational}`);
-  if (f.minInspirational !== null)
-    params.append("inspirational", `gte.${f.minInspirational}`);
+  for (const key of FILTER_KEYS) {
+    const { min, below } = boundsOf(key, f[key]);
+    // The FilterKey names are the column names, which is why this loop can
+    // stay a loop. Two params on one column is legal in PostgREST and ANDs.
+    if (min !== null) params.append(key, `gte.${min}`);
+    if (below !== null) params.append(key, `lt.${below}`);
+  }
 }
 
 function headers(count = false): HeadersInit {
@@ -139,10 +143,9 @@ export type RosterPage = {
  */
 export async function listCreators(
   {
-    minReels = 1,
     page = 1,
     filters = NO_FILTERS,
-  }: { minReels?: DepthReels; page?: number; filters?: CreatorFilters },
+  }: { page?: number; filters?: CreatorFilters },
   signal?: AbortSignal,
 ): Promise<RosterPage> {
   const params = new URLSearchParams();
@@ -150,7 +153,6 @@ export async function listCreators(
   params.set("order", "reels_indexed.desc,followers.desc.nullslast");
   params.set("limit", String(ROSTER_PAGE_SIZE));
   params.set("offset", String((page - 1) * ROSTER_PAGE_SIZE));
-  if (minReels > 1) params.set("reels_indexed", `gte.${minReels}`);
   applyFilters(params, filters);
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?${params}`, {
@@ -227,6 +229,58 @@ export async function getCreatorReels(
   const rows = (await res.json()) as CreatorReel[];
   if (!Array.isArray(rows)) throw new Error("creator reels returned a non-array");
   return { rows, total: totalFrom(res, rows.length) };
+}
+
+/**
+ * Every creator in the index reduced to the four numbers the filters ask about.
+ *
+ * This is what makes the histograms instant: the whole index is about 5 KB in
+ * this shape, so it ships with the page and every bar redraws in the browser on
+ * every pixel of a drag. Asking the server for a histogram per filter change
+ * would be four round trips to draw four charts nobody has committed to yet.
+ *
+ * A tuple, not an object: the four keys repeated 240 times would triple the
+ * payload and buy nothing, since the order is fixed by the CreatorFact type.
+ *
+ * Cached for a minute rather than `no-store`. It is the same answer for every
+ * visitor and it only moves when creators.py runs, which is a handful of times
+ * a week; the roster next to it stays uncached because its count is on screen.
+ */
+export async function listCreatorFacts(signal?: AbortSignal): Promise<CreatorFact[]> {
+  const params = new URLSearchParams();
+  params.set("select", "followers,entertaining,educational,inspirational");
+  // Without `order` a paged read has no defined order at all. It costs nothing
+  // here and it makes the payload byte-identical between two renders, which is
+  // what keeps the client's histograms from shifting under a refresh.
+  params.set("order", "account.asc");
+  params.set("limit", String(FACTS_LIMIT));
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?${params}`, {
+    headers: headers(),
+    signal,
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) throw new Error(`creator facts failed: ${res.status}`);
+  const rows = (await res.json()) as {
+    followers: number | null;
+    entertaining: number | null;
+    educational: number | null;
+    inspirational: number | null;
+  }[];
+  if (!Array.isArray(rows)) throw new Error("creator facts returned a non-array");
+  // A silent truncation here would not break anything visibly: the charts would
+  // simply describe a prefix of the index and the count under them would
+  // disagree with the roster's own. Say so instead. 2000 is eight times the
+  // current 240 and PostgREST would need its own max-rows raised past it too.
+  if (rows.length >= FACTS_LIMIT) {
+    console.error(`creator facts hit the ${FACTS_LIMIT}-row cap; the histograms are now a prefix of the index`);
+  }
+  return rows.map((r) => [
+    r.followers,
+    r.entertaining,
+    r.educational,
+    r.inspirational,
+  ]);
 }
 
 /**

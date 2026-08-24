@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { creatorRosterConfigured, listCreators } from "@/lib/creators/roster";
+import {
+  creatorRosterConfigured,
+  listCreatorFacts,
+  listCreators,
+} from "@/lib/creators/roster";
 import {
   normalizeCreatorQuery,
-  normalizeDepth,
-  readFilters,
-  ROSTER_PAGE_SIZE,
+  readCreatorFilters,
+  type CreatorFact,
   type CreatorRow,
 } from "@/lib/creators/types";
 import { normalizePage } from "@/lib/reels/types";
@@ -62,30 +65,43 @@ export default async function CreatorsPage({
     Array.isArray(v) ? v[0] : v;
 
   const initialQuery = normalizeCreatorQuery(first(params.q) ?? "");
-  const initialDepth = normalizeDepth(first(params.r));
   const page = normalizePage(first(params.page));
   // Every filter is validated here rather than trusted: these reach a PostgREST
-  // filter, and anything that is not an offered band or a 1-10 floor becomes
-  // "unset" instead of being clamped into something the visitor did not ask for.
-  const filters = readFilters({
-    band: first(params.band),
-    minEntertaining: first(params.ent),
-    minEducational: first(params.edu),
-    minInspirational: first(params.insp),
+  // filter, and anything that is not a well-formed range on the offered scale
+  // becomes "unset" instead of being clamped into a question nobody asked.
+  const filters = readCreatorFilters({
+    aud: first(params.aud),
+    ent: first(params.ent),
+    edu: first(params.edu),
+    insp: first(params.insp),
   });
 
   let roster: CreatorRow[] = [];
   let total = 0;
+  // Every creator as four numbers, for the histograms. Small enough to ship
+  // with the page, which is what lets the charts redraw mid-drag instead of
+  // once a round trip.
+  let facts: CreatorFact[] = [];
   if (creatorRosterConfigured) {
-    try {
-      const result = await listCreators({ minReels: initialDepth, page, filters });
-      roster = result.rows;
-      total = result.total;
-    } catch (err) {
+    // Two independent reads. Sequential, they would add a whole upstream
+    // round trip to the first paint for no reason.
+    const [rosterResult, factsResult] = await Promise.allSettled([
+      listCreators({ page, filters }),
+      listCreatorFacts(),
+    ]);
+    if (rosterResult.status === "fulfilled") {
+      roster = rosterResult.value.rows;
+      total = rosterResult.value.total;
+    } else {
       // A dead upstream must not 500 the page: the search box still works from
       // the client, and an empty roster beats an error screen.
-      console.error("creator roster ssr failed", err);
+      console.error("creator roster ssr failed", rosterResult.reason);
     }
+    if (factsResult.status === "fulfilled") facts = factsResult.value;
+    // Charts with no bars, sliders that still work. The filters are applied by
+    // the database either way, so losing this costs the preview, not the
+    // filtering.
+    else console.error("creator facts ssr failed", factsResult.reason);
   }
 
   return (
@@ -94,12 +110,11 @@ export default async function CreatorsPage({
       <ReelNav current="/viral-reels-creators" />
       <CreatorSearch
         initialQuery={initialQuery}
-        initialDepth={initialDepth}
         initialFilters={filters}
+        facts={facts}
         roster={roster}
         rosterTotal={total}
         rosterPage={page}
-        rosterPages={Math.max(1, Math.ceil(total / ROSTER_PAGE_SIZE))}
       />
     </main>
   );
