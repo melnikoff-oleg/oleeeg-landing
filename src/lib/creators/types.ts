@@ -57,8 +57,13 @@ export function normalizeDepth(raw: unknown): DepthReels {
 /** How many creators one page of the roster shows. */
 export const ROSTER_PAGE_SIZE = 24;
 
-/** How many of a creator's reels one page of their profile shows. */
-export const CREATOR_REELS_PAGE_SIZE = 20;
+/**
+ * How many of a creator's reels one page of their profile shows.
+ *
+ * 60, not 20. These are compact rows now rather than full write-up cards, and a
+ * creator with 95 reels was five clicks deep at 20 a page.
+ */
+export const CREATOR_REELS_PAGE_SIZE = 60;
 
 /**
  * One creator as the card paints them.
@@ -95,7 +100,114 @@ export type CreatorRow = {
   top_ideas: string[] | null;
   top_codes: string[] | null;
   top_thumbs: string[] | null;
+  /** The creator's face, in our own bucket. Null when the harvest never got one. */
+  avatar_url: string | null;
+  /**
+   * Oleg's hand-written 1-10 judgements, the same numbers the sheet carries.
+   *
+   * Null, never 0, for a creator judged after the last pass. The filters compare
+   * with `>=`, so a 0 would quietly exclude an unjudged creator from every
+   * filter while a null leaves them alone until a filter is actually set.
+   */
+  worth_studying: number | null;
+  entertaining: number | null;
+  educational: number | null;
+  inspirational: number | null;
 };
+
+/**
+ * One reel on a creator's page.
+ *
+ * Deliberately not ReelRow. That type carries the whole Gemini write-up and only
+ * 5,233 reels have one; this covers all 24,578 the scrape holds, so a creator's
+ * page shows everything they made rather than the fifth of it that has been
+ * read. Four numbers and a picture is all the page paints.
+ */
+export type CreatorReel = {
+  shortcode: string;
+  account: string;
+  url: string;
+  posted_on: string | null;
+  views: number | null;
+  likes: number | null;
+  comments: number | null;
+  score: number | null;
+  analyzed: boolean;
+  thumb_url: string | null;
+};
+
+/**
+ * The audience bands the filter offers.
+ *
+ * Bands rather than a free number box: "how many followers" has no natural unit
+ * to type and every visitor would guess a different one. `max` is null on the
+ * top band because there is no ceiling above 10M.
+ */
+export const AUDIENCE_BANDS = [
+  { label: "any size", min: null, max: null },
+  { label: "under 100K", min: null, max: 100_000 },
+  { label: "100K - 1M", min: 100_000, max: 1_000_000 },
+  { label: "1M - 10M", min: 1_000_000, max: 10_000_000 },
+  { label: "10M+", min: 10_000_000, max: null },
+] as const;
+
+export type AudienceBand = (typeof AUDIENCE_BANDS)[number];
+
+/** Anything that is not an offered band index becomes "any size". */
+export function normalizeBand(raw: unknown): number {
+  const n = typeof raw === "string" ? Number(raw) : raw;
+  return typeof n === "number" && Number.isInteger(n) && n >= 0 && n < AUDIENCE_BANDS.length
+    ? n
+    : 0;
+}
+
+/**
+ * A 1-10 minimum off the three value scales, or null for "do not filter".
+ *
+ * 0 and null both mean unfiltered, which is what makes every one of these
+ * optional. Anything outside 1-10 is treated as unset rather than clamped: a
+ * clamped 99 would silently become "10+" and return almost nothing, which reads
+ * as an empty database rather than as a rejected input.
+ */
+export function normalizeScoreFloor(raw: unknown): number | null {
+  const n = typeof raw === "string" ? Number(raw) : raw;
+  if (typeof n !== "number" || !Number.isInteger(n) || n < 1 || n > 10) return null;
+  return n;
+}
+
+/** The three optional value filters, as the page and the API pass them around. */
+export type CreatorFilters = {
+  band: number;
+  minEntertaining: number | null;
+  minEducational: number | null;
+  minInspirational: number | null;
+};
+
+export const NO_FILTERS: CreatorFilters = {
+  band: 0,
+  minEntertaining: null,
+  minEducational: null,
+  minInspirational: null,
+};
+
+/** True when nothing is set, so the page can skip rendering a "clear" affordance. */
+export function filtersAreEmpty(f: CreatorFilters): boolean {
+  return (
+    f.band === 0 &&
+    f.minEntertaining === null &&
+    f.minEducational === null &&
+    f.minInspirational === null
+  );
+}
+
+export function readFilters(raw: Record<string, unknown>): CreatorFilters {
+  return {
+    band: normalizeBand(raw.band),
+    minEntertaining: normalizeScoreFloor(raw.minEntertaining),
+    minEducational: normalizeScoreFloor(raw.minEducational),
+    minInspirational: normalizeScoreFloor(raw.minInspirational),
+  };
+}
 
 /** A `creator_search_match` row: a creator plus how close they were to the query. */
 export type CreatorHit = CreatorRow & { similarity: number };

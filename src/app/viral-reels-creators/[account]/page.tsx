@@ -19,11 +19,12 @@ import {
 import {
   CREATOR_REELS_PAGE_SIZE,
   normalizeHandle,
+  type CreatorReel,
   type CreatorRow,
 } from "@/lib/creators/types";
 import { compactNumber, formatDate, formatScore } from "@/lib/reels/format";
-import { normalizePage, type ReelRow } from "@/lib/reels/types";
-import { ReelCard } from "@/components/reel-card";
+import { normalizePage } from "@/lib/reels/types";
+import { CreatorReelRow } from "@/components/creator-reel-row";
 
 // One creator, read live from a table creators.py rewrites.
 export const dynamic = "force-dynamic";
@@ -50,7 +51,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const description = [
     `${name} makes ${creator.niche || "Instagram reels"}`,
     `for ${compactNumber(creator.followers)} followers.`,
-    `${creator.reels_indexed} of their reels are in the database, read end to end,`,
+    `${creator.reels_pulled ?? creator.reels_indexed} of their reels are in the database,`,
     `the best one beating their own audience by ${formatScore(creator.top_score)}x.`,
   ].join(" ");
 
@@ -138,7 +139,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
   if (!creatorRosterConfigured) notFound();
 
   let creator: CreatorRow | null = null;
-  let reels: ReelRow[] = [];
+  let reels: CreatorReel[] = [];
   let total = 0;
   let failed = false;
   try {
@@ -186,7 +187,17 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
         <>
           <header className="surface-card p-4 sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-              <div className="min-w-0">
+              <div className="flex min-w-0 gap-4">
+                {creator.avatar_url ? (
+                  <img
+                    src={creator.avatar_url}
+                    alt=""
+                    width={160}
+                    height={160}
+                    className="size-16 shrink-0 rounded-full border border-hairline object-cover"
+                  />
+                ) : null}
+                <div className="min-w-0">
                 <h1 className="font-display text-xl leading-tight text-white sm:text-2xl">
                   {name}
                   {creator.verified ? (
@@ -207,6 +218,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
                   </a>
                   {creator.niche ? ` · ${creator.niche}` : ""}
                 </p>
+                </div>
               </div>
               <a
                 href={creator.profile_url}
@@ -246,8 +258,8 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
               />
               <Stat
                 icon={Film}
-                value={`${creator.reels_indexed}`}
-                label="reels read"
+                value={`${total}`}
+                label="reels scraped"
               />
               <Stat
                 icon={Flame}
@@ -282,7 +294,10 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
 
             {tags.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-1.5 border-t border-hairline pt-4">
-                {tags.map((tag, i) => (
+                {/* Twelve, not all twenty-six. The row is a fingerprint of what
+                    they make, and a fingerprint that wraps to five lines is a
+                    paragraph competing with the reels underneath it. */}
+                {tags.slice(0, 12).map((tag, i) => (
                   <span
                     key={`${i}-${tag}`}
                     className="rounded-full border border-hairline px-2.5 py-1 text-[11px] text-silver-muted"
@@ -295,8 +310,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
           </header>
 
           <h2 className="mt-8 mb-4 font-display text-sm text-silver-muted">
-            {total} {total === 1 ? "reel" : "reels"} in the database, most viral
-            first
+            {total} {total === 1 ? "reel" : "reels"} scraped, most viewed first
           </h2>
 
           {reels.length === 0 ? (
@@ -304,13 +318,9 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
               nothing on this page. go back to page one.
             </p>
           ) : (
-            <div className="space-y-4">
-              {reels.map((reel, i) => (
-                <ReelCard
-                  key={reel.shortcode}
-                  reel={reel}
-                  rank={(page - 1) * CREATOR_REELS_PAGE_SIZE + i + 1}
-                />
+            <div className="space-y-2">
+              {reels.map((reel) => (
+                <CreatorReelRow key={reel.shortcode} reel={reel} />
               ))}
             </div>
           )}
@@ -326,7 +336,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
                 }`}
                 disabled={page <= 1}
               >
-                more viral
+                more viewed
               </PageLink>
               <span className="font-body text-xs tabular-nums text-silver-muted">
                 page {page} of {pages}
@@ -335,7 +345,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
                 href={`/viral-reels-creators/${creator.account}?page=${page + 1}`}
                 disabled={page >= pages}
               >
-                less viral
+                less viewed
               </PageLink>
             </nav>
           )}

@@ -6,18 +6,41 @@ import {
   CREATOR_QUERY_MAX,
   CREATOR_RESULT_COUNT,
   DEPTH_STOPS,
-  ROSTER_PAGE_SIZE,
+  filtersAreEmpty,
+  type CreatorFilters,
   type CreatorHit,
   type CreatorRow,
   type DepthReels,
 } from "@/lib/creators/types";
 import { CreatorCard } from "@/components/creator-card";
+import { CreatorFilterBar } from "./creator-filters";
 
-/** The roster's own URL, carrying the depth filter with it. */
-function pageHref(page: number, depth: DepthReels): string {
+/**
+ * Put the filters on a URLSearchParams, omitting every one that is unset.
+ *
+ * Omitting rather than writing an empty value keeps a shared link honest: a URL
+ * with no `edu=` in it filters on nothing, which is exactly what it looks like.
+ * Shared by the roster's page links and by the search's replaceState.
+ */
+function writeFilters(params: URLSearchParams, f: CreatorFilters) {
+  if (f.band > 0) params.set("band", String(f.band));
+  else params.delete("band");
+  for (const [key, value] of [
+    ["ent", f.minEntertaining],
+    ["edu", f.minEducational],
+    ["insp", f.minInspirational],
+  ] as const) {
+    if (value === null) params.delete(key);
+    else params.set(key, String(value));
+  }
+}
+
+/** The roster's own URL, carrying the depth and every set filter with it. */
+function pageHref(page: number, depth: DepthReels, filters: CreatorFilters): string {
   const params = new URLSearchParams();
   if (page > 1) params.set("page", String(page));
   if (depth > 1) params.set("r", String(depth));
+  writeFilters(params, filters);
   const query = params.toString();
   return query ? `/viral-reels-creators?${query}` : "/viral-reels-creators";
 }
@@ -58,7 +81,7 @@ function Skeletons() {
     <div className="space-y-4" aria-hidden>
       {Array.from({ length: 3 }, (_, i) => (
         <div key={i} className="surface-card flex gap-4 p-4 sm:gap-5 sm:p-5">
-          <div className="aspect-[9/16] w-20 shrink-0 animate-pulse rounded-xl bg-silver/5 sm:w-28" />
+          <div className="size-14 shrink-0 animate-pulse rounded-full bg-silver/5 sm:size-16" />
           <div className="flex-1 space-y-3 py-1">
             <div className="h-4 w-40 animate-pulse rounded bg-silver/5" />
             <div className="h-3 w-28 animate-pulse rounded bg-silver/5" />
@@ -82,6 +105,7 @@ function Skeletons() {
 export function CreatorSearch({
   initialQuery,
   initialDepth,
+  initialFilters,
   roster,
   rosterTotal,
   rosterPage,
@@ -89,6 +113,7 @@ export function CreatorSearch({
 }: {
   initialQuery: string;
   initialDepth: DepthReels;
+  initialFilters: CreatorFilters;
   roster: CreatorRow[];
   rosterTotal: number;
   rosterPage: number;
@@ -96,10 +121,15 @@ export function CreatorSearch({
 }) {
   const [input, setInput] = useState(initialQuery);
   const [depth, setDepth] = useState<DepthReels>(initialDepth);
+  const [filters, setFilters] = useState<CreatorFilters>(initialFilters);
   const [state, setState] = useState<State>({ kind: "idle" });
   const inflight = useRef<AbortController | null>(null);
 
-  const run = useCallback(async (raw: string, minReels: DepthReels) => {
+  const run = useCallback(async (
+    raw: string,
+    minReels: DepthReels,
+    active: CreatorFilters,
+  ) => {
     const query = raw.trim();
     if (!query) return;
 
@@ -117,13 +147,14 @@ export function CreatorSearch({
     url.searchParams.set("q", query);
     if (minReels <= 1) url.searchParams.delete("r");
     else url.searchParams.set("r", String(minReels));
+    writeFilters(url.searchParams, active);
     globalThis.history.replaceState(null, "", url);
 
     try {
       const res = await fetch("/api/viral-reels/creators", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, minReels }),
+        body: JSON.stringify({ query, minReels, ...active }),
         signal: controller.signal,
       });
       const json = (await res.json().catch(() => ({}))) as {
@@ -152,13 +183,16 @@ export function CreatorSearch({
   }, []);
 
   // A shared link arrives with ?q= already filled in and searches on its own.
+  // Deliberately keyed on the INITIAL values, not the live ones: keying it on
+  // `filters` would re-fire this effect on every filter change and race the
+  // explicit search that the change already triggers.
   useEffect(() => {
-    if (initialQuery.trim()) void run(initialQuery, initialDepth);
-  }, [initialQuery, initialDepth, run]);
+    if (initialQuery.trim()) void run(initialQuery, initialDepth, initialFilters);
+  }, [initialQuery, initialDepth, initialFilters, run]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    void run(input, depth);
+    void run(input, depth, filters);
   };
 
   // Changing the depth re-runs the current words straight away: a filter that
@@ -167,13 +201,33 @@ export function CreatorSearch({
   const pickDepth = (next: DepthReels) => {
     setDepth(next);
     if (input.trim()) {
-      void run(input, next);
+      void run(input, next, filters);
       return;
     }
     const url = new URL(globalThis.location.href);
     url.searchParams.delete("page");
     if (next <= 1) url.searchParams.delete("r");
     else url.searchParams.set("r", String(next));
+    globalThis.location.assign(url.toString());
+  };
+
+  /**
+   * Same contract as the depth chips: a filter applies the moment it is set.
+   *
+   * With words in the box that is a new search. With an empty box the roster
+   * underneath is server-rendered, so the only way to re-filter it is a reload,
+   * and page is dropped because page 7 of an unfiltered roster is rarely a page
+   * of the filtered one.
+   */
+  const pickFilters = (next: CreatorFilters) => {
+    setFilters(next);
+    if (input.trim()) {
+      void run(input, depth, next);
+      return;
+    }
+    const url = new URL(globalThis.location.href);
+    url.searchParams.delete("page");
+    writeFilters(url.searchParams, next);
     globalThis.location.assign(url.toString());
   };
 
@@ -242,6 +296,8 @@ export function CreatorSearch({
         </div>
       </div>
 
+      <CreatorFilterBar filters={filters} onChange={pickFilters} />
+
       <div className="scroll-mt-6">
         <div aria-live="polite" aria-atomic="true" className="sr-only">
           {state.kind === "loading" && "searching"}
@@ -266,16 +322,18 @@ export function CreatorSearch({
 
         {state.kind === "done" && results.length === 0 && (
           <p className="mt-8 rounded-2xl border border-hairline px-5 py-4 text-sm text-silver-muted">
-            {depth > 1
-              ? "nobody the database knows that well is close to that. try the shallower filter."
-              : "nobody in the database is close to that. try describing what they make rather than naming them."}
+            {!filtersAreEmpty(filters)
+              ? "nobody matching those filters is close to that. try loosening one."
+              : depth > 1
+                ? "nobody the database knows that well is close to that. try the shallower filter."
+                : "nobody in the database is close to that. try describing what they make rather than naming them."}
           </p>
         )}
 
         {state.kind === "done" && results.length > 0 && (
           <div className="mt-8 space-y-4">
             {results.slice(0, CREATOR_RESULT_COUNT).map((creator, i) => (
-              <CreatorCard key={creator.account} creator={creator} rank={i + 1} />
+              <CreatorCard key={creator.account} creator={creator} />
             ))}
           </div>
         )}
@@ -283,16 +341,13 @@ export function CreatorSearch({
         {showRoster && (
           <div className="mt-8">
             <p className="mb-4 text-xs text-silver-muted">
-              {rosterTotal} creators in the database, the ones it has read the
-              most of first
+              {filtersAreEmpty(filters)
+                ? `${rosterTotal} creators in the database, the ones it has read the most of first`
+                : `${rosterTotal} ${rosterTotal === 1 ? "creator matches" : "creators match"} those filters`}
             </p>
             <div className="space-y-4">
-              {roster.map((creator, i) => (
-                <CreatorCard
-                  key={creator.account}
-                  creator={creator}
-                  rank={(rosterPage - 1) * ROSTER_PAGE_SIZE + i + 1}
-                />
+              {roster.map((creator) => (
+                <CreatorCard key={creator.account} creator={creator} />
               ))}
             </div>
 
@@ -305,7 +360,7 @@ export function CreatorSearch({
                 className="mt-6 flex items-center justify-between gap-3"
               >
                 <PageLink
-                  href={pageHref(rosterPage - 1, depth)}
+                  href={pageHref(rosterPage - 1, depth, filters)}
                   disabled={rosterPage <= 1}
                 >
                   newer
@@ -314,7 +369,7 @@ export function CreatorSearch({
                   page {rosterPage} of {rosterPages}
                 </span>
                 <PageLink
-                  href={pageHref(rosterPage + 1, depth)}
+                  href={pageHref(rosterPage + 1, depth, filters)}
                   disabled={rosterPage >= rosterPages}
                 >
                   more

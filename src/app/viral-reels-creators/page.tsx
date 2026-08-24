@@ -3,6 +3,7 @@ import { creatorRosterConfigured, listCreators } from "@/lib/creators/roster";
 import {
   normalizeCreatorQuery,
   normalizeDepth,
+  readFilters,
   ROSTER_PAGE_SIZE,
   type CreatorRow,
 } from "@/lib/creators/types";
@@ -63,12 +64,21 @@ export default async function CreatorsPage({
   const initialQuery = normalizeCreatorQuery(first(params.q) ?? "");
   const initialDepth = normalizeDepth(first(params.r));
   const page = normalizePage(first(params.page));
+  // Every filter is validated here rather than trusted: these reach a PostgREST
+  // filter, and anything that is not an offered band or a 1-10 floor becomes
+  // "unset" instead of being clamped into something the visitor did not ask for.
+  const filters = readFilters({
+    band: first(params.band),
+    minEntertaining: first(params.ent),
+    minEducational: first(params.edu),
+    minInspirational: first(params.insp),
+  });
 
   let roster: CreatorRow[] = [];
   let total = 0;
   if (creatorRosterConfigured) {
     try {
-      const result = await listCreators({ minReels: initialDepth, page });
+      const result = await listCreators({ minReels: initialDepth, page, filters });
       roster = result.rows;
       total = result.total;
     } catch (err) {
@@ -85,6 +95,7 @@ export default async function CreatorsPage({
       <CreatorSearch
         initialQuery={initialQuery}
         initialDepth={initialDepth}
+        initialFilters={filters}
         roster={roster}
         rosterTotal={total}
         rosterPage={page}

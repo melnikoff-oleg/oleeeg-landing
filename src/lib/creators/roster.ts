@@ -11,10 +11,13 @@
 // the creator the database has read.
 
 import "server-only";
-import type { ReelRow } from "@/lib/reels/types";
 import {
+  AUDIENCE_BANDS,
   CREATOR_REELS_PAGE_SIZE,
+  NO_FILTERS,
   ROSTER_PAGE_SIZE,
+  type CreatorFilters,
+  type CreatorReel,
   type CreatorRow,
   type DepthReels,
 } from "./types";
@@ -22,7 +25,9 @@ import {
 const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 const TABLE = "creator_search";
-const REELS_TABLE = "reel_search";
+// Every reel the scrape holds, not the fifth of them Gemini has read. See the
+// CreatorReel type for why this is not reel_search.
+const REELS_TABLE = "creator_reel";
 
 export const creatorRosterConfigured = Boolean(SUPABASE_URL && SERVICE_KEY);
 
@@ -54,37 +59,49 @@ const COLUMNS = [
   "top_ideas",
   "top_codes",
   "top_thumbs",
+  "avatar_url",
+  "worth_studying",
+  "entertaining",
+  "educational",
+  "inspirational",
 ].join(",");
 
-// The reel columns a creator's page paints. The same list browse.ts uses, and
-// for the same reason: `*` would drag the embedding along.
+// Four numbers and a picture. The write-up columns are gone from this page on
+// purpose: Oleg asked for views, likes and comments and explicitly not shares,
+// saves, duration or like percentage, and this table has no write-up anyway.
 const REEL_COLUMNS = [
   "shortcode",
   "url",
   "account",
-  "creator",
   "posted_on",
-  "score",
   "views",
   "likes",
   "comments",
-  "shares",
-  "saves",
-  "followers",
-  "duration_sec",
-  "shots",
-  "music",
-  "idea",
-  "hook_summary",
-  "hook_points",
-  "retain_summary",
-  "retain_points",
-  "reward_summary",
-  "reward_points",
-  "tags",
-  "caption",
+  "score",
+  "analyzed",
   "thumb_url",
 ].join(",");
+
+/**
+ * Turn the optional filters into PostgREST query params.
+ *
+ * A null filter adds nothing at all rather than a `gte.0`: a creator judged
+ * after the last pass has null scores, and `gte.0` would drop every one of them
+ * from a filter the visitor never set.
+ */
+function applyFilters(params: URLSearchParams, f: CreatorFilters) {
+  const band = AUDIENCE_BANDS[f.band] ?? AUDIENCE_BANDS[0];
+  // Two params on one column is legal in PostgREST and ANDs, which is what a
+  // band between two bounds needs.
+  if (band.min !== null) params.append("followers", `gte.${band.min}`);
+  if (band.max !== null) params.append("followers", `lte.${band.max}`);
+  if (f.minEntertaining !== null)
+    params.append("entertaining", `gte.${f.minEntertaining}`);
+  if (f.minEducational !== null)
+    params.append("educational", `gte.${f.minEducational}`);
+  if (f.minInspirational !== null)
+    params.append("inspirational", `gte.${f.minInspirational}`);
+}
 
 function headers(count = false): HeadersInit {
   const h: Record<string, string> = {
@@ -121,7 +138,11 @@ export type RosterPage = {
  * that happen to have been scraped hard.
  */
 export async function listCreators(
-  { minReels = 1, page = 1 }: { minReels?: DepthReels; page?: number },
+  {
+    minReels = 1,
+    page = 1,
+    filters = NO_FILTERS,
+  }: { minReels?: DepthReels; page?: number; filters?: CreatorFilters },
   signal?: AbortSignal,
 ): Promise<RosterPage> {
   const params = new URLSearchParams();
@@ -130,6 +151,7 @@ export async function listCreators(
   params.set("limit", String(ROSTER_PAGE_SIZE));
   params.set("offset", String((page - 1) * ROSTER_PAGE_SIZE));
   if (minReels > 1) params.set("reels_indexed", `gte.${minReels}`);
+  applyFilters(params, filters);
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?${params}`, {
     headers: headers(true),
@@ -168,17 +190,21 @@ export async function getCreator(
 }
 
 export type CreatorReelsPage = {
-  rows: ReelRow[];
+  rows: CreatorReel[];
   total: number;
 };
 
 /**
- * One creator's reels, most viral first.
+ * One creator's reels, most viewed first.
  *
- * This is the payoff of the whole page: a visitor found a creator, and now they
- * want that creator's best work in order. Score descending, and a reel whose
- * score never got computed sorts to the very end rather than to the top, which
- * is where Postgres puts nulls in a descending sort by default.
+ * Views, not score. On one creator's own page the audience is a constant, so
+ * views ARE the ranking; sorting by score here would push their biggest reel
+ * down under an early one that beat a much smaller following. Oleg asked for
+ * views descending in as many words.
+ *
+ * A reel with no view count sorts last rather than first, which is where
+ * Postgres puts nulls in a descending sort by default. Those are pre-Reels
+ * video posts, 478 of them, and Instagram never recorded a number for any.
  */
 export async function getCreatorReels(
   account: string,
@@ -188,7 +214,7 @@ export async function getCreatorReels(
   const params = new URLSearchParams();
   params.set("select", REEL_COLUMNS);
   params.set("account", `eq.${account}`);
-  params.set("order", "score.desc.nullslast,posted_on.desc");
+  params.set("order", "views.desc.nullslast,posted_on.desc");
   params.set("limit", String(CREATOR_REELS_PAGE_SIZE));
   params.set("offset", String((page - 1) * CREATOR_REELS_PAGE_SIZE));
 
@@ -198,7 +224,7 @@ export async function getCreatorReels(
     cache: "no-store",
   });
   if (!res.ok) throw new Error(`creator reels failed: ${res.status}`);
-  const rows = (await res.json()) as ReelRow[];
+  const rows = (await res.json()) as CreatorReel[];
   if (!Array.isArray(rows)) throw new Error("creator reels returned a non-array");
   return { rows, total: totalFrom(res, rows.length) };
 }

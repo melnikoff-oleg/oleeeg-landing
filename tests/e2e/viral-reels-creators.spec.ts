@@ -177,3 +177,99 @@ test("96 - creators: the search controls are >=44px tap targets", async ({
     expect(box!.height).toBeGreaterThanOrEqual(MIN_TAP);
   }
 });
+
+// ── The filters ──────────────────────────────────────────────────────────────
+//
+// Tests 97+: the audience band and the three 1-10 value floors, added 2026-08-24.
+// Every one of them is optional, and the point of these tests is that an unset
+// filter is genuinely unset rather than a zero that quietly excludes every
+// creator the scoring pass has not reached yet.
+
+test("97 - creators: the filters render and start unset", async ({ page }) => {
+  await settle(page, "/viral-reels-creators");
+  await expect(
+    page.getByRole("button", { name: "any size", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  for (const id of ["#f-entertaining", "#f-educational", "#f-inspirational"]) {
+    await expect(page.locator(id)).toHaveValue("");
+  }
+  // Nothing is set, so there is nothing to clear. A permanent "clear filters"
+  // beside untouched controls reads as though the page is already filtering.
+  await expect(page.getByRole("button", { name: /clear filters/i })).toHaveCount(0);
+});
+
+test("98 - creators: a filtered URL selects its controls", async ({ page }) => {
+  await settle(page, "/viral-reels-creators?band=3&edu=7&ent=5");
+  await expect(
+    page.getByRole("button", { name: "1M - 10M", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#f-educational")).toHaveValue("7");
+  await expect(page.locator("#f-entertaining")).toHaveValue("5");
+  await expect(page.locator("#f-inspirational")).toHaveValue("");
+  await expect(page.getByRole("button", { name: /clear filters/i })).toBeVisible();
+});
+
+test("98b - creators: out-of-range filters fall back to unset, never clamped", async ({
+  page,
+}) => {
+  // Clamping a 99 into "10+" would silently answer a question nobody asked and
+  // return almost nothing, which reads as an empty database rather than as a
+  // rejected input.
+  await settle(page, "/viral-reels-creators?band=99&edu=99&ent=-3&insp=abc");
+  await expect(
+    page.getByRole("button", { name: "any size", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  for (const id of ["#f-entertaining", "#f-educational", "#f-inspirational"]) {
+    await expect(page.locator(id)).toHaveValue("");
+  }
+});
+
+test("99 - creators: an arbitrary filter never reaches the RPC", async ({
+  request,
+}) => {
+  const res = await request.post("/api/viral-reels/creators", {
+    data: {
+      query: "people who cook",
+      band: 999,
+      minEducational: 99,
+      minEntertaining: "; drop table creator_search",
+      minInspirational: -1,
+    },
+  });
+  expect([200, 503]).toContain(res.status());
+  if (res.status() === 200) {
+    const json = await res.json();
+    expect(json.filters).toEqual({
+      band: 0,
+      minEntertaining: null,
+      minEducational: null,
+      minInspirational: null,
+    });
+  }
+});
+
+test("99b - creators: the filters survive a roster page link", async ({ page }) => {
+  await settle(page, "/viral-reels-creators?band=2");
+  const next = page.getByRole("link", { name: "more" });
+  if ((await next.count()) && (await next.getAttribute("href"))) {
+    // Paging must not silently drop the filter: page two of a filtered roster
+    // has to still be filtered.
+    expect(await next.getAttribute("href")).toContain("band=2");
+  }
+});
+
+test("99c - creators: the filter selects are >=44px tap targets", async ({
+  page,
+}, testInfo) => {
+  MOBILE_ONLY(testInfo);
+  await settle(page, "/viral-reels-creators");
+  for (const id of ["#f-entertaining", "#f-educational", "#f-inspirational"]) {
+    const box = await page.locator(id).boundingBox();
+    expect(box, `tap target ${id}`).not.toBeNull();
+    expect(box!.height).toBeGreaterThanOrEqual(MIN_TAP);
+  }
+  const band = await page
+    .getByRole("button", { name: "any size", exact: true })
+    .boundingBox();
+  expect(band!.height).toBeGreaterThanOrEqual(MIN_TAP);
+});
