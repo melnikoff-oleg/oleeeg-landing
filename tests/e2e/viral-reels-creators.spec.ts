@@ -428,24 +428,25 @@ test("101 - every tile carries views, likes and a date, and nothing else", async
   // Three fields. A fourth would be the comment count or the outlier score
   // creeping back on, which is exactly what Oleg asked to be rid of here.
   await expect(strip.locator("> *")).toHaveCount(3);
-  await expect(strip).toContainText(/\d+ [A-Z][a-z]{2} \d\d$/);
 
-  // The month never runs to four letters, or a September tile wraps alone.
+  // The age is relative and coarse: today, yesterday, or N of one unit. Never a
+  // calendar date, which makes the reader do the subtraction themselves.
   const dates = await page
     .locator("main div.grid > a div.backdrop-blur-md > span:last-child")
     .allInnerTexts();
-  for (const d of dates) expect(d).toMatch(/^(-|\d{1,2} [A-Z][a-z]{2} \d\d)$/);
+  expect(dates.length).toBeGreaterThan(0);
+  for (const d of dates) {
+    expect(d).toMatch(/^(-|today|yesterday|\d+ (day|week|month|year)s? ago)$/);
+  }
 });
 
-test("102 - every stats strip on a phone is the same height", async ({
-  page,
-}, testInfo) => {
-  MOBILE_ONLY(testInfo);
+test("102 - every stats strip is the same height", async ({ page }) => {
   test.skip(!(await openFirstCreator(page)), "needs a live index");
 
-  // On a phone the date takes its own line under the numbers, on purpose. What
-  // must not happen is SOME tiles doing that and others not: a strip that is
-  // taller than its neighbours reads as a bug rather than as a long number.
+  // The age takes its own line under the numbers at every width, on purpose.
+  // What must not happen is SOME tiles doing that and others not: "today" is a
+  // lot narrower than "3 weeks ago", and a strip taller than its neighbours
+  // reads as a bug rather than as a long number.
   const heights = await page
     .locator("main div.grid > a div.backdrop-blur-md")
     .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
@@ -471,10 +472,15 @@ test("104 - a creator opens newest first, and the order is a switch", async ({
     page
       .locator("main div.grid > a div.backdrop-blur-md > span:last-child")
       .allInnerTexts();
+  // The strip says "3 weeks ago", so age is compared in days. Coarse on
+  // purpose: it only has to be monotonic, and two reels from the same week
+  // legitimately read the same.
+  const UNIT: Record<string, number> = { day: 1, week: 7, month: 30, year: 365 };
   const stamp = (d: string) => {
-    const [day, mon, yy] = d.split(" ");
-    const months = "JanFebMarAprMayJunJulAugSepOctNovDec";
-    return Number(yy) * 10000 + (months.indexOf(mon) / 3 + 1) * 100 + Number(day);
+    if (d === "today") return 0;
+    if (d === "yesterday") return 1;
+    const [n, unit] = d.split(" ");
+    return Number(n) * UNIT[unit.replace(/s$/, "")];
   };
   const views = () =>
     page
@@ -483,10 +489,11 @@ test("104 - a creator opens newest first, and the order is a switch", async ({
 
   // Default: newest first, no ?sort= in the address.
   await expect(page).not.toHaveURL(/sort=/);
-  const byDate = (await dates()).filter((d) => d !== "-").map(stamp);
-  for (let i = 1; i < byDate.length; i++) {
-    expect(byDate[i], `reel ${i} is not older than the one above it`).toBeLessThanOrEqual(
-      byDate[i - 1],
+  const ages = (await dates()).filter((d) => d !== "-").map(stamp);
+  expect(ages.length).toBeGreaterThan(0);
+  for (let i = 1; i < ages.length; i++) {
+    expect(ages[i], `reel ${i} is not older than the one above it`).toBeGreaterThanOrEqual(
+      ages[i - 1],
     );
   }
 
@@ -524,4 +531,26 @@ test("105 - a junk sort falls back to newest, and paging keeps the order", async
   await settle(page, `${href}?sort=views`);
   const next = page.getByRole("link", { name: /less viewed|older/ });
   if (await next.count()) await expect(next).toHaveAttribute("href", /sort=views/);
+});
+
+test("106 - a creator's header carries the three ratings and one link out", async ({
+  page,
+}) => {
+  test.skip(!(await openFirstCreator(page)), "needs a live index");
+
+  const header = page.locator("main header");
+  for (const label of ["entertaining", "educational", "inspirational"]) {
+    await expect(header.getByText(label, { exact: true })).toBeVisible();
+  }
+
+  // Dropped on purpose: a cumulative view count of whatever happens to be in
+  // the database is not a fact about the creator, and the newest reel's date is
+  // the first tile of the grid.
+  await expect(header.getByText("views in here")).toHaveCount(0);
+  await expect(header.getByText("newest", { exact: true })).toHaveCount(0);
+
+  // Exactly one way out to Instagram from the header, and it is the handle.
+  const out = header.locator("a[href*='instagram.com']");
+  await expect(out).toHaveCount(1);
+  await expect(out).toContainText("@");
 });

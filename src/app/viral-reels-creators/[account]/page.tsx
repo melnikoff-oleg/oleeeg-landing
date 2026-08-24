@@ -4,11 +4,13 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   BadgeCheck,
-  Calendar,
   Eye,
   Film,
   Flame,
+  GraduationCap,
+  Laugh,
   Link2,
+  Sparkles,
   Users,
 } from "lucide-react";
 import {
@@ -24,7 +26,7 @@ import {
   type CreatorRow,
   type CreatorSort,
 } from "@/lib/creators/types";
-import { compactNumber, formatDate, formatScore } from "@/lib/reels/format";
+import { compactNumber, formatScore } from "@/lib/reels/format";
 import { normalizePage } from "@/lib/reels/types";
 import { CreatorReelTile } from "@/components/creator-reel-tile";
 
@@ -71,6 +73,17 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       canonical: `https://oleg.ae/viral-reels-creators/${creator.account}`,
     },
   };
+}
+
+/**
+ * One of Oleg's 1-10 judgements, or a dash.
+ *
+ * Null and not zero for a creator judged after the last pass, so a missing
+ * score has to read as unknown rather than as a zero out of ten. The same
+ * distinction the range filters make.
+ */
+function formatRating(n: number | null | undefined): string {
+  return n === null || n === undefined || !Number.isFinite(n) ? "-" : `${n}/10`;
 }
 
 function Stat({
@@ -243,7 +256,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
       {creator && (
         <>
           <header className="surface-card p-4 sm:p-5">
-            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+            <div className="flex flex-wrap items-start gap-x-4 gap-y-2">
               <div className="flex min-w-0 gap-4">
                 {creator.avatar_url ? (
                   <img
@@ -264,12 +277,16 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
                     />
                   ) : null}
                 </h1>
+                {/* The handle IS the link to Instagram. There used to be a
+                    button beside it doing the same thing, which is two targets
+                    for one action and one of them a whole button's worth of
+                    room. */}
                 <p className="mt-1 text-xs text-silver-muted [overflow-wrap:anywhere]">
                   <a
                     href={creator.profile_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-display text-sm font-medium text-silver transition-colors hover:text-white"
+                    className="font-display text-base font-medium text-vivid-blue underline decoration-vivid-blue/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white/60"
                   >
                     @{creator.account}
                   </a>
@@ -277,14 +294,6 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
                 </p>
                 </div>
               </div>
-              <a
-                href={creator.profile_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-hairline px-4 text-xs font-medium text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
-              >
-                open on instagram
-              </a>
             </div>
 
             {creator.bio ? (
@@ -307,7 +316,10 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
               </p>
             ) : null}
 
-            <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 border-t border-hairline pt-4 sm:grid-cols-3 lg:grid-cols-6">
+            {/* Four columns, so the row breaks exactly where the meaning does:
+                the top line is how they perform, the second is Oleg's own 1-10
+                read of what they make. */}
+            <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 border-t border-hairline pt-4 sm:grid-cols-3 lg:grid-cols-4">
               <Stat
                 icon={Users}
                 value={compactNumber(creator.followers)}
@@ -329,14 +341,19 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
                 label="typical"
               />
               <Stat
-                icon={Eye}
-                value={compactNumber(creator.total_views)}
-                label="views in here"
+                icon={Laugh}
+                value={formatRating(creator.entertaining)}
+                label="entertaining"
               />
               <Stat
-                icon={Calendar}
-                value={formatDate(creator.last_posted)}
-                label="newest"
+                icon={GraduationCap}
+                value={formatRating(creator.educational)}
+                label="educational"
+              />
+              <Stat
+                icon={Sparkles}
+                value={formatRating(creator.inspirational)}
+                label="inspirational"
               />
             </div>
 

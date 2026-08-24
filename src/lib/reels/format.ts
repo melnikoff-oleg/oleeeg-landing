@@ -74,25 +74,36 @@ export function formatScore(score: number | null | undefined): string {
 }
 
 /**
- * "2026-04-26" -> "26 Apr 26". The grid version of formatDate.
+ * "2026-04-26" -> "5 days ago". How old a reel is, in the coarsest useful unit.
  *
- * A thumbnail overlay has room for about ten characters, and the century is the
- * one part of a date nobody reading a reel from this decade needs.
+ * A grid of sixty stills is read as a run of form, and "3 weeks ago" answers
+ * that in one glance where "2 Aug 26" makes the reader do the subtraction. The
+ * unit steps up as the answer gets older, because nobody needs "63 days ago".
  *
- * The months are spelled out here rather than left to `toLocaleDateString`,
- * which abbreviates September to "Sept" in en-GB. Four characters where every
- * other month has three is what pushes the overlay onto a second line on a
- * phone, and one wrapped tile in a grid of sixty reads as a bug.
+ * Computed against the server's clock on a page that is already force-dynamic,
+ * so there is no cached "2 days ago" going stale and no hydration mismatch.
  */
-const SHORT_MONTHS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-] as const;
+const DAY_MS = 86_400_000;
 
-export function formatShortDate(iso: string | null | undefined): string {
+function ago(n: number, unit: string): string {
+  return `${n} ${unit}${n === 1 ? "" : "s"} ago`;
+}
+
+export function formatRelative(iso: string | null | undefined): string {
   if (!iso) return "-";
-  const d = new Date(`${iso.slice(0, 10)}T00:00:00Z`);
-  if (Number.isNaN(d.getTime())) return "-";
-  const year = String(d.getUTCFullYear() % 100).padStart(2, "0");
-  return `${d.getUTCDate()} ${SHORT_MONTHS[d.getUTCMonth()]} ${year}`;
+  const then = Date.parse(`${iso.slice(0, 10)}T00:00:00Z`);
+  if (Number.isNaN(then)) return "-";
+
+  // Floored, so a reel is "1 day ago" for the whole of the day after it landed
+  // rather than for one hour of it. A future date means a clock disagreement,
+  // not a scheduled post, and reads as today.
+  const days = Math.floor((Date.now() - then) / DAY_MS);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 7) return ago(days, "day");
+  if (days < 30) return ago(Math.floor(days / 7), "week");
+  // 30.44 and 365.25 rather than 30 and 365: over the four-year span this
+  // library covers, the rounder numbers drift a reel a whole month early.
+  if (days < 365) return ago(Math.max(1, Math.floor(days / 30.44)), "month");
+  return ago(Math.max(1, Math.floor(days / 365.25)), "year");
 }

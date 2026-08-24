@@ -1,5 +1,5 @@
 import { Eye, Film, Heart } from "lucide-react";
-import { compactNumber, formatShortDate } from "@/lib/reels/format";
+import { compactNumber, formatRelative } from "@/lib/reels/format";
 import type { CreatorReel } from "@/lib/creators/types";
 
 /**
@@ -18,7 +18,7 @@ import type { CreatorReel } from "@/lib/creators/types";
  * constant creator, so views ARE the ranking and the rest is furniture.
  */
 export function CreatorReelTile({ reel }: { reel: CreatorReel }) {
-  const posted = formatShortDate(reel.posted_on);
+  const posted = formatRelative(reel.posted_on);
 
   return (
     <a
@@ -63,12 +63,12 @@ export function CreatorReelTile({ reel }: { reel: CreatorReel }) {
           way Instagram's own overlays do. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 p-1.5 sm:p-2">
         {/* The numbers are the point of the page and they are read at a glance,
-            so they are set at roughly three times the size they started at.
-            That no longer fits beside the date on a phone, so the date takes its
-            own line there (w-full) and rejoins the row from sm up, where a 270px
-            tile has room for all three. Deterministic either way: every tile on
-            a given width is the same height, and a single odd one among sixty
-            reads as a bug. */}
+            so they are set at roughly three times the size they started at. At
+            that size the age does not fit beside them at any width the grid
+            uses, so it always takes its own line rather than fitting on the
+            tiles that say "today" and wrapping on the ones that say "3 weeks
+            ago". One odd strip among sixty reads as a bug; sixty identical
+            two-line strips read as a layout. */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-xl border border-white/10 bg-navy/50 px-2.5 py-2 backdrop-blur-md sm:px-3 sm:py-2.5">
           <span className="inline-flex items-center gap-1.5">
             <Eye className="size-4 shrink-0 text-white/70" aria-hidden />
@@ -84,7 +84,7 @@ export function CreatorReelTile({ reel }: { reel: CreatorReel }) {
             </span>
             <span className="sr-only">likes</span>
           </span>
-          <span className="w-full font-body text-xs font-medium tabular-nums text-white/70 sm:ml-auto sm:w-auto sm:text-sm">
+          <span className="w-full text-right font-body text-xs font-medium tabular-nums text-white/70 sm:text-sm">
             {posted}
           </span>
         </div>
