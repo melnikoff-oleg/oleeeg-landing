@@ -24,7 +24,7 @@ import {
 } from "@/lib/creators/types";
 import { compactNumber, formatDate, formatScore } from "@/lib/reels/format";
 import { normalizePage } from "@/lib/reels/types";
-import { CreatorReelRow } from "@/components/creator-reel-row";
+import { CreatorReelTile } from "@/components/creator-reel-tile";
 
 // One creator, read live from a table creators.py rewrites.
 export const dynamic = "force-dynamic";
@@ -122,11 +122,13 @@ function PageLink({
 }
 
 /**
- * One creator, and every reel of theirs the database has read, most viral first.
+ * One creator, and every reel of theirs the scrape holds, most viewed first.
  *
  * This is what the search is for. The header is who they are; everything under
- * it is the evidence, ranked by how far each reel beat their own audience rather
- * than by raw views, so their real outliers sit at the top whatever their size.
+ * it is the evidence, laid out as Instagram's own profile grid. Views are the
+ * ranking rather than the outlier score, because on one creator's page the
+ * audience is a constant, and sorting by score buries their biggest reel under
+ * an early one that beat a much smaller following.
  */
 export default async function CreatorPage({ params, searchParams }: Params & Search) {
   const handle = normalizeHandle((await params).account);
@@ -168,7 +170,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
   const signature = creator?.signature ?? [];
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-6 sm:pt-10">
+    <main className="mx-auto max-w-6xl px-4 pt-6 pb-16 sm:px-6 sm:pt-10">
       <Link
         href="/viral-reels-creators"
         className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-body text-xs text-silver-muted transition-colors hover:bg-silver/5 hover:text-white"
@@ -250,7 +252,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
               </p>
             ) : null}
 
-            <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 border-t border-hairline pt-4 sm:grid-cols-3">
+            <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 border-t border-hairline pt-4 sm:grid-cols-3 lg:grid-cols-6">
               <Stat
                 icon={Users}
                 value={compactNumber(creator.followers)}
@@ -318,9 +320,13 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
               nothing on this page. go back to page one.
             </p>
           ) : (
-            <div className="space-y-2">
+            // Instagram's own profile grid: four to a row on a desktop, three on
+            // a tablet, two on a phone, hairline gaps. The whole point of this
+            // page is the wall of stills, so the thumbnails get the width and
+            // the numbers ride on top of them.
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2 lg:grid-cols-4">
               {reels.map((reel) => (
-                <CreatorReelRow key={reel.shortcode} reel={reel} />
+                <CreatorReelTile key={reel.shortcode} reel={reel} />
               ))}
             </div>
           )}

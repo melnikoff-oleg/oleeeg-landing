@@ -72,3 +72,27 @@ export function formatScore(score: number | null | undefined): string {
   if (score >= 100) return String(Math.round(score));
   return score.toFixed(1);
 }
+
+/**
+ * "2026-04-26" -> "26 Apr 26". The grid version of formatDate.
+ *
+ * A thumbnail overlay has room for about ten characters, and the century is the
+ * one part of a date nobody reading a reel from this decade needs.
+ *
+ * The months are spelled out here rather than left to `toLocaleDateString`,
+ * which abbreviates September to "Sept" in en-GB. Four characters where every
+ * other month has three is what pushes the overlay onto a second line on a
+ * phone, and one wrapped tile in a grid of sixty reads as a bug.
+ */
+const SHORT_MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+] as const;
+
+export function formatShortDate(iso: string | null | undefined): string {
+  if (!iso) return "-";
+  const d = new Date(`${iso.slice(0, 10)}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return "-";
+  const year = String(d.getUTCFullYear() % 100).padStart(2, "0");
+  return `${d.getUTCDate()} ${SHORT_MONTHS[d.getUTCMonth()]} ${year}`;
+}

@@ -378,3 +378,85 @@ test("99d - creators: the roster survives an unreachable filter", async ({
   await expect(page.locator("input[type=range]")).toHaveCount(8);
   await expect(page.getByRole("button", { name: /clear filters/i })).toBeVisible();
 });
+
+// ── the creator's own page: Instagram's grid ─────────────────────────────────
+//
+// These need a live index, because a grid with nothing in it proves nothing.
+// They skip rather than fail without one, the same way the filter tests do.
+
+async function openFirstCreator(page: Page): Promise<boolean> {
+  await settle(page, "/viral-reels-creators");
+  const card = page.locator("a[href^='/viral-reels-creators/']").first();
+  if ((await card.count()) === 0) return false;
+  await card.click();
+  await page.waitForURL(/\/viral-reels-creators\/[^/]+$/);
+  return (await page.locator("main div.grid > a").count()) > 0;
+}
+
+test("100 - a creator's reels are a grid of 9:16 thumbnails, four to a row", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name === "mobile", "desktop widths");
+  test.skip(!(await openFirstCreator(page)), "needs a live index");
+
+  const tiles = page.locator("main div.grid > a");
+  const first = (await tiles.first().boundingBox())!;
+
+  // 9:16, the shape of a reel, within a pixel of rounding.
+  expect(Math.abs(first.height / first.width - 16 / 9)).toBeLessThan(0.02);
+
+  // Big. The old row gave the thumbnail 50px; the point of the redesign is that
+  // the picture is the page.
+  expect(first.width).toBeGreaterThan(200);
+
+  // Four to a row: the fifth tile is the one that starts a new line.
+  const tops = await tiles.evaluateAll((els) =>
+    els.slice(0, 8).map((e) => Math.round(e.getBoundingClientRect().top)),
+  );
+  expect(new Set(tops.slice(0, 4)).size).toBe(1);
+  expect(tops[4]).toBeGreaterThan(tops[0]);
+});
+
+test("101 - every tile carries views, likes and a date, and nothing else", async ({
+  page,
+}) => {
+  test.skip(!(await openFirstCreator(page)), "needs a live index");
+
+  const strip = page.locator("main div.grid > a div.backdrop-blur-md").first();
+  await expect(strip).toBeVisible();
+
+  // Three fields. A fourth would be the comment count or the outlier score
+  // creeping back on, which is exactly what Oleg asked to be rid of here.
+  await expect(strip.locator("> *")).toHaveCount(3);
+  await expect(strip).toContainText(/\d+ [A-Z][a-z]{2} \d\d$/);
+
+  // The month never runs to four letters, or a September tile wraps alone.
+  const dates = await page
+    .locator("main div.grid > a div.backdrop-blur-md > span:last-child")
+    .allInnerTexts();
+  for (const d of dates) expect(d).toMatch(/^(-|\d{1,2} [A-Z][a-z]{2} \d\d)$/);
+});
+
+test("102 - the stats strip stays on one line on a phone", async ({
+  page,
+}, testInfo) => {
+  MOBILE_ONLY(testInfo);
+  test.skip(!(await openFirstCreator(page)), "needs a live index");
+
+  // A wrapped strip is measurably taller than an unwrapped one, and one wrapped
+  // tile among sixty reads as a bug rather than as a long number.
+  const heights = await page
+    .locator("main div.grid > a div.backdrop-blur-md")
+    .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
+  expect(heights.length).toBeGreaterThan(0);
+  expect(new Set(heights).size).toBe(1);
+});
+
+test("103 - a tile opens the reel on instagram, in a new tab", async ({ page }) => {
+  test.skip(!(await openFirstCreator(page)), "needs a live index");
+
+  const tile = page.locator("main div.grid > a").first();
+  await expect(tile).toHaveAttribute("href", /instagram\.com\//);
+  await expect(tile).toHaveAttribute("target", "_blank");
+  await expect(tile).toHaveAttribute("rel", /noopener/);
+});
