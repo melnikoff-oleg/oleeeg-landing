@@ -9,8 +9,12 @@
 // by `search/creators.py` in the reels-database repo, never by this site.
 //
 // A search is two hops: embed the visitor's words with the same model the rows
-// were embedded with, then let pgvector rank the corpus by cosine distance in
-// the `creator_search_match` function.
+// were embedded with, then let `creator_search_match` rank the corpus. That
+// function is no longer one cosine against one vector per creator. It blends
+// the creator's profile vector with the best match among their FACETS -- one
+// short vector per reel, per topic cluster, and per unread reel's caption --
+// and a lexical channel over their own words. The rebuild is documented in
+// search/creator_facets.sql in the reels-database repo.
 //
 // If the env vars are missing the module degrades instead of throwing: the page
 // still renders and reports `configured: false`. That is what lets the
@@ -99,6 +103,7 @@ async function embedQuery(query: string, signal: AbortSignal): Promise<number[]>
 
 async function matchCreators(
   embedding: number[],
+  query: string,
   count: number,
   filters: CreatorFilters,
   signal: AbortSignal,
@@ -130,6 +135,13 @@ async function matchCreators(
     body: JSON.stringify({
       query_embedding: embedding,
       match_count: count,
+      // The words as well as the vector. A two-character query like "AI" is one
+      // token against documents of hundreds, and cosine distance has no notion
+      // of a term being PRESENT, so the function scores a lexical channel over
+      // the creator's own name, niche, tags and reel write-ups alongside the
+      // vector one. Omitting it is safe: the parameter defaults to null and the
+      // ranking simply loses that term.
+      query_text: query,
       ...bounds,
     }),
     signal,
@@ -172,7 +184,7 @@ export async function searchCreators(
   callerSignal?.addEventListener("abort", () => controller.abort(), { once: true });
   try {
     const embedding = await embedQuery(query, controller.signal);
-    const ranked = await matchCreators(embedding, count, filters, controller.signal);
+    const ranked = await matchCreators(embedding, query, count, filters, controller.signal);
     // pgvector orders by distance and stops at the limit; it never judges
     // whether the nearest creator is near at all. Dropping the far ones here is
     // what lets the page say "nobody is close" instead of filling twelve slots
