@@ -1,6 +1,30 @@
 import type { MetadataRoute } from "next";
+import { creatorRosterConfigured, listCreatorHandles } from "@/lib/creators/roster";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+// The creator pages are read out of the database rather than listed here: there
+// are 245 of them and creators.py adds more every time the library grows, so a
+// hand-kept list would be wrong within the week. One narrow read of a 245-row
+// table, and a failure costs the sitemap those entries rather than the whole
+// file.
+export const revalidate = 3600;
+
+async function creatorEntries(): Promise<MetadataRoute.Sitemap> {
+  if (!creatorRosterConfigured) return [];
+  try {
+    const handles = await listCreatorHandles();
+    return handles.map((account) => ({
+      url: `https://oleg.ae/viral-reels-creators/${account}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.5,
+    }));
+  } catch (err) {
+    console.error("sitemap creator entries failed", err);
+    return [];
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     {
       url: "https://oleg.ae",
@@ -189,6 +213,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: "https://oleg.ae/viral-reels-creators",
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: "https://oleg.ae/viral-reels-ideas",
       lastModified: new Date(),
       changeFrequency: "weekly",
@@ -206,5 +236,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    ...(await creatorEntries()),
   ];
 }

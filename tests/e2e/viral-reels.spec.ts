@@ -191,17 +191,20 @@ test("74 - viral reels browse: filters render, and the page stays bare", async (
   expect(h1!.height).toBeLessThanOrEqual(1);
 });
 
-test("75 - viral reels: the three pages all reach each other", async ({
+test("75 - viral reels: the four pages all reach each other", async ({
   page,
 }) => {
-  // Every one of the three carries the same nav, so any of them can reach any
+  // Every one of the four carries the same nav, so any of them can reach any
   // other in one click. Walk the ring.
+  const nav = () => page.getByRole("navigation", { name: "viral reels" });
   await settle(page, "/viral-reels");
-  await page.getByRole("navigation", { name: "viral reels" }).getByRole("link", { name: "library" }).click();
+  await nav().getByRole("link", { name: "library" }).click();
   await expect(page).toHaveURL(/\/viral-reels-browse$/);
-  await page.getByRole("navigation", { name: "viral reels" }).getByRole("link", { name: "ideas" }).click();
+  await nav().getByRole("link", { name: "creators" }).click();
+  await expect(page).toHaveURL(/\/viral-reels-creators$/);
+  await nav().getByRole("link", { name: "ideas" }).click();
   await expect(page).toHaveURL(/\/viral-reels-ideas$/);
-  await page.getByRole("navigation", { name: "viral reels" }).getByRole("link", { name: "search" }).click();
+  await nav().getByRole("link", { name: "search" }).click();
   await expect(page).toHaveURL(/\/viral-reels(\?|$)/);
 });
 

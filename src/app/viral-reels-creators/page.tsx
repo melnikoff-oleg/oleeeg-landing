@@ -1,0 +1,95 @@
+import type { Metadata } from "next";
+import { creatorRosterConfigured, listCreators } from "@/lib/creators/roster";
+import {
+  normalizeCreatorQuery,
+  normalizeDepth,
+  ROSTER_PAGE_SIZE,
+  type CreatorRow,
+} from "@/lib/creators/types";
+import { normalizePage } from "@/lib/reels/types";
+import { ReelNav } from "@/components/reel-nav";
+import { CreatorSearch } from "./components/creator-search";
+
+const title = "Viral Reel Creators: Search the People Behind the Reels";
+const description =
+  "Search hundreds of Instagram creators by what they actually make. Describe a kind of creator and get the accounts closest to it, each with their niche, their audience and their most viral reels in order.";
+
+export const metadata: Metadata = {
+  title,
+  description,
+  keywords: [
+    "instagram creators",
+    "viral instagram creators",
+    "find instagram creators by niche",
+    "creator database",
+    "instagram reel creators",
+    "short form creators",
+    "Oleg Melnikov",
+  ],
+  openGraph: {
+    title,
+    description,
+    type: "website",
+    url: "https://oleg.ae/viral-reels-creators",
+  },
+  twitter: { card: "summary_large_image", title, description },
+  alternates: { canonical: "https://oleg.ae/viral-reels-creators" },
+};
+
+// The roster depends on searchParams and on a table creators.py rewrites, so it
+// is rendered per request.
+export const dynamic = "force-dynamic";
+
+/**
+ * Semantic search over the creators in the reel database.
+ *
+ * The third door onto the same corpus. /viral-reels finds a reel, this finds the
+ * person, and opening one lands on every reel of theirs the database has read,
+ * most viral first.
+ *
+ * The roster is fetched on the server so the page is not an empty box: it is the
+ * half a crawler can read and the half that works before any JavaScript arrives.
+ * Search itself is the client component talking to /api/viral-reels/creators.
+ */
+export default async function CreatorsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const first = (v: string | string[] | undefined) =>
+    Array.isArray(v) ? v[0] : v;
+
+  const initialQuery = normalizeCreatorQuery(first(params.q) ?? "");
+  const initialDepth = normalizeDepth(first(params.r));
+  const page = normalizePage(first(params.page));
+
+  let roster: CreatorRow[] = [];
+  let total = 0;
+  if (creatorRosterConfigured) {
+    try {
+      const result = await listCreators({ minReels: initialDepth, page });
+      roster = result.rows;
+      total = result.total;
+    } catch (err) {
+      // A dead upstream must not 500 the page: the search box still works from
+      // the client, and an empty roster beats an error screen.
+      console.error("creator roster ssr failed", err);
+    }
+  }
+
+  return (
+    <main className="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-6 sm:pt-10">
+      <h1 className="sr-only">viral reel creators</h1>
+      <ReelNav current="/viral-reels-creators" />
+      <CreatorSearch
+        initialQuery={initialQuery}
+        initialDepth={initialDepth}
+        roster={roster}
+        rosterTotal={total}
+        rosterPage={page}
+        rosterPages={Math.max(1, Math.ceil(total / ROSTER_PAGE_SIZE))}
+      />
+    </main>
+  );
+}
