@@ -437,14 +437,15 @@ test("101 - every tile carries views, likes and a date, and nothing else", async
   for (const d of dates) expect(d).toMatch(/^(-|\d{1,2} [A-Z][a-z]{2} \d\d)$/);
 });
 
-test("102 - the stats strip stays on one line on a phone", async ({
+test("102 - every stats strip on a phone is the same height", async ({
   page,
 }, testInfo) => {
   MOBILE_ONLY(testInfo);
   test.skip(!(await openFirstCreator(page)), "needs a live index");
 
-  // A wrapped strip is measurably taller than an unwrapped one, and one wrapped
-  // tile among sixty reads as a bug rather than as a long number.
+  // On a phone the date takes its own line under the numbers, on purpose. What
+  // must not happen is SOME tiles doing that and others not: a strip that is
+  // taller than its neighbours reads as a bug rather than as a long number.
   const heights = await page
     .locator("main div.grid > a div.backdrop-blur-md")
     .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
@@ -459,4 +460,68 @@ test("103 - a tile opens the reel on instagram, in a new tab", async ({ page }) 
   await expect(tile).toHaveAttribute("href", /instagram\.com\//);
   await expect(tile).toHaveAttribute("target", "_blank");
   await expect(tile).toHaveAttribute("rel", /noopener/);
+});
+
+test("104 - a creator opens newest first, and the order is a switch", async ({
+  page,
+}) => {
+  test.skip(!(await openFirstCreator(page)), "needs a live index");
+
+  const dates = () =>
+    page
+      .locator("main div.grid > a div.backdrop-blur-md > span:last-child")
+      .allInnerTexts();
+  const stamp = (d: string) => {
+    const [day, mon, yy] = d.split(" ");
+    const months = "JanFebMarAprMayJunJulAugSepOctNovDec";
+    return Number(yy) * 10000 + (months.indexOf(mon) / 3 + 1) * 100 + Number(day);
+  };
+  const views = () =>
+    page
+      .locator("main div.grid > a div.backdrop-blur-md > span:first-child")
+      .allInnerTexts();
+
+  // Default: newest first, no ?sort= in the address.
+  await expect(page).not.toHaveURL(/sort=/);
+  const byDate = (await dates()).filter((d) => d !== "-").map(stamp);
+  for (let i = 1; i < byDate.length; i++) {
+    expect(byDate[i], `reel ${i} is not older than the one above it`).toBeLessThanOrEqual(
+      byDate[i - 1],
+    );
+  }
+
+  // The other order is one click away and says so in the URL.
+  const newest = await views();
+  await page.getByRole("link", { name: "most viewed" }).click();
+  await page.waitForURL(/sort=views/);
+  const popular = await views();
+  expect(popular).not.toEqual(newest);
+
+  // And back, to the bare address rather than to ?sort=new.
+  await page.getByRole("link", { name: "newest first" }).click();
+  await page.waitForURL(/\/viral-reels-creators\/[^/?]+$/);
+  expect(await views()).toEqual(newest);
+});
+
+test("105 - a junk sort falls back to newest, and paging keeps the order", async ({
+  page,
+}) => {
+  await settle(page, "/viral-reels-creators");
+  const href = await page
+    .locator("a[href^='/viral-reels-creators/']")
+    .first()
+    .getAttribute("href");
+  test.skip(!href, "needs a live index");
+
+  await settle(page, `${href}?sort=nonsense`);
+  await expect(page.getByRole("link", { name: "newest first" })).toHaveAttribute(
+    "aria-current",
+    "true",
+  );
+
+  // Every page link past the first carries the order, or page two silently
+  // reorders under the visitor.
+  await settle(page, `${href}?sort=views`);
+  const next = page.getByRole("link", { name: /less viewed|older/ });
+  if (await next.count()) await expect(next).toHaveAttribute("href", /sort=views/);
 });

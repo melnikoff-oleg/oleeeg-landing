@@ -21,6 +21,7 @@ import {
   type CreatorFilters,
   type CreatorReel,
   type CreatorRow,
+  type CreatorSort,
 } from "./types";
 
 const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
@@ -197,26 +198,37 @@ export type CreatorReelsPage = {
 };
 
 /**
- * One creator's reels, most viewed first.
+ * One creator's reels, newest first by default or most viewed on request.
  *
- * Views, not score. On one creator's own page the audience is a constant, so
- * views ARE the ranking; sorting by score here would push their biggest reel
- * down under an early one that beat a much smaller following. Oleg asked for
- * views descending in as many words.
+ * Newest is the default because a creator's shelf in date order is their run of
+ * form: it answers what they are making NOW, which a two-year-old monster
+ * pinned to the top of every page hides.
  *
- * A reel with no view count sorts last rather than first, which is where
- * Postgres puts nulls in a descending sort by default. Those are pre-Reels
- * video posts, 478 of them, and Instagram never recorded a number for any.
+ * When it is views, it is views and never the outlier score. On one creator's
+ * own page the audience is a constant, so views ARE the ranking; sorting by
+ * score there would push their biggest reel down under an early one that beat a
+ * much smaller following.
+ *
+ * Each order carries the other as its tie-breaker, so the sequence is total and
+ * a reel cannot appear on two pages or on none. Nulls sort last either way,
+ * which is where Postgres puts them in a descending sort by default: those are
+ * the 478 pre-Reels video posts Instagram never recorded a number for.
  */
+const REEL_ORDER: Record<CreatorSort, string> = {
+  new: "posted_on.desc.nullslast,views.desc.nullslast,shortcode.asc",
+  views: "views.desc.nullslast,posted_on.desc.nullslast,shortcode.asc",
+};
+
 export async function getCreatorReels(
   account: string,
   page: number,
+  sort: CreatorSort = "new",
   signal?: AbortSignal,
 ): Promise<CreatorReelsPage> {
   const params = new URLSearchParams();
   params.set("select", REEL_COLUMNS);
   params.set("account", `eq.${account}`);
-  params.set("order", "views.desc.nullslast,posted_on.desc");
+  params.set("order", REEL_ORDER[sort]);
   params.set("limit", String(CREATOR_REELS_PAGE_SIZE));
   params.set("offset", String((page - 1) * CREATOR_REELS_PAGE_SIZE));
 

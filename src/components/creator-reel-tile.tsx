@@ -62,27 +62,29 @@ export function CreatorReelTile({ reel }: { reel: CreatorReel }) {
       {/* Frosted rather than solid, so the still keeps reading through it the
           way Instagram's own overlays do. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 p-1.5 sm:p-2">
-        {/* Sized to keep views, likes and the date on ONE line at 390px, the
-            narrowest phone worth designing for: two tiles side by side leave the
-            strip 144px of inside width, and the widest case measured across the
-            library needs 137. It still wraps rather than overflows on anything
-            narrower, which is why the gap has a vertical component at all. */}
-        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 rounded-lg border border-white/10 bg-navy/45 px-2 py-1.5 backdrop-blur-md sm:gap-x-2.5">
-          <span className="inline-flex items-center gap-0.5 sm:gap-1">
-            <Eye className="size-3 shrink-0 text-white/60" aria-hidden />
-            <span className="font-display text-[10px] tabular-nums text-white sm:text-xs">
+        {/* The numbers are the point of the page and they are read at a glance,
+            so they are set at roughly three times the size they started at.
+            That no longer fits beside the date on a phone, so the date takes its
+            own line there (w-full) and rejoins the row from sm up, where a 270px
+            tile has room for all three. Deterministic either way: every tile on
+            a given width is the same height, and a single odd one among sixty
+            reads as a bug. */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-xl border border-white/10 bg-navy/50 px-2.5 py-2 backdrop-blur-md sm:px-3 sm:py-2.5">
+          <span className="inline-flex items-center gap-1.5">
+            <Eye className="size-4 shrink-0 text-white/70" aria-hidden />
+            <span className="font-display text-base font-semibold tabular-nums text-white sm:text-lg">
               {compactNumber(reel.views)}
             </span>
             <span className="sr-only">views</span>
           </span>
-          <span className="inline-flex items-center gap-0.5 sm:gap-1">
-            <Heart className="size-3 shrink-0 text-white/60" aria-hidden />
-            <span className="font-display text-[10px] tabular-nums text-white sm:text-xs">
+          <span className="inline-flex items-center gap-1.5">
+            <Heart className="size-4 shrink-0 text-white/70" aria-hidden />
+            <span className="font-display text-base font-semibold tabular-nums text-white sm:text-lg">
               {compactNumber(reel.likes)}
             </span>
             <span className="sr-only">likes</span>
           </span>
-          <span className="ml-auto font-body text-[10px] tabular-nums text-white/60 sm:text-[11px]">
+          <span className="w-full font-body text-xs font-medium tabular-nums text-white/70 sm:ml-auto sm:w-auto sm:text-sm">
             {posted}
           </span>
         </div>

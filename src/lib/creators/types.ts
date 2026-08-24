@@ -42,6 +42,21 @@ export const ROSTER_PAGE_SIZE = 24;
 export const CREATOR_REELS_PAGE_SIZE = 60;
 
 /**
+ * The two orders a creator's reels can be read in.
+ *
+ * "new" is the default and it is the one that answers "what are they making
+ * NOW": a creator's shelf in date order is their run of form, and a two-year-old
+ * monster at the top of every page hides the fact that the last ten reels
+ * flopped. "views" is the other question, kept one click away.
+ */
+export const CREATOR_SORTS = ["new", "views"] as const;
+export type CreatorSort = (typeof CREATOR_SORTS)[number];
+
+export function normalizeCreatorSort(raw: string | null | undefined): CreatorSort {
+  return raw === "views" ? "views" : "new";
+}
+
+/**
  * One creator as the card paints them.
  *
  * Every field but the first three is nullable because the database is still

@@ -18,9 +18,11 @@ import {
 } from "@/lib/creators/roster";
 import {
   CREATOR_REELS_PAGE_SIZE,
+  normalizeCreatorSort,
   normalizeHandle,
   type CreatorReel,
   type CreatorRow,
+  type CreatorSort,
 } from "@/lib/creators/types";
 import { compactNumber, formatDate, formatScore } from "@/lib/reels/format";
 import { normalizePage } from "@/lib/reels/types";
@@ -93,6 +95,57 @@ function Stat({
   );
 }
 
+/**
+ * The two orders, as links rather than as a client component.
+ *
+ * The page is a server component that reads the database on every request, so
+ * the order is a URL, and a URL is a link. That buys the back button, an
+ * openable-in-a-new-tab control and a shareable address for free, and it costs
+ * no JavaScript at all.
+ */
+function SortTabs({
+  account,
+  sort,
+}: {
+  account: string;
+  sort: CreatorSort;
+}) {
+  const tabs: { key: CreatorSort; label: string }[] = [
+    { key: "new", label: "newest first" },
+    { key: "views", label: "most viewed" },
+  ];
+  return (
+    <div className="flex shrink-0 gap-1 rounded-full border border-hairline p-1">
+      {tabs.map(({ key, label }) => {
+        const on = key === sort;
+        return (
+          <Link
+            key={key}
+            href={reelsHref(account, 1, key)}
+            aria-current={on ? "true" : undefined}
+            className={`inline-flex min-h-9 items-center rounded-full px-3.5 font-body text-xs transition-colors ${
+              on
+                ? "bg-vivid-blue text-white"
+                : "text-silver-muted hover:text-white"
+            }`}
+          >
+            {label}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+// Page one of the default order is the bare address. Everything else says so.
+function reelsHref(account: string, page: number, sort: CreatorSort): string {
+  const params = new URLSearchParams();
+  if (sort !== "new") params.set("sort", sort);
+  if (page > 1) params.set("page", String(page));
+  const query = params.toString();
+  return `/viral-reels-creators/${account}${query ? `?${query}` : ""}`;
+}
+
 function PageLink({
   href,
   disabled,
@@ -122,13 +175,13 @@ function PageLink({
 }
 
 /**
- * One creator, and every reel of theirs the scrape holds, most viewed first.
+ * One creator, and every reel of theirs the scrape holds, newest first.
  *
  * This is what the search is for. The header is who they are; everything under
- * it is the evidence, laid out as Instagram's own profile grid. Views are the
- * ranking rather than the outlier score, because on one creator's page the
- * audience is a constant, and sorting by score buries their biggest reel under
- * an early one that beat a much smaller following.
+ * it is the evidence, laid out as Instagram's own profile grid, in one of two
+ * orders the visitor picks: newest, which shows their run of form, or most
+ * viewed, which shows their ceiling. Never the outlier score, because on one
+ * creator's page the audience is a constant.
  */
 export default async function CreatorPage({ params, searchParams }: Params & Search) {
   const handle = normalizeHandle((await params).account);
@@ -136,7 +189,9 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
   // handle can be a creator, and it must never reach a filter.
   if (!handle) notFound();
 
-  const page = normalizePage(first((await searchParams).page));
+  const query = await searchParams;
+  const page = normalizePage(first(query.page));
+  const sort = normalizeCreatorSort(first(query.sort));
 
   if (!creatorRosterConfigured) notFound();
 
@@ -149,7 +204,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
     // their reels are independent reads of two different tables.
     const [row, reelPage] = await Promise.all([
       getCreator(handle),
-      getCreatorReels(handle, page),
+      getCreatorReels(handle, page, sort),
     ]);
     creator = row;
     reels = reelPage.rows;
@@ -311,9 +366,12 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
             )}
           </header>
 
-          <h2 className="mt-8 mb-4 font-display text-sm text-silver-muted">
-            {total} {total === 1 ? "reel" : "reels"} scraped, most viewed first
-          </h2>
+          <div className="mt-8 mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-display text-sm text-silver-muted">
+              {total} {total === 1 ? "reel" : "reels"} scraped
+            </h2>
+            <SortTabs account={creator.account} sort={sort} />
+          </div>
 
           {reels.length === 0 ? (
             <p className="rounded-2xl border border-hairline px-5 py-4 text-sm text-silver-muted">
@@ -336,22 +394,14 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
               aria-label="reel pages"
               className="mt-6 flex items-center justify-between gap-3"
             >
-              <PageLink
-                href={`/viral-reels-creators/${creator.account}${
-                  page - 1 > 1 ? `?page=${page - 1}` : ""
-                }`}
-                disabled={page <= 1}
-              >
-                more viewed
+              <PageLink href={reelsHref(creator.account, page - 1, sort)} disabled={page <= 1}>
+                {sort === "views" ? "more viewed" : "newer"}
               </PageLink>
               <span className="font-body text-xs tabular-nums text-silver-muted">
                 page {page} of {pages}
               </span>
-              <PageLink
-                href={`/viral-reels-creators/${creator.account}?page=${page + 1}`}
-                disabled={page >= pages}
-              >
-                less viewed
+              <PageLink href={reelsHref(creator.account, page + 1, sort)} disabled={page >= pages}>
+                {sort === "views" ? "less viewed" : "older"}
               </PageLink>
             </nav>
           )}
