@@ -8,9 +8,9 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, getClientIp } from "@/lib/marketing-brain/rate-limit";
 import { readRanges } from "@/lib/filters/range";
-import { LIBRARY_RESULT_COUNT, REEL_FILTERS } from "@/lib/reels/filters";
+import { LIBRARY_RESULT_MAX, REEL_FILTERS } from "@/lib/reels/filters";
 import { reelSearchConfigured, searchReels } from "@/lib/reels/search";
-import { normalizeQuery } from "@/lib/reels/types";
+import { normalizeQuery, toTileRow } from "@/lib/reels/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -57,13 +57,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    const results = await searchReels(
-      query,
-      ranges,
-      LIBRARY_RESULT_COUNT,
-      req.signal,
-    );
-    return NextResponse.json({ query, results });
+    const hits = await searchReels(query, ranges, LIBRARY_RESULT_MAX, req.signal);
+    // Tile rows, not full ones. The wall draws a thumbnail and four numbers, so
+    // the write-ups, tags and caption are seven eighths of a payload nothing on
+    // the page reads. At 120 reels that is the difference between 320 KB and
+    // 42 KB, which is what makes sending the whole answer at once the cheap
+    // option rather than the expensive one.
+    return NextResponse.json({ query, results: hits.map(toTileRow) });
   } catch (err) {
     // A dropped request is not a failure. Every filter change can abort the one
     // before it, and clicking into a reel aborts whatever was in flight, so

@@ -553,3 +553,97 @@ test("87 - viral reels ideas: a running answer can be stopped", async ({
   await expect(page.getByRole("button", { name: "send" })).toBeVisible();
   await expect(page.getByText("you stopped this one.")).toBeVisible();
 });
+
+// ── the scrolling wall ───────────────────────────────────────────────────────
+//
+// A search answers with up to 120 reels in one payload and the wall draws 24 of
+// them, another 24 each time the bottom comes into view. Deterministic here
+// because the answer is mocked: what is being tested is the reveal, not the
+// ranking.
+
+/** `n` tile rows, the shape /api/viral-reels/search actually answers with. */
+function tileRows(n: number) {
+  return Array.from({ length: n }, (_, i) => ({
+    shortcode: `TILE${i}`,
+    url: `https://www.instagram.com/p/TILE${i}/`,
+    account: "someone",
+    creator: "Someone",
+    posted_on: "2026-08-01",
+    score: 12.5,
+    views: 1_000_000 - i,
+    likes: 10_000,
+    // Null on purpose: a tile with no thumbnail draws its placeholder and the
+    // test makes no network request for an image.
+    thumb_url: null,
+    similarity: 0.4 - i * 0.001,
+  }));
+}
+
+async function mockSearch(page: Page, n: number) {
+  await page.route("**/api/viral-reels/search", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ query: "test", results: tileRows(n) }),
+    });
+  });
+}
+
+async function toBottom(page: Page) {
+  await page.evaluate(() => globalThis.scrollTo(0, document.body.scrollHeight));
+}
+
+test("88 - the library wall reveals 24 at a time and stops at 120", async ({
+  page,
+}) => {
+  await mockSearch(page, 120);
+  await settle(page, "/viral-reels-browse?q=test");
+
+  const tiles = page.getByRole("article");
+  await expect(tiles).toHaveCount(24);
+  // The count above the wall is the whole answer, not the part drawn.
+  await expect(page.getByText("the 120 closest reels to that")).toBeVisible();
+
+  for (const expected of [48, 72, 96, 120]) {
+    await toBottom(page);
+    await expect(tiles).toHaveCount(expected);
+  }
+
+  // And there it ends. The sentinel leaves the tree at the cap, so scrolling
+  // again reveals nothing and asks for nothing.
+  await toBottom(page);
+  await page.waitForTimeout(300);
+  await expect(tiles).toHaveCount(120);
+});
+
+test("89 - a shorter answer stops where it runs out", async ({ page }) => {
+  // 30 reels is one full screenful and six more, and the wall must not pad, spin
+  // or keep a sentinel alive under them.
+  await mockSearch(page, 30);
+  await settle(page, "/viral-reels-browse?q=test");
+
+  const tiles = page.getByRole("article");
+  await expect(tiles).toHaveCount(24);
+  await toBottom(page);
+  await expect(tiles).toHaveCount(30);
+  await toBottom(page);
+  await page.waitForTimeout(300);
+  await expect(tiles).toHaveCount(30);
+});
+
+test("90 - a second search starts at the top of its own answer", async ({
+  page,
+}) => {
+  // Scroll depth belongs to an answer. Carrying it into the next one opens a
+  // fresh search six rows down.
+  await mockSearch(page, 120);
+  await settle(page, "/viral-reels-browse?q=test");
+
+  const tiles = page.getByRole("article");
+  await toBottom(page);
+  await expect(tiles).toHaveCount(48);
+
+  await page.getByLabel("what is your reel about?").fill("something else");
+  await page.getByRole("button", { name: "search" }).click();
+  await expect(tiles).toHaveCount(24);
+});

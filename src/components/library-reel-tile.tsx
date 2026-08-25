@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Eye, Film, Flame, Heart } from "lucide-react";
 import { compactNumber, formatRelative, formatScore } from "@/lib/reels/format";
-import type { ReelRow } from "@/lib/reels/types";
+import type { ReelTileRow } from "@/lib/reels/types";
 
 /**
  * One reel in the library wall: the thumbnail, big, and nothing else until the
@@ -34,7 +34,7 @@ import type { ReelRow } from "@/lib/reels/types";
  * does not go to Instagram: from a wall of many creators, "who made this" is the
  * question the tile cannot answer without it.
  */
-export function LibraryReelTile({ reel }: { reel: ReelRow }) {
+export function LibraryReelTile({ reel }: { reel: ReelTileRow }) {
   const posted = formatRelative(reel.posted_on);
   const score = formatScore(reel.score);
 

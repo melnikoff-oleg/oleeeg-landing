@@ -139,13 +139,41 @@ export const REEL_BIN_WIDTH = REEL_FILTER_KEYS.length;
 export const LIBRARY_PAGE_SIZE = 60;
 
 /**
- * How many reels one search returns.
+ * How many reels one screenful of a search is.
  *
- * More than the ten the old search page showed, because the answer is now a wall
- * of thumbnails rather than ten write-ups, and a wall of ten has a hole in it.
- * reel_search_match caps its own limit at 50.
+ * More than the ten the old search page showed, because the answer is a wall of
+ * thumbnails rather than ten write-ups, and a wall of ten has a hole in it.
+ *
+ * Since the wall scrolls (see LIBRARY_RESULT_MAX) this is no longer how many
+ * reels come back. It is how many are ON SCREEN at first and how many more
+ * appear each time the bottom comes into view: six rows of four on a desktop,
+ * twelve rows of two on a phone.
  */
 export const LIBRARY_RESULT_COUNT = 24;
+
+/**
+ * How many reels one search returns in total, at most.
+ *
+ * 120, five screenfuls, Oleg's number: "four extra pages in total, I think it
+ * will be more than enough". Reached by scrolling, Instagram-style, 24 at a
+ * time, and then the wall ends.
+ *
+ * ALL 120 ARRIVE IN THE FIRST ANSWER, and the scroll only reveals what is
+ * already here. One embedding and one indexed read serve the whole search, so
+ * reaching the bottom costs nothing and never fails halfway; paging the server
+ * would have meant an embedding per page for a corpus of 4,885 rows, where the
+ * entire answer is 42 KB.
+ *
+ * It is 42 KB because /api/viral-reels/search sends TILE ROWS. The wall draws a
+ * thumbnail and four numbers and reads none of the write-ups, so a full row is
+ * 2,730 bytes of which the page uses 360. Trimmed, five times as many reels
+ * cost a third of what 24 full ones did.
+ *
+ * reel_library_match caps its own limit at 200 (search/reel_library_page.sql in
+ * the reels-database repo), which is deliberately above this number so raising
+ * it is a deploy rather than a migration.
+ */
+export const LIBRARY_RESULT_MAX = 120;
 
 /**
  * The age range as the two dates the database can actually compare.

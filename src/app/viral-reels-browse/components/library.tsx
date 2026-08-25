@@ -12,12 +12,20 @@ import {
 import {
   LIBRARY_PAGE_SIZE,
   LIBRARY_RESULT_COUNT,
+  LIBRARY_RESULT_MAX,
   NO_REEL_FILTERS,
   REEL_BIN_WIDTH,
   REEL_FILTERS,
   type ReelFilters,
 } from "@/lib/reels/filters";
-import { normalizePage, normalizeQuery, QUERY_MAX, type ReelHit, type ReelRow } from "@/lib/reels/types";
+import {
+  normalizePage,
+  normalizeQuery,
+  QUERY_MAX,
+  type ReelTileHit,
+  type ReelTileRow,
+  type ReelRow,
+} from "@/lib/reels/types";
 import { FilterBar } from "@/components/filter-bar";
 import { LibraryReelTile } from "@/components/library-reel-tile";
 
@@ -72,7 +80,7 @@ function PageLink({
 type SearchState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "done"; query: string; results: ReelHit[] }
+  | { kind: "done"; query: string; results: ReelTileHit[] }
   | { kind: "error"; message: string };
 
 function Skeletons() {
@@ -91,7 +99,7 @@ function Skeletons() {
   );
 }
 
-function Wall({ reels }: { reels: readonly ReelRow[] }) {
+function Wall({ reels }: { reels: readonly ReelTileRow[] }) {
   return (
     // Instagram's own profile grid: four to a row on a desktop, three on a
     // tablet, two on a phone, hairline gaps. The whole point of this page is the
@@ -148,9 +156,14 @@ export function Library({
   const [count, setCount] = useState(total);
   const [page, setPage] = useState(initialPage);
   const [wallBusy, setWallBusy] = useState(false);
+  // How much of a search answer is on screen. The whole answer is already in
+  // memory; this is the part of it the wall has drawn.
+  const [shown, setShown] = useState(LIBRARY_RESULT_COUNT);
   const [wallError, setWallError] = useState(initialFailed ? "the library did not come back. try again in a moment." : "");
 
   const searchInflight = useRef<AbortController | null>(null);
+  // The empty div under the wall whose arrival on screen reveals the next 24.
+  const moreRef = useRef<HTMLDivElement | null>(null);
   const wallInflight = useRef<AbortController | null>(null);
   const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // What is actually on screen. A commit that matches it changes nothing, and
@@ -230,6 +243,9 @@ export function Library({
     searchInflight.current = controller;
 
     setState({ kind: "loading" });
+    // Back to one screenful. A new query that kept the old scroll depth would
+    // open six rows down its own answer.
+    setShown(LIBRARY_RESULT_COUNT);
 
     try {
       const res = await fetch("/api/viral-reels/search", {
@@ -239,7 +255,7 @@ export function Library({
         signal: controller.signal,
       });
       const json = (await res.json().catch(() => ({}))) as {
-        results?: ReelHit[];
+        results?: ReelTileHit[];
         error?: string;
       };
       if (controller.signal.aborted) return;
@@ -382,6 +398,34 @@ export function Library({
   const results = state.kind === "done" ? state.results : [];
   const showWall = state.kind === "idle";
 
+  /**
+   * Instagram's behaviour, which is what Oleg asked for: another screenful of
+   * reels each time the bottom of the wall comes into view, up to five in all.
+   *
+   * This REVEALS, it does not fetch. All 120 arrived with the first answer, so
+   * reaching the bottom cannot spin, cannot fail and costs no second embedding.
+   * 800px of rootMargin means the next row is drawn before the last one has been
+   * read, which is the difference between one long wall and five pages.
+   *
+   * The sentinel is only in the tree while there is more to show, so the
+   * observer stops existing at 120 rather than sitting there firing.
+   */
+  useEffect(() => {
+    if (shown >= results.length) return;
+    const node = moreRef.current;
+    if (!node) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShown((n) => Math.min(n + LIBRARY_RESULT_COUNT, LIBRARY_RESULT_MAX));
+        }
+      },
+      { rootMargin: "800px 0px" },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, [shown, results.length]);
+
   return (
     <div>
       <form onSubmit={submit} className="relative">
@@ -468,10 +512,12 @@ export function Library({
         {state.kind === "done" && results.length > 0 && (
           <>
             <p className="mb-4 font-body text-xs text-silver-muted">
-              the {Math.min(results.length, LIBRARY_RESULT_COUNT)} closest reels
-              to that, closest first
+              the {results.length} closest reels to that, closest first
             </p>
-            <Wall reels={results.slice(0, LIBRARY_RESULT_COUNT)} />
+            <Wall reels={results.slice(0, shown)} />
+            {shown < results.length && (
+              <div ref={moreRef} aria-hidden className="h-px w-full" />
+            )}
           </>
         )}
 

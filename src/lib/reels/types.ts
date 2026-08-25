@@ -164,6 +164,41 @@ export type ReelRow = {
 /** A `reel_search_match` row: a reel plus how close it was to the query. */
 export type ReelHit = ReelRow & { similarity: number };
 
+/**
+ * A reel as the library wall actually draws it.
+ *
+ * Ten fields of the twenty-eight a search returns. The tile is a thumbnail with
+ * four numbers over it and a handle above it; it never reads the idea, the
+ * three write-ups, the tags or the caption, which together are seven eighths of
+ * a row's bytes. Sending them anyway was affordable at 24 rows and is not at
+ * 120: full rows are 2,730 bytes each, these are 360.
+ *
+ * ReelRow satisfies this structurally, so the browse wall, which does have full
+ * rows on the server, needs no conversion to draw the same tile.
+ */
+export type ReelTileRow = Pick<
+  ReelRow,
+  "shortcode" | "url" | "account" | "creator" | "posted_on" | "score" | "views" | "likes" | "thumb_url"
+>;
+
+export type ReelTileHit = ReelTileRow & { similarity: number };
+
+/** The fields above, and nothing else, off any fuller row. */
+export function toTileRow(reel: ReelHit): ReelTileHit {
+  return {
+    shortcode: reel.shortcode,
+    url: reel.url,
+    account: reel.account,
+    creator: reel.creator,
+    posted_on: reel.posted_on,
+    score: reel.score,
+    views: reel.views,
+    likes: reel.likes,
+    thumb_url: reel.thumb_url,
+    similarity: reel.similarity,
+  };
+}
+
 /** Trim, collapse whitespace and cap the length. Returns "" for junk input. */
 export function normalizeQuery(raw: string): string {
   return raw.replace(/\s+/g, " ").trim().slice(0, QUERY_MAX);
