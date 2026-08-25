@@ -72,6 +72,7 @@ export default async function CreatorsPage({
   const filters = readCreatorFilters({
     aud: first(params.aud),
     worth: first(params.worth),
+    form: first(params.form),
     ent: first(params.ent),
     edu: first(params.edu),
     insp: first(params.insp),

@@ -65,6 +65,9 @@ const COLUMNS = [
   "top_thumbs",
   "avatar_url",
   "worth_studying",
+  // How the last 90 days went, 1-10. Computed by scripts/form_score.py, and the
+  // second thing creator_search_match multiplies relevance by.
+  "form",
   "entertaining",
   "educational",
   "inspirational",
@@ -173,7 +176,9 @@ export async function listCreators(
   params.set("select", COLUMNS);
   params.set(
     "order",
-    "worth_studying.desc.nullslast,reels_indexed.desc,followers.desc.nullslast",
+    // Craft first, then who is actually winning right now, which is the same
+    // order the search multiplies them in.
+    "worth_studying.desc.nullslast,form.desc.nullslast,reels_indexed.desc,followers.desc.nullslast",
   );
   params.set("limit", String(ROSTER_PAGE_SIZE));
   params.set("offset", String((page - 1) * ROSTER_PAGE_SIZE));
@@ -285,7 +290,7 @@ export async function listCreatorFacts(signal?: AbortSignal): Promise<CreatorFac
   const params = new URLSearchParams();
   params.set(
     "select",
-    "followers,worth_studying,entertaining,educational,inspirational",
+    "followers,worth_studying,form,entertaining,educational,inspirational",
   );
   // Without `order` a paged read has no defined order at all. It costs nothing
   // here and it makes the payload byte-identical between two renders, which is
@@ -302,6 +307,7 @@ export async function listCreatorFacts(signal?: AbortSignal): Promise<CreatorFac
   const rows = (await res.json()) as {
     followers: number | null;
     worth_studying: number | null;
+    form: number | null;
     entertaining: number | null;
     educational: number | null;
     inspirational: number | null;
@@ -320,6 +326,7 @@ export async function listCreatorFacts(signal?: AbortSignal): Promise<CreatorFac
   return rows.map((r) => [
     r.followers,
     r.worth_studying,
+    r.form,
     r.entertaining,
     r.educational,
     r.inspirational,

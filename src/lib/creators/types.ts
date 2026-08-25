@@ -104,6 +104,16 @@ export type CreatorRow = {
   educational: number | null;
   inspirational: number | null;
   /**
+   * How well they are doing RIGHT NOW, 1-10, computed and never typed.
+   *
+   * Decile rank of `median views over the last 90 days x sqrt(reels in that
+   * window) / followers^0.7`. The sibling of worth_studying and the opposite
+   * kind of number: that one is Oleg's read of their craft and deliberately
+   * ignores results, this one is only results. The search multiplies both.
+   * Null for a creator with no reel in the last 90 days.
+   */
+  form: number | null;
+  /**
    * One sentence on who this creator is worth studying FOR.
    *
    * "bakeries and food businesses; 66 outliers in 90 days, all of them recent."
@@ -177,6 +187,7 @@ export type CreatorReel = {
 export type CreatorFact = [
   followers: number | null,
   worth_studying: number | null,
+  form: number | null,
   entertaining: number | null,
   educational: number | null,
   inspirational: number | null,
@@ -185,6 +196,7 @@ export type CreatorFact = [
 export const FILTER_KEYS = [
   "followers",
   "worth_studying",
+  "form",
   "entertaining",
   "educational",
   "inspirational",
@@ -193,12 +205,13 @@ export const FILTER_KEYS = [
 export type FilterKey = (typeof FILTER_KEYS)[number];
 
 /** Where each filter's number sits in a CreatorFact. Same order as FILTER_KEYS. */
-const FACT_INDEX: Record<FilterKey, 0 | 1 | 2 | 3 | 4> = {
+const FACT_INDEX: Record<FilterKey, 0 | 1 | 2 | 3 | 4 | 5> = {
   followers: 0,
   worth_studying: 1,
-  entertaining: 2,
-  educational: 3,
-  inspirational: 4,
+  form: 2,
+  entertaining: 3,
+  educational: 4,
+  inspirational: 5,
 };
 
 /**
@@ -258,6 +271,17 @@ export const SCALES: Record<FilterKey, Scale> = {
     urlIsValue: true,
     param: "worth",
   },
+  // Computed, not judged: the decile rank of how their last 90 days went. It is
+  // the second thing the search multiplies by, so this control is the explicit
+  // version of a nudge the page already applies -- use it to demand a creator
+  // who is winning NOW, not to discover the number.
+  form: {
+    label: "doing well now",
+    anyLabel: "any",
+    edges: SCORE_EDGES,
+    urlIsValue: true,
+    param: "form",
+  },
   entertaining: {
     label: "entertaining",
     anyLabel: "any",
@@ -308,6 +332,7 @@ export function isFullRange(key: FilterKey, [lo, hi]: Range): boolean {
 export const NO_FILTERS: CreatorFilters = {
   followers: fullRange("followers"),
   worth_studying: fullRange("worth_studying"),
+  form: fullRange("form"),
   entertaining: fullRange("entertaining"),
   educational: fullRange("educational"),
   inspirational: fullRange("inspirational"),
@@ -458,6 +483,7 @@ export function readCreatorFilters(raw: Record<string, unknown>): CreatorFilters
   return {
     followers: readRange("followers", raw[SCALES.followers.param]),
     worth_studying: readRange("worth_studying", raw[SCALES.worth_studying.param]),
+    form: readRange("form", raw[SCALES.form.param]),
     entertaining: readRange("entertaining", raw[SCALES.entertaining.param]),
     educational: readRange("educational", raw[SCALES.educational.param]),
     inspirational: readRange("inspirational", raw[SCALES.inspirational.param]),
