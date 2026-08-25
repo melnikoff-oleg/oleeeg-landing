@@ -13,18 +13,37 @@ export const RESULT_COUNT = 10;
  * How close a reel has to be before it is worth showing.
  *
  * Cosine similarity between a query and a write-up. Without a floor the search
- * always fills its ten slots, so a query the library has no answer for came
- * back looking confident and wrong: "relationships" narrowed to 30 days
- * returned a Zach King transition reel at 0.17 rather than saying nothing was
- * close.
+ * always fills its slots, so a query the library has no answer for came back
+ * looking confident and wrong: "relationships" narrowed to 30 days returned a
+ * Zach King transition reel at 0.17 rather than saying nothing was close.
  *
- * Measured over the live index at 694 reels. A query the library really covers
- * lands at 0.29 to 0.53 and has 25 reels above 0.22. A query it does not cover
- * at all ("how to file taxes in germany") tops out at 0.08 with nothing above
- * 0.20. The junk a narrow window used to surface sat at 0.09 to 0.17. The two
- * populations are well separated, and 0.20 sits in the gap.
+ * 0.15 SINCE 2026-08-25, down from 0.20. Oleg read all 100 of the best "AI"
+ * matches from the last 30 days by hand and called every one of them relevant,
+ * including the 41 that sat below the old floor. The floor was set when the
+ * index held 694 reels; it holds 4,885 now, and both populations moved.
+ *
+ * Re-measured against the live index the day it changed, top match and how many
+ * of the top 50 clear each floor:
+ *
+ *   how to file taxes in germany     0.228   2 above .20    2 above .15
+ *   how to fix a diesel engine turbo 0.264   4              19
+ *   medieval castle architecture     0.257   9              50
+ *   relationships                    0.299  50              50
+ *   AI                               0.349  50              50
+ *   street interview                 0.476  50              50
+ *
+ * So the change costs nothing on a query the library cannot answer -- German
+ * tax law returns the same two reels either way -- and buys a full page on the
+ * ones it half answers, which is the case the old floor was quietly eating.
+ *
+ * NOTE the first line of that table, because it is the real lesson: a query the
+ * library has no answer for used to top out at 0.08 and now tops out at 0.228.
+ * A bigger index means more chances for something to be accidentally near, so
+ * this floor drifts upward in meaning as the corpus grows and is worth
+ * re-measuring rather than reasoning about. It never made "nothing matched"
+ * impossible; it only made it rare.
  */
-export const MIN_SIMILARITY = 0.2;
+export const MIN_SIMILARITY = 0.15;
 
 /**
  * The recency filter.
