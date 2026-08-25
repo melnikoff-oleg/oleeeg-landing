@@ -18,7 +18,14 @@
 // the proof this can happen by accident: its module-level env expression is
 // visible in the shipped /ideas client chunk.
 import "server-only";
-import { MIN_SIMILARITY, RESULT_COUNT, type ReelHit, type WindowDays } from "./types";
+import { rangesKey } from "@/lib/filters/range";
+import {
+  NO_REEL_FILTERS,
+  reelRangeArgs,
+  REEL_FILTERS,
+  type ReelFilters,
+} from "./filters";
+import { MIN_SIMILARITY, RESULT_COUNT, type ReelHit } from "./types";
 
 const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
@@ -29,8 +36,19 @@ const OPENAI_KEY = process.env.OPENAI_API_KEY ?? "";
 const EMBED_MODEL = "text-embedding-3-large";
 const EMBED_DIMS = 3072;
 // Prefixed like the table, so it cannot collide with another feature's
-// match_* function in this shared Supabase project.
-const MATCH_FN = "reel_search_match";
+// match_* function in this shared Supabase project. It superseded
+// reel_search_match on 2026-08-25: same vector scan, but it takes a min and an
+// exclusive max per filter instead of a single recency window, and it returns
+// the three 1-10 score columns.
+const MATCH_FN = "reel_library_match";
+
+/**
+ * Bumped whenever reel_library_match changes, so the whole cache is bypassed on
+ * the next deploy rather than aged out. It is a manual step because the ranking
+ * lives in another repo's SQL; the short TTL below is the backstop for the times
+ * it is forgotten.
+ */
+const RANK_VERSION = "v2";
 
 export const reelSearchConfigured = Boolean(SUPABASE_URL && SERVICE_KEY && OPENAI_KEY);
 
@@ -87,7 +105,7 @@ async function embedQuery(query: string, signal: AbortSignal): Promise<number[]>
 async function matchReels(
   embedding: number[],
   count: number,
-  sinceDays: WindowDays,
+  ranges: ReelFilters,
   signal: AbortSignal,
 ): Promise<ReelHit[]> {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${MATCH_FN}`, {
@@ -97,13 +115,14 @@ async function matchReels(
       Authorization: `Bearer ${SERVICE_KEY}`,
       "Content-Type": "application/json",
     },
-    // The window is applied in SQL, before the limit, so a filtered search
+    // Every filter is applied in SQL, before the limit, so a filtered search
     // still returns a full page of reels rather than whatever survives
-    // filtering an unfiltered top ten.
+    // filtering an unfiltered top ten. One date for the whole call, so the two
+    // posted_on bounds cannot straddle a midnight.
     body: JSON.stringify({
       query_embedding: embedding,
       match_count: count,
-      since_days: sinceDays,
+      ...reelRangeArgs(ranges, new Date()),
     }),
     signal,
   });
@@ -121,13 +140,19 @@ async function matchReels(
  */
 export async function searchReels(
   query: string,
-  sinceDays: WindowDays = null,
+  ranges: ReelFilters = NO_REEL_FILTERS,
   count: number = RESULT_COUNT,
   callerSignal?: AbortSignal,
 ): Promise<ReelHit[]> {
-  // The window is part of the key: the same words with a different window are a
-  // different answer, and serving one for the other is the classic cache bug.
-  const key = `${count}:${sinceDays ?? "all"}:${query.toLowerCase()}`;
+  // Every filter is part of the key. The same words under different filters are
+  // a different answer, and serving one for the other is the classic cache bug:
+  // it would look exactly like a filter that does nothing.
+  const key = [
+    RANK_VERSION,
+    count,
+    rangesKey(REEL_FILTERS, ranges),
+    query.toLowerCase(),
+  ].join(":");
   const cached = cacheGet(key);
   if (cached) return cached;
 
@@ -140,7 +165,7 @@ export async function searchReels(
   callerSignal?.addEventListener("abort", () => controller.abort(), { once: true });
   try {
     const embedding = await embedQuery(query, controller.signal);
-    const ranked = await matchReels(embedding, count, sinceDays, controller.signal);
+    const ranked = await matchReels(embedding, count, ranges, controller.signal);
     // pgvector orders by distance and stops at the limit; it never judges
     // whether the nearest reel is near at all. Dropping the far ones here is
     // what lets the page say "nothing is close" instead of filling ten slots

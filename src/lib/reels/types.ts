@@ -125,6 +125,21 @@ export type ReelRow = {
   tags: string[] | null;
   caption: string | null;
   thumb_url: string | null;
+  /**
+   * The three 1-10 reads of what a reel gives a viewer: how much fun it is, how
+   * much you learn, how much it moves you.
+   *
+   * One row per reel, from analysis/axes in the reels-database repo, and the
+   * three axes the library filters on. Null, never 0, for a reel indexed since
+   * the last scoring pass: a missing score is "unknown", and the filters treat
+   * it as such rather than as a zero out of ten.
+   *
+   * Optional as well as nullable, because /reels and the ideas chat read this
+   * same type through paths that do not select them.
+   */
+  entertaining?: number | null;
+  educational?: number | null;
+  inspirational?: number | null;
 };
 
 /** A `reel_search_match` row: a reel plus how close it was to the query. */

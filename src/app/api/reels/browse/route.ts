@@ -14,6 +14,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, getClientIp } from "@/lib/marketing-brain/rate-limit";
 import { browseReels, reelBrowseConfigured } from "@/lib/reels/browse";
+import { reelFiltersFromWindow } from "@/lib/reels/filters";
 import { normalizeTopics, tagsForTopics } from "@/lib/reels/topics";
 import {
   FOLLOWER_MAX_INDEX,
@@ -73,7 +74,7 @@ export async function GET(req: Request) {
     // no filter at all rather than as "match nothing", which is what makes the
     // unfiltered wall the default.
     const { rows, total } = await browseReels(
-      { days, minIndex, maxIndex, page, tags },
+      { ranges: reelFiltersFromWindow({ days, minIndex, maxIndex }), page, tags },
       req.signal,
     );
     return NextResponse.json({

@@ -23,12 +23,13 @@
 // A build error, not a runtime one, if this module is ever pulled into a client
 // bundle. It reads three secrets at import time.
 import "server-only";
+import { boundsOf } from "@/lib/filters/range";
 import {
-  boundsOf,
   CREATOR_MIN_SIMILARITY,
   CREATOR_RESULT_COUNT,
   FILTER_KEYS,
   NO_FILTERS,
+  SCALES,
   type CreatorFilters,
   type CreatorHit,
 } from "./types";
@@ -133,7 +134,7 @@ async function matchCreators(
   // has null scores that any numeric bound would exclude.
   const bounds: Record<string, number | null> = {};
   for (const key of FILTER_KEYS) {
-    const { min, below } = boundsOf(key, filters[key]);
+    const { min, below } = boundsOf(SCALES[key], filters[key]);
     bounds[`min_${key}`] = min;
     bounds[`below_${key}`] = below;
   }

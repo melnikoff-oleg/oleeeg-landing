@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { browseReels, reelBrowseConfigured } from "@/lib/reels/browse";
+import { reelFiltersFromWindow } from "@/lib/reels/filters";
 import { getLibraryOverview } from "@/lib/reels/overview";
 import {
   FOLLOWER_MAX_INDEX,
@@ -77,9 +78,8 @@ export default async function ReelsPage({
     // Supabase round trips and one.
     const [wall, overview] = await Promise.allSettled([
       browseReels({
-        days,
-        minIndex,
-        maxIndex,
+        // This page's chips and slider, as the ranges the reader speaks.
+        ranges: reelFiltersFromWindow({ days, minIndex, maxIndex }),
         page: 1,
         tags: TOPICS.filter((t) => topics.includes(t.id)).flatMap((t) => t.tags),
       }),

@@ -8,6 +8,7 @@
 
 import { NextResponse } from "next/server";
 import { checkRateLimit, getClientIp } from "@/lib/marketing-brain/rate-limit";
+import { reelFiltersFromWindow } from "@/lib/reels/filters";
 import { reelSearchConfigured, searchReels } from "@/lib/reels/search";
 import { normalizeTopics, tagsForTopics } from "@/lib/reels/topics";
 import {
@@ -87,7 +88,12 @@ export async function POST(req: Request) {
 
   try {
     const count = tags.size ? TOPIC_OVERFETCH : RESULT_COUNT;
-    const hits = await searchReels(query, days, count, req.signal);
+    const hits = await searchReels(
+      query,
+      reelFiltersFromWindow({ days }),
+      count,
+      req.signal,
+    );
     // Exact string overlap, the same rule browseReels' PostgREST `ov` filter
     // applies, so a chip means the same thing on the wall and in the search.
     // Both sides are lower case, which is load-bearing rather than incidental:

@@ -11,12 +11,13 @@
 // the creator the database has read.
 
 import "server-only";
+import { boundsOf } from "@/lib/filters/range";
 import {
-  boundsOf,
   CREATOR_REELS_PAGE_SIZE,
   FILTER_KEYS,
   NO_FILTERS,
   ROSTER_PAGE_SIZE,
+  SCALES,
   type CreatorFact,
   type CreatorFilters,
   type CreatorReel,
@@ -115,7 +116,7 @@ const REEL_COLUMNS = [
  */
 function applyFilters(params: URLSearchParams, f: CreatorFilters) {
   for (const key of FILTER_KEYS) {
-    const { min, below } = boundsOf(key, f[key]);
+    const { min, below } = boundsOf(SCALES[key], f[key]);
     // The FilterKey names are the column names, which is why this loop can
     // stay a loop. Two params on one column is legal in PostgREST and ANDs.
     if (min !== null) params.append(key, `gte.${min}`);

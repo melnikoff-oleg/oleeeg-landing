@@ -21,9 +21,11 @@ const NAMED_COLLABS = 1;
  * the 24,252 reels here are declared ads and 3,405 carry a co-owner.
  *
  * Subtle, on Oleg's instruction, but visible: no fill and no colour of its own,
- * just an outline and an icon at the size of the date, sitting under the two
- * numbers rather than beside them. It is the fourth thing on the card and it
- * looks like the fourth thing.
+ * just an outline and an icon at the size of the date, on the bottom row beside
+ * the smallest number. It is the fourth thing on the card and it looks like the
+ * fourth thing. It truncates rather than wrapping, because a credit line that
+ * took its own line on some tiles and not others is what made a grid of sixty
+ * strips come out ragged.
  *
  * `sponsored` is tri-state and only `true` paints. false is Instagram asking and
  * the creator saying no; null is a row from a source that never carried the
@@ -38,15 +40,15 @@ function Credits({ reel }: { reel: CreatorReel }) {
   const rest = collab.length - named.length;
 
   return (
-    <div className="flex w-full flex-wrap items-center gap-1">
+    <div className="flex min-w-0 items-center justify-end gap-1">
       {reel.sponsored ? (
-        <span className="inline-flex items-center gap-1 rounded-full border border-white/25 px-1.5 py-0.5 font-body text-[10px] font-medium tracking-wide text-white/80 sm:text-[11px]">
+        <span className="inline-flex items-center gap-1 rounded-full border border-white/25 px-1.5 py-0.5 font-body text-[11px] font-medium tracking-wide text-white/80 sm:text-xs">
           <Handshake className="size-3 shrink-0" aria-hidden />
           paid
         </span>
       ) : null}
       {named.length > 0 ? (
-        <span className="inline-flex min-w-0 items-center gap-1 rounded-full border border-white/25 px-1.5 py-0.5 font-body text-[10px] font-medium text-white/80 sm:text-[11px]">
+        <span className="inline-flex min-w-0 items-center gap-1 rounded-full border border-white/25 px-1.5 py-0.5 font-body text-[11px] font-medium text-white/80 sm:text-xs">
           <Users2 className="size-3 shrink-0" aria-hidden />
           {/* Truncated rather than wrapped: an Instagram handle can be 30
               characters and the tile is ~140px wide on a phone. */}
@@ -71,7 +73,8 @@ function Credits({ reel }: { reel: CreatorReel }) {
  * Four things on the overlay, in Oleg's order and at four sizes, because on one
  * creator's page they are not equally important and reading them as a row of
  * equals is what made the old strip slow: views, then the date, then likes,
- * then the credit line. Views is the ranking (the audience is one constant
+ * then the credit line. TWO FIXED ROWS, never a wrapping list, so every strip in
+ * the grid is exactly one height whether or not it carries a credit. Views is the ranking (the audience is one constant
  * creator, so the outlier score has nothing left to normalise) and it is set
  * twice the size of everything else. Likes only ever qualify a view count, so
  * they drop to the date's size and the date's dimness.
@@ -124,35 +127,49 @@ export function CreatorReelTile({ reel }: { reel: CreatorReel }) {
       {/* Frosted rather than solid, so the still keeps reading through it the
           way Instagram's own overlays do. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 p-1.5 sm:p-2">
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 rounded-xl border border-white/10 bg-navy/50 px-2.5 py-2 backdrop-blur-md sm:px-3 sm:py-2.5">
-          {/* The headline. Big, white, and first, because it is the whole
-              reason the tile exists. */}
-          <span className="inline-flex min-w-0 items-center gap-1.5">
-            <Eye className="size-4 shrink-0 self-center text-white/80" aria-hidden />
-            <span className="font-display text-lg font-semibold leading-none tabular-nums text-white sm:text-xl">
-              {compactNumber(reel.views)}
+        <div className="rounded-xl border border-white/10 bg-navy/50 px-2.5 py-2 backdrop-blur-md sm:px-3 sm:py-2.5">
+          <div className="flex items-center justify-between gap-2">
+            {/* The headline. Big, white, and first, because it is the whole
+                reason the tile exists. */}
+            <span data-field="views" className="inline-flex min-w-0 items-center gap-1.5">
+              <Eye className="size-4 shrink-0 text-white/80" aria-hidden />
+              <span className="truncate font-display text-lg font-semibold leading-none tabular-nums text-white sm:text-xl">
+                {compactNumber(reel.views)}
+              </span>
+              <span className="sr-only">views</span>
             </span>
-            <span className="sr-only">views</span>
-          </span>
 
-          {/* Second. No icon: a date needs no glyph to be read as a date, and
-              leaving it off is what stops the strip reading as a row of three
-              equal badges again. */}
-          <span className="font-body text-[11px] font-medium tabular-nums text-white/75 sm:text-xs">
-            {posted}
-          </span>
-
-          {/* Third, and deliberately the smallest number on the tile. A like
-              count is only ever read against the view count above it. */}
-          <span className="inline-flex items-center gap-1 text-white/60">
-            <Heart className="size-3 shrink-0" aria-hidden />
-            <span className="font-body text-[11px] font-medium tabular-nums sm:text-xs">
-              {compactNumber(reel.likes)}
+            {/* Second. No icon: a date needs no glyph to be read as a date, and
+                leaving it off is what stops the strip reading as a row of three
+                equal badges again. */}
+            <span
+              data-field="date"
+              className="shrink-0 font-body text-[11px] font-medium tabular-nums text-white/75 sm:text-xs"
+            >
+              {posted}
             </span>
-            <span className="sr-only">likes</span>
-          </span>
+          </div>
 
-          <Credits reel={reel} />
+          <div className="mt-1 flex items-center justify-between gap-2">
+            {/* Third, and deliberately the smallest number on the tile. A like
+                count is only ever read against the view count above it. */}
+            {/* The same box as the credit pill beside it, with a transparent
+                border instead of a visible one: identical padding and identical
+                type size is what makes the bottom row one height on every tile,
+                credited or not. */}
+            <span
+              data-field="likes"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-transparent px-1.5 py-0.5 text-white/60"
+            >
+              <Heart className="size-3 shrink-0" aria-hidden />
+              <span className="font-body text-[11px] font-medium tabular-nums sm:text-xs">
+                {compactNumber(reel.likes)}
+              </span>
+              <span className="sr-only">likes</span>
+            </span>
+
+            <Credits reel={reel} />
+          </div>
         </div>
       </div>
     </a>

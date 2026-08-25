@@ -1,9 +1,16 @@
-// POST /api/viral-reels/search -> the closest reels in the database to a query.
+// POST /api/viral-reels/search -> the closest reels in the library to a query,
+// under the same five filters the wall is under.
+//
+// The sibling of /api/viral-reels/creators. Same two hops, same guard rails,
+// same bucket-free cost: one embedding and one indexed read, a fraction of a
+// cent.
 
 import { NextResponse } from "next/server";
 import { checkRateLimit, getClientIp } from "@/lib/marketing-brain/rate-limit";
+import { readRanges } from "@/lib/filters/range";
+import { LIBRARY_RESULT_COUNT, REEL_FILTERS } from "@/lib/reels/filters";
 import { reelSearchConfigured, searchReels } from "@/lib/reels/search";
-import { normalizeDays, normalizeQuery, RESULT_COUNT } from "@/lib/reels/types";
+import { normalizeQuery } from "@/lib/reels/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +19,9 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 20;
 
 // Generous, because searching is the whole point of the page and one search
-// costs a fraction of a cent. It exists to stop a script, not a visitor.
+// costs a fraction of a cent. It exists to stop a script, not a visitor. Shared
+// with the creator search on purpose: the two pages are one tool, and a visitor
+// moving between them should meet one budget rather than two.
 const DAILY_LIMIT = 300;
 
 export async function POST(req: Request) {
@@ -29,9 +38,11 @@ export async function POST(req: Request) {
   if (!query) {
     return NextResponse.json({ error: "missing_query" }, { status: 400 });
   }
-  // Anything that is not one of the six offered windows falls back to all time,
-  // so a hand-made request can never reach the RPC with an arbitrary interval.
-  const days = normalizeDays(raw.days);
+  // The same parser the page runs on its own query string, for the same reason:
+  // a hand-made request must not be able to put an arbitrary value into a SQL
+  // filter. Anything that is not a well-formed range on the offered scale reads
+  // as "unset" rather than being clamped into a question nobody asked.
+  const ranges = readRanges(REEL_FILTERS, raw);
 
   if (!reelSearchConfigured) {
     return NextResponse.json({ error: "not_configured" }, { status: 503 });
@@ -46,10 +57,19 @@ export async function POST(req: Request) {
   }
 
   try {
-    const results = await searchReels(query, days, RESULT_COUNT, req.signal);
-    return NextResponse.json({ query, days, results });
+    const results = await searchReels(
+      query,
+      ranges,
+      LIBRARY_RESULT_COUNT,
+      req.signal,
+    );
+    return NextResponse.json({ query, results });
   } catch (err) {
-    console.error("reel search failed", err);
+    // A dropped request is not a failure. Every filter change can abort the one
+    // before it, and clicking into a reel aborts whatever was in flight, so
+    // logging these would bury the failures that matter under the ones that
+    // never happened. Nobody is listening for the body either way.
+    if (!req.signal.aborted) console.error("reel search failed", err);
     return NextResponse.json({ error: "search_failed" }, { status: 502 });
   }
 }

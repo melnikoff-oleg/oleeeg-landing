@@ -19,6 +19,22 @@ const MOBILE_ONLY = (testInfo: { project: { name: string } }) =>
 
 const MIN_TAP = 44;
 
+/**
+ * Every filter, as its URL param and its top thumb position.
+ *
+ * The param is the identifier a filter carries everywhere: in the address bar,
+ * in the API body, and in the test id the slider renders. The reel library names
+ * its filters the same way, so one convention covers both pages.
+ */
+const SCALE_TOPS = [
+  ["aud", 12],
+  ["worth", 10],
+  ["form", 10],
+  ["ent", 10],
+  ["edu", 10],
+  ["insp", 10],
+] as const;
+
 async function settle(page: Page, route: string) {
   await page.goto(route, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
@@ -81,8 +97,9 @@ test("89 - creators: the page is the search box, the filters and the roster", as
   await settle(page, "/viral-reels-creators");
   await expect(page.locator("#creator-query")).toBeVisible();
   await expect(page.getByRole("button", { name: "search" })).toBeVisible();
-  // Four ranges, eight thumbs. The reel-count filter was removed outright.
-  await expect(page.locator("input[type=range]")).toHaveCount(8);
+  // Six ranges, twelve thumbs: audience, worth studying, doing well now, and
+  // the three 1-10 reads. The reel-count filter was removed outright.
+  await expect(page.locator("input[type=range]")).toHaveCount(12);
   await expect(page.getByRole("button", { name: /reels$/ })).toHaveCount(0);
 
   // Same rule as the other reel pages: no shell, no copy, no links out.
@@ -189,16 +206,11 @@ async function chartTotal(page: Page, label: string): Promise<number> {
 test("97 - creators: the filters render and start unset", async ({ page }) => {
   await settle(page, "/viral-reels-creators");
 
-  // Both thumbs at the ends of their tracks on all four scales: 0 to 12 on the
+  // Both thumbs at the ends of their tracks on all six scales: 0 to 12 on the
   // audience ladder, 0 to 10 on each 1-10 scale.
-  for (const [key, top] of [
-    ["followers", 12],
-    ["entertaining", 10],
-    ["educational", 10],
-    ["inspirational", 10],
-  ] as const) {
-    await expect(page.getByTestId(`range-${key}-min`)).toHaveValue("0");
-    await expect(page.getByTestId(`range-${key}-max`)).toHaveValue(String(top));
+  for (const [param, top] of SCALE_TOPS) {
+    await expect(page.getByTestId(`range-${param}-min`)).toHaveValue("0");
+    await expect(page.getByTestId(`range-${param}-max`)).toHaveValue(String(top));
   }
   await expect(page.getByText("any size")).toBeVisible();
 
@@ -212,16 +224,16 @@ test("98 - creators: a filtered URL positions the thumbs", async ({ page }) => {
   // values, so "edu=4-8" reads as the sentence it is. A top thumb is one past
   // the last value inside the range, because a bar covers [edge, nextEdge).
   await settle(page, "/viral-reels-creators?aud=3-9&edu=4-8");
-  await expect(page.getByTestId("range-followers-min")).toHaveValue("3");
-  await expect(page.getByTestId("range-followers-max")).toHaveValue("9");
-  await expect(page.getByTestId("range-educational-min")).toHaveValue("3");
-  await expect(page.getByTestId("range-educational-max")).toHaveValue("8");
+  await expect(page.getByTestId("range-aud-min")).toHaveValue("3");
+  await expect(page.getByTestId("range-aud-max")).toHaveValue("9");
+  await expect(page.getByTestId("range-edu-min")).toHaveValue("3");
+  await expect(page.getByTestId("range-edu-max")).toHaveValue("8");
   await expect(page.getByText("100K to 10M")).toBeVisible();
   await expect(page.getByText("4 to 8")).toBeVisible();
 
   // Untouched, and saying so.
-  await expect(page.getByTestId("range-entertaining-min")).toHaveValue("0");
-  await expect(page.getByTestId("range-entertaining-max")).toHaveValue("10");
+  await expect(page.getByTestId("range-ent-min")).toHaveValue("0");
+  await expect(page.getByTestId("range-ent-max")).toHaveValue("10");
   await expect(page.getByRole("button", { name: /clear filters/i })).toBeVisible();
 });
 
@@ -233,14 +245,9 @@ test("98b - creators: a junk range falls back to unset, never clamped", async ({
   // The backwards pair is the one that matters: it is the only junk a real
   // control could ever emit.
   await settle(page, "/viral-reels-creators?aud=9-3&edu=99-1&ent=abc&insp=");
-  for (const [key, top] of [
-    ["followers", 12],
-    ["entertaining", 10],
-    ["educational", 10],
-    ["inspirational", 10],
-  ] as const) {
-    await expect(page.getByTestId(`range-${key}-min`)).toHaveValue("0");
-    await expect(page.getByTestId(`range-${key}-max`)).toHaveValue(String(top));
+  for (const [param, top] of SCALE_TOPS) {
+    await expect(page.getByTestId(`range-${param}-min`)).toHaveValue("0");
+    await expect(page.getByTestId(`range-${param}-max`)).toHaveValue(String(top));
   }
   await expect(page.getByRole("button", { name: /clear filters/i })).toHaveCount(0);
 });
@@ -254,7 +261,7 @@ test("98c - creators: a filter redraws the other histograms, never its own", asy
 
   const eduBefore = await chartTotal(page, "educational");
 
-  const min = page.getByTestId("range-followers-min");
+  const min = page.getByTestId("range-aud-min");
   await min.focus();
   for (let i = 0; i < 5; i++) await page.keyboard.press("ArrowRight");
   await expect(min).toHaveValue("5");
@@ -274,7 +281,7 @@ test("98d - creators: moving a thumb narrows the count and writes the URL", asyn
   await settle(page, "/viral-reels-creators");
   test.skip((await chartTotal(page, "audience size")) <= 0, "needs a live index");
 
-  const max = page.getByTestId("range-educational-max");
+  const max = page.getByTestId("range-edu-max");
   await max.focus();
   for (let i = 0; i < 4; i++) await page.keyboard.press("ArrowLeft");
   await expect(max).toHaveValue("6");
@@ -285,7 +292,7 @@ test("98d - creators: moving a thumb narrows the count and writes the URL", asyn
   await expect(page.getByText(/of \d+ creators match/)).toBeVisible();
 
   await page.getByRole("button", { name: /clear filters/i }).click();
-  await expect(page.getByTestId("range-educational-max")).toHaveValue("10");
+  await expect(page.getByTestId("range-edu-max")).toHaveValue("10");
   await expect(page).not.toHaveURL(/edu=/);
 });
 
@@ -295,7 +302,7 @@ test("98e - creators: opening a creator and coming back keeps the filters", asyn
   await settle(page, "/viral-reels-creators");
   test.skip((await chartTotal(page, "audience size")) <= 0, "needs a live index");
 
-  const min = page.getByTestId("range-followers-min");
+  const min = page.getByTestId("range-aud-min");
   await min.focus();
   for (let i = 0; i < 5; i++) await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/aud=5-12/);
@@ -315,7 +322,7 @@ test("98e - creators: opening a creator and coming back keeps the filters", asyn
   // that: right address, every thumb reset. The URL has to win.
   await page.goBack();
   await expect(page).toHaveURL(/aud=5-12/);
-  await expect(page.getByTestId("range-followers-min")).toHaveValue("5");
+  await expect(page.getByTestId("range-aud-min")).toHaveValue("5");
   await expect(page.getByText("500K+")).toBeVisible();
   await expect(page.getByText(/of \d+ creators match/)).toHaveText(narrowed);
   await expect(page.getByRole("button", { name: /clear filters/i })).toBeVisible();
@@ -338,6 +345,8 @@ test("99 - creators: an arbitrary range never reaches the RPC", async ({
     const json = await res.json();
     expect(json.filters).toEqual({
       followers: [0, 12],
+      worth_studying: [0, 10],
+      form: [0, 10],
       entertaining: [0, 10],
       educational: [0, 10],
       inspirational: [0, 10],
@@ -360,10 +369,10 @@ test("99c - creators: the range tracks are >=44px tap targets", async ({
 }, testInfo) => {
   MOBILE_ONLY(testInfo);
   await settle(page, "/viral-reels-creators");
-  for (const key of ["followers", "entertaining", "educational", "inspirational"]) {
+  for (const [param] of SCALE_TOPS) {
     for (const end of ["min", "max"]) {
-      const box = await page.getByTestId(`range-${key}-${end}`).boundingBox();
-      expect(box, `tap target ${key} ${end}`).not.toBeNull();
+      const box = await page.getByTestId(`range-${param}-${end}`).boundingBox();
+      expect(box, `tap target ${param} ${end}`).not.toBeNull();
       expect(box!.height).toBeGreaterThanOrEqual(MIN_TAP);
     }
   }
@@ -375,7 +384,7 @@ test("99d - creators: the roster survives an unreachable filter", async ({
   // Nobody is 10 out of 10 on all three scales at once. An empty answer has to
   // read as an empty answer rather than as a broken page.
   await settle(page, "/viral-reels-creators?ent=10-10&edu=10-10&insp=10-10");
-  await expect(page.locator("input[type=range]")).toHaveCount(8);
+  await expect(page.locator("input[type=range]")).toHaveCount(12);
   await expect(page.getByRole("button", { name: /clear filters/i })).toBeVisible();
 });
 
@@ -425,14 +434,20 @@ test("101 - every tile carries views, likes and a date, and nothing else", async
   const strip = page.locator("main div.grid > a div.backdrop-blur-md").first();
   await expect(strip).toBeVisible();
 
-  // Three fields. A fourth would be the comment count or the outlier score
-  // creeping back on, which is exactly what Oleg asked to be rid of here.
-  await expect(strip.locator("> *")).toHaveCount(3);
+  // Three numbers, addressed by name rather than by their place among the
+  // strip's children. A fourth would be the comment count or the outlier score
+  // creeping back on, which is exactly what Oleg asked to be rid of here: on one
+  // creator's page the audience is a constant, so the score normalises nothing.
+  await expect(strip.locator("[data-field]")).toHaveCount(3);
+  for (const field of ["views", "date", "likes"]) {
+    await expect(strip.locator(`[data-field="${field}"]`)).toHaveCount(1);
+  }
+  await expect(strip.locator('[data-field="score"]')).toHaveCount(0);
 
   // The age is relative and coarse: today, yesterday, or N of one unit. Never a
   // calendar date, which makes the reader do the subtraction themselves.
   const dates = await page
-    .locator("main div.grid > a div.backdrop-blur-md > span:last-child")
+    .locator('main div.grid > a [data-field="date"]')
     .allInnerTexts();
   expect(dates.length).toBeGreaterThan(0);
   for (const d of dates) {
@@ -443,10 +458,11 @@ test("101 - every tile carries views, likes and a date, and nothing else", async
 test("102 - every stats strip is the same height", async ({ page }) => {
   test.skip(!(await openFirstCreator(page)), "needs a live index");
 
-  // The age takes its own line under the numbers at every width, on purpose.
-  // What must not happen is SOME tiles doing that and others not: "today" is a
-  // lot narrower than "3 weeks ago", and a strip taller than its neighbours
-  // reads as a bug rather than as a long number.
+  // Two fixed rows at every width, on purpose. What must not happen is SOME
+  // tiles wrapping and others not: "today" is a lot narrower than "3 weeks ago",
+  // a credit line is wider than both, and a strip taller than its neighbours
+  // reads as a bug rather than as a long number. This is the assertion that
+  // caught it when the credit line was added.
   const heights = await page
     .locator("main div.grid > a div.backdrop-blur-md")
     .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
@@ -469,9 +485,7 @@ test("104 - a creator opens newest first, and the order is a switch", async ({
   test.skip(!(await openFirstCreator(page)), "needs a live index");
 
   const dates = () =>
-    page
-      .locator("main div.grid > a div.backdrop-blur-md > span:last-child")
-      .allInnerTexts();
+    page.locator('main div.grid > a [data-field="date"]').allInnerTexts();
   // The strip says "3 weeks ago", so age is compared in days. Coarse on
   // purpose: it only has to be monotonic, and two reels from the same week
   // legitimately read the same.
@@ -483,9 +497,7 @@ test("104 - a creator opens newest first, and the order is a switch", async ({
     return Number(n) * UNIT[unit.replace(/s$/, "")];
   };
   const views = () =>
-    page
-      .locator("main div.grid > a div.backdrop-blur-md > span:first-child")
-      .allInnerTexts();
+    page.locator('main div.grid > a [data-field="views"]').allInnerTexts();
 
   // Default: newest first, no ?sort= in the address.
   await expect(page).not.toHaveURL(/sort=/);

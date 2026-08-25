@@ -6,8 +6,23 @@
 // bundle can never reach the server module at all, rather than relying on the
 // bundler to shake it out.
 
+import {
+  binOf,
+  fullRanges,
+  rangesAreEmpty,
+  rangesKey,
+  rangesToBody,
+  readRanges,
+  writeRanges,
+  type BinRow,
+  type FilterSet,
+  type Ranges,
+  type Scale,
+} from "@/lib/filters/range";
 import { compactNumber } from "@/lib/reels/format";
 import { FOLLOWER_STOPS } from "@/lib/reels/types";
+
+export type { Range } from "@/lib/filters/range";
 
 export const CREATOR_QUERY_MAX = 200;
 
@@ -171,20 +186,26 @@ export type CreatorReel = {
 
 // ------------------------------------------------------------------- filtering
 //
-// Five range filters, drawn the way Airbnb draws a price filter: a histogram of
+// Six range filters, drawn the way Airbnb draws a price filter: a histogram of
 // the whole index with two thumbs over it, so the shape of the library is
 // visible before anything is narrowed.
 //
+// The geometry lives in src/lib/filters/range.ts and is shared with the reel
+// library. Everything here is the creator-shaped half: which six scales, and
+// what they are called.
+//
 // The histograms are computed in the browser off `CreatorFact[]`, every creator
-// in the index reduced to the five numbers a filter asks about. 240 creators is
+// in the index reduced to the six numbers a filter asks about. 245 creators is
 // about 5 KB that way, which is what buys a histogram that redraws on every
-// pixel of a drag instead of on a round trip.
+// pixel of a drag instead of on a round trip. (The reel library is 4,896 rows,
+// twenty times as many, so it ships its bins packed instead. Same charts, same
+// geometry, different payload.)
 
 /**
- * One creator as the filters see them: five numbers and no name.
+ * One creator as the filters see them: six numbers and no name.
  *
- * A tuple rather than an object because all 240 are inlined into the page's
- * HTML, and the four repeated keys would triple that payload for nothing.
+ * A tuple rather than an object because all 245 are inlined into the page's
+ * HTML, and the six repeated keys would triple that payload for nothing.
  */
 export type CreatorFact = [
   followers: number | null,
@@ -206,290 +227,101 @@ export const FILTER_KEYS = [
 
 export type FilterKey = (typeof FILTER_KEYS)[number];
 
-/** Where each filter's number sits in a CreatorFact. Same order as FILTER_KEYS. */
-const FACT_INDEX: Record<FilterKey, 0 | 1 | 2 | 3 | 4 | 5> = {
-  followers: 0,
-  worth_studying: 1,
-  form: 2,
-  entertaining: 3,
-  educational: 4,
-  inspirational: 5,
-};
-
 /**
  * The 1-10 scales, as bin edges.
  *
  * Eleven edges for ten bars: bar i covers [i+1, i+2), which is the single value
  * i+1. Writing a discrete scale as edges rather than as values is what lets the
- * scores and the audience ladder share one slider, one histogram and one
- * bounds calculation instead of two of each that drift apart.
+ * scores and the audience ladder share one slider, one histogram and one bounds
+ * calculation instead of two of each that drift apart.
  */
 const SCORE_EDGES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 
-type Scale = {
-  /** What the control calls itself. */
-  label: string;
-  /** What the summary says when nothing is narrowed. */
-  anyLabel: string;
-  /**
-   * Ascending bin edges. Bar i covers [edges[i], edges[i+1]), so there are
-   * edges.length - 1 bars and edges.length thumb positions, and a thumb always
-   * sits on a bar boundary rather than in the middle of one.
-   */
-  edges: readonly number[];
-  /**
-   * Whether the URL writes this filter as its real values or as thumb indices.
-   *
-   * The scores write values, because "edu=4-8" is a sentence Oleg can read off a
-   * shared link. The audience ladder writes indices, because its two ends are
-   * open and "aud=10000-100000000" would read as a hard floor and ceiling that
-   * the slider does not actually apply. Value mode assumes unit-step edges,
-   * which only the score scales have.
-   */
-  urlIsValue: boolean;
-  /** The query-string key. */
-  param: string;
+/** The wording every 1-10 score shares. */
+const SCORE_PHRASE = {
+  any: "any",
+  under: (to: string) => `${to} or less`,
+  over: (from: string) => `${from} or more`,
+  both: (from: string, to: string) => `${from} to ${to}`,
 };
 
-export const SCALES: Record<FilterKey, Scale> = {
-  // The same ladder /viral-reels-browse offers, so "1M to 5M" means one thing
-  // across the site. This page reads consecutive stops as bin edges, which the
-  // browse page has no need to do because it draws no histogram.
-  followers: {
-    label: "audience size",
-    anyLabel: "any size",
-    edges: FOLLOWER_STOPS,
-    urlIsValue: false,
-    param: "aud",
-  },
-  // Oleg's own 1-10 answer to "how much is there to learn from this person".
-  // It is also what ORDERS a search now (search/creator_worth.sql multiplies
-  // relevance by it), so this control is the explicit version of a nudge the
-  // page already applies: use it to demand an 8, not to discover the score.
-  worth_studying: {
-    label: "worth studying",
-    anyLabel: "any",
+function scoreScale(label: string, param: string): Scale {
+  return {
+    label,
     edges: SCORE_EDGES,
+    param,
     urlIsValue: true,
-    param: "worth",
-  },
-  // Computed, not judged: the decile rank of how their last 90 days went. It is
-  // the second thing the search multiplies by, so this control is the explicit
-  // version of a nudge the page already applies -- use it to demand a creator
-  // who is winning NOW, not to discover the number.
-  form: {
-    label: "doing well now",
-    anyLabel: "any",
-    edges: SCORE_EDGES,
-    urlIsValue: true,
-    param: "form",
-  },
-  entertaining: {
-    label: "entertaining",
-    anyLabel: "any",
-    edges: SCORE_EDGES,
-    urlIsValue: true,
-    param: "ent",
-  },
-  educational: {
-    label: "educational",
-    anyLabel: "any",
-    edges: SCORE_EDGES,
-    urlIsValue: true,
-    param: "edu",
-  },
-  inspirational: {
-    label: "inspirational",
-    anyLabel: "any",
-    edges: SCORE_EDGES,
-    urlIsValue: true,
-    param: "insp",
+    format: String,
+    phrase: SCORE_PHRASE,
+    minLabel: `lowest ${label}`,
+    maxLabel: `highest ${label}`,
+  };
+}
+
+export const CREATOR_FILTERS: FilterSet<FilterKey> = {
+  keys: FILTER_KEYS,
+  scales: {
+    // The same ladder the reel library offers, so "1M to 5M" means one thing
+    // across the site.
+    followers: {
+      label: "audience size",
+      edges: FOLLOWER_STOPS,
+      param: "aud",
+      urlIsValue: false,
+      format: compactNumber,
+      phrase: {
+        any: "any size",
+        under: (to) => `under ${to}`,
+        over: (from) => `${from}+`,
+        both: (from, to) => `${from} to ${to}`,
+      },
+      minLabel: "smallest audience",
+      maxLabel: "largest audience",
+    },
+    // Oleg's own 1-10 answer to "how much is there to learn from this person".
+    // It is also what ORDERS a search now (search/creator_worth.sql multiplies
+    // relevance by it), so this control is the explicit version of a nudge the
+    // page already applies: use it to demand an 8, not to discover the score.
+    worth_studying: scoreScale("worth studying", "worth"),
+    // Computed, not judged: the decile rank of how their last 90 days went. It
+    // is the second thing the search multiplies by, so this control is the
+    // explicit version of a nudge the page already applies -- use it to demand a
+    // creator who is winning NOW, not to discover the number.
+    form: scoreScale("doing well now", "form"),
+    entertaining: scoreScale("entertaining", "ent"),
+    educational: scoreScale("educational", "edu"),
+    inspirational: scoreScale("inspirational", "insp"),
   },
 };
 
-/** Inclusive thumb positions, `[lo, hi]`, on a scale's edges. */
-export type Range = [lo: number, hi: number];
+/** Kept as a name because half this page's props are typed with it. */
+export const SCALES = CREATOR_FILTERS.scales;
 
-export type CreatorFilters = Record<FilterKey, Range>;
+export type CreatorFilters = Ranges<FilterKey>;
 
-/** How many bars this scale's histogram has. */
-export function barCount(key: FilterKey): number {
-  return SCALES[key].edges.length - 1;
-}
-
-/** The top thumb position: one past the last bar. */
-function topStop(key: FilterKey): number {
-  return SCALES[key].edges.length - 1;
-}
-
-export function fullRange(key: FilterKey): Range {
-  return [0, topStop(key)];
-}
-
-/** True when this filter is asking nothing at all. */
-export function isFullRange(key: FilterKey, [lo, hi]: Range): boolean {
-  return lo === 0 && hi === topStop(key);
-}
-
-export const NO_FILTERS: CreatorFilters = {
-  followers: fullRange("followers"),
-  worth_studying: fullRange("worth_studying"),
-  form: fullRange("form"),
-  entertaining: fullRange("entertaining"),
-  educational: fullRange("educational"),
-  inspirational: fullRange("inspirational"),
-};
+export const NO_FILTERS: CreatorFilters = fullRanges(CREATOR_FILTERS);
 
 /** True when nothing is set, so the page can skip rendering a "clear" affordance. */
 export function filtersAreEmpty(f: CreatorFilters): boolean {
-  return FILTER_KEYS.every((key) => isFullRange(key, f[key]));
+  return rangesAreEmpty(CREATOR_FILTERS, f);
 }
 
 /**
- * Which bar a value lands in, or null when there is no value.
+ * A creator's six numbers as six bin indices.
  *
- * Values below the first edge fold into the first bar and values at or above
- * the last fold into the last, so nobody falls off the chart. The FILTER does
- * not fold: a creator past the top edge is excluded by a range that stops
- * short of it and included by one whose top thumb is at the end.
+ * The histogram and the match count both work on bins, because a bar boundary IS
+ * a bound: see the note on BinRow. This runs once per render of the filter bar
+ * over 245 rows, which is nothing, and it means there is exactly one binOf call
+ * in the codebase per page.
  */
-export function binOf(key: FilterKey, value: number | null | undefined): number | null {
-  if (value === null || value === undefined || !Number.isFinite(value)) return null;
-  const { edges } = SCALES[key];
-  for (let i = edges.length - 2; i >= 0; i--) if (value >= edges[i]) return i;
-  return 0;
-}
-
-/**
- * The bounds a range asks the database for.
- *
- * `below` is EXCLUSIVE. Bar i covers [edges[i], edges[i+1]), so a top thumb at
- * stop h selects bars 0 to h-1, which is everything strictly below edges[h]. An
- * inclusive bound would admit a creator sitting exactly on the edge whose bar is
- * not highlighted, and the count on screen would disagree with the chart under
- * it. Null at either end means no bound at all.
- */
-export function boundsOf(
-  key: FilterKey,
-  [lo, hi]: Range,
-): { min: number | null; below: number | null } {
-  const { edges } = SCALES[key];
-  return {
-    min: lo === 0 ? null : edges[lo],
-    below: hi === topStop(key) ? null : edges[hi],
-  };
-}
-
-/**
- * Does one value clear one range?
- *
- * A range at full extent asks nothing, so it lets a null through: a creator
- * judged after the last scoring pass has no scores, and hiding them from a
- * filter nobody set would be a filter nobody set. The moment either thumb
- * moves the range is a question, and a null cannot answer it.
- */
-function passesOne(key: FilterKey, value: number | null, range: Range): boolean {
-  if (isFullRange(key, range)) return true;
-  if (value === null || !Number.isFinite(value)) return false;
-  const { min, below } = boundsOf(key, range);
-  if (min !== null && value < min) return false;
-  if (below !== null && value >= below) return false;
-  return true;
-}
-
-/** Does this creator clear every filter except `except`? */
-function passesExcept(
-  fact: CreatorFact,
-  filters: CreatorFilters,
-  except: FilterKey | null,
-): boolean {
-  for (const key of FILTER_KEYS) {
-    if (key === except) continue;
-    if (!passesOne(key, fact[FACT_INDEX[key]], filters[key])) return false;
-  }
-  return true;
-}
-
-/**
- * One filter's histogram, counted over the creators the OTHER filters allow.
- *
- * This is the whole point of the cross-filter: pick 1M-10M creators and the
- * educational histogram redraws to describe only them, so the next filter is
- * chosen against what is actually left rather than against the whole library.
- * A filter never narrows its own histogram, or dragging a thumb would eat the
- * bars it is being dragged across.
- */
-export function histogram(
-  facts: readonly CreatorFact[],
-  filters: CreatorFilters,
-  key: FilterKey,
-): number[] {
-  const bars = new Array<number>(barCount(key)).fill(0);
-  for (const fact of facts) {
-    if (!passesExcept(fact, filters, key)) continue;
-    const bin = binOf(key, fact[FACT_INDEX[key]]);
-    if (bin !== null) bars[bin] += 1;
-  }
-  return bars;
-}
-
-/** How many creators clear every filter. The number under the controls. */
-export function matchCount(
-  facts: readonly CreatorFact[],
-  filters: CreatorFilters,
-): number {
-  let n = 0;
-  for (const fact of facts) if (passesExcept(fact, filters, null)) n += 1;
-  return n;
-}
-
-// ------------------------------------------------------------ the query string
-
-/** Two non-negative integers with one hyphen. Anything else is not a range. */
-const RANGE_RE = /^(\d+)-(\d+)$/;
-
-/**
- * Read one range off a URL param or an API body.
- *
- * Anything out of range becomes UNSET rather than clamped, which is the same
- * rule the old floors had and for the same reason: a clamped 99 silently
- * answers a question nobody asked and returns almost nothing, which reads as an
- * empty database rather than as a rejected input.
- */
-export function readRange(key: FilterKey, raw: unknown): Range {
-  const full = fullRange(key);
-  if (typeof raw !== "string") return full;
-  const m = RANGE_RE.exec(raw.trim());
-  if (!m) return full;
-
-  const scale = SCALES[key];
-  const base = scale.urlIsValue ? scale.edges[0] : 0;
-  const lo = Number(m[1]) - base;
-  const hi = Number(m[2]) - base + (scale.urlIsValue ? 1 : 0);
-
-  const top = topStop(key);
-  if (lo < 0 || hi > top || lo > hi) return full;
-  return [lo, hi];
-}
-
-/** The param value for one range, or null when it is asking nothing. */
-export function writeRange(key: FilterKey, range: Range): string | null {
-  if (isFullRange(key, range)) return null;
-  const scale = SCALES[key];
-  return scale.urlIsValue
-    ? `${scale.edges[range[0]]}-${scale.edges[range[1]] - 1}`
-    : `${range[0]}-${range[1]}`;
+export function creatorBins(facts: readonly CreatorFact[]): BinRow[] {
+  return facts.map((fact) =>
+    FILTER_KEYS.map((key, i) => binOf(SCALES[key], fact[i])),
+  );
 }
 
 export function readCreatorFilters(raw: Record<string, unknown>): CreatorFilters {
-  return {
-    followers: readRange("followers", raw[SCALES.followers.param]),
-    worth_studying: readRange("worth_studying", raw[SCALES.worth_studying.param]),
-    form: readRange("form", raw[SCALES.form.param]),
-    entertaining: readRange("entertaining", raw[SCALES.entertaining.param]),
-    educational: readRange("educational", raw[SCALES.educational.param]),
-    inspirational: readRange("inspirational", raw[SCALES.inspirational.param]),
-  };
+  return readRanges(CREATOR_FILTERS, raw);
 }
 
 /**
@@ -499,65 +331,17 @@ export function readCreatorFilters(raw: Record<string, unknown>): CreatorFilters
  * with no `edu=` in it filters on nothing, which is exactly what it looks like.
  */
 export function writeCreatorFilters(params: URLSearchParams, f: CreatorFilters) {
-  for (const key of FILTER_KEYS) {
-    const value = writeRange(key, f[key]);
-    if (value === null) params.delete(SCALES[key].param);
-    else params.set(SCALES[key].param, value);
-  }
+  writeRanges(CREATOR_FILTERS, params, f);
 }
 
 /** The filters as an API body: the same keys the URL uses, so one parser reads both. */
 export function filtersToBody(f: CreatorFilters): Record<string, string> {
-  const body: Record<string, string> = {};
-  for (const key of FILTER_KEYS) {
-    const value = writeRange(key, f[key]);
-    if (value !== null) body[SCALES[key].param] = value;
-  }
-  return body;
+  return rangesToBody(CREATOR_FILTERS, f);
 }
 
-// ----------------------------------------------------------------- the wording
-
-/** One edge, written the way its scale writes numbers. */
-function edgeLabel(key: FilterKey, stop: number): string {
-  const { edges, urlIsValue } = SCALES[key];
-  // In value mode a thumb at stop h means "up to edges[h] - 1", because the
-  // bound is exclusive and the values are whole numbers.
-  return urlIsValue ? String(edges[stop]) : compactNumber(edges[stop]);
-}
-
-/** The summary beside the control: "1M to 10M", "7 or more", "any size". */
-export function rangeLabel(key: FilterKey, range: Range): string {
-  if (isFullRange(key, range)) return SCALES[key].anyLabel;
-  const [lo, hi] = range;
-  const scale = SCALES[key];
-  const top = topStop(key);
-  const from = edgeLabel(key, lo);
-  // The top of a range is the last value INSIDE it, not the exclusive edge.
-  const to = scale.urlIsValue ? String(scale.edges[hi] - 1) : edgeLabel(key, hi);
-  if (lo === 0) return scale.urlIsValue ? `${to} or less` : `under ${to}`;
-  if (hi === top) return scale.urlIsValue ? `${from} or more` : `${from}+`;
-  return `${from} to ${to}`;
-}
-
-/** One bar of the histogram, for its tooltip: "25K to 50K", or "6". */
-export function barLabel(key: FilterKey, bar: number): string {
-  const { edges, urlIsValue } = SCALES[key];
-  return urlIsValue
-    ? String(edges[bar])
-    : `${compactNumber(edges[bar])} to ${compactNumber(edges[bar + 1])}`;
-}
-
-/** What a screen reader reads off the low thumb. */
-export function lowThumbLabel(key: FilterKey, [lo]: Range): string {
-  return lo === 0 ? "no minimum" : `at least ${edgeLabel(key, lo)}`;
-}
-
-/** What a screen reader reads off the high thumb. */
-export function highThumbLabel(key: FilterKey, [, hi]: Range): string {
-  const scale = SCALES[key];
-  if (hi === topStop(key)) return "no maximum";
-  return `at most ${scale.urlIsValue ? scale.edges[hi] - 1 : edgeLabel(key, hi)}`;
+/** One string standing for a whole filter set, for comparing two of them. */
+export function filtersKey(f: CreatorFilters): string {
+  return rangesKey(CREATOR_FILTERS, f);
 }
 
 // ---------------------------------------------------------------- everything else

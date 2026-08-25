@@ -9,7 +9,12 @@
     "strict": true,
     "noEmit": true,
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node"],
+    // The app's `@/...` alias, so a spec can import a pure src module (the
+    // filter geometry, the retriever) instead of duplicating it. baseUrl is the
+    // repo root because that is what the app's own tsconfig resolves against.
+    "baseUrl": "..",
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": ["**/*.ts"]
 }

@@ -9,13 +9,15 @@
 // score, and a row that is right for one is not necessarily right for the other.
 
 import "server-only";
+import { binOf, packBins, type BinRow } from "@/lib/filters/range";
 import {
-  BROWSE_PAGE_SIZE,
-  FOLLOWER_MAX_INDEX,
-  FOLLOWER_STOPS,
-  type ReelRow,
-  type WindowDays,
-} from "./types";
+  ageInDays,
+  reelRangeParams,
+  REEL_FILTERS,
+  REEL_FILTER_KEYS,
+  type ReelFilters,
+} from "./filters";
+import { BROWSE_PAGE_SIZE, type ReelRow } from "./types";
 
 const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
@@ -53,16 +55,21 @@ const COLUMNS = [
   "tags",
   "caption",
   "thumb_url",
+  // The three 1-10 reads of what a reel gives a viewer, one row per reel,
+  // written by analysis/axes in the reels-database repo. Null for a reel indexed
+  // since the last scoring pass; the filters treat that as unknown, never as a
+  // zero. Must stay in step with the ReelRow type.
+  "entertaining",
+  "educational",
+  "inspirational",
 ].join(",");
 
 /** Ceiling on rows per read. Well above a page, well below a table scan. */
 const BROWSE_MAX_LIMIT = 100;
 
 export type BrowseFilters = {
-  days: WindowDays;
-  /** Indices into FOLLOWER_STOPS. Both ends are open, see the constant. */
-  minIndex: number;
-  maxIndex: number;
+  /** The five ranges. See src/lib/reels/filters.ts. */
+  ranges: ReelFilters;
   page: number;
   /** Rows per page. The browse page always uses the default; the ideas chat
    *  asks for fewer, because it pays per token for every row it reads. */
@@ -79,19 +86,11 @@ export type BrowsePage = {
   total: number;
 };
 
-/** The date a `since_days` window starts, as PostgREST wants it. */
-function windowStart(days: WindowDays): string | null {
-  if (days === null) return null;
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - days);
-  return d.toISOString().slice(0, 10);
-}
-
 export async function browseReels(
   filters: BrowseFilters,
   signal?: AbortSignal,
 ): Promise<BrowsePage> {
-  const { days, minIndex, maxIndex, page } = filters;
+  const { ranges, page } = filters;
   // The /viral-reels-browse route never passes a limit, so it always gets the
   // page size. The ideas chat does, because its effort and diversity filters are
   // applied in TypeScript and need more rows than they keep.
@@ -105,19 +104,11 @@ export async function browseReels(
   params.set("limit", String(limit));
   params.set("offset", String((page - 1) * limit));
 
-  // Index 0 and the last index are the open ends of the slider, so they add no
-  // filter at all. Anything in between becomes a real bound.
-  if (minIndex > 0)
-    params.append("followers", `gte.${FOLLOWER_STOPS[minIndex]}`);
-  if (maxIndex < FOLLOWER_MAX_INDEX) {
-    params.append("followers", `lte.${FOLLOWER_STOPS[maxIndex]}`);
+  // Every filter at full extent adds nothing at all. One date for the whole
+  // request, so the two posted_on bounds cannot straddle a midnight.
+  for (const [key, value] of reelRangeParams(ranges, new Date())) {
+    params.append(key, value);
   }
-
-  // A reel with no posted_on is dropped as soon as a window is asked for, the
-  // same rule reel_search_match follows: "we do not know when this ran" cannot
-  // answer "in the last 30 days". `gte` on a null date already excludes it.
-  const start = windowStart(days);
-  if (start) params.set("posted_on", `gte.${start}`);
 
   // `ov` is array overlap: keep a row if any of its tags is any of these. The
   // braces and quoting are PostgREST's array literal syntax, and a tag with a
@@ -157,4 +148,111 @@ export async function browseReels(
   // no count was asked for, so fall back to what actually arrived.
   const total = Number(res.headers.get("content-range")?.split("/")[1]);
   return { rows, total: Number.isFinite(total) ? total : rows.length };
+}
+
+// ------------------------------------------------------------------- the facts
+//
+// The histograms are drawn in the browser off every reel in the index, which is
+// what lets them redraw on every pixel of a drag instead of once a round trip.
+// The creator page ships 245 rows of raw numbers for the same job; this index is
+// 4,896 rows, so the same shape would be 120 KB of page. A bin index is never
+// above 35 on any of these scales, so one reel is five characters and the whole
+// library is a 25 KB string.
+
+/**
+ * How many rows one facts request asks for.
+ *
+ * 1,000, because that is PostgREST's own `db-max-rows` on this project and a
+ * bigger `limit` does not raise it: it silently returns 1,000 and says nothing.
+ * That is exactly how the first version of this shipped, with the filter bar
+ * reporting "1,000 reels" under a wall that paged to 4,896. So the read PAGES,
+ * and the page size is the server's ceiling rather than a number of our own that
+ * could drift above it.
+ */
+const FACTS_PAGE = 1000;
+
+/** Ceiling on the whole facts read. Well above the index, well below a runaway. */
+const FACTS_LIMIT = 40_000;
+
+export type ReelFacts = {
+  /** Five characters a reel, in REEL_FILTER_KEYS order. */
+  packed: string;
+  /** How many reels it describes, so the caller never has to divide. */
+  count: number;
+};
+
+/**
+ * Every reel in the index reduced to one bin per filter.
+ *
+ * Binned HERE rather than in the browser, so the server and the client cannot
+ * disagree about which bar a reel belongs to: there is one binOf call in the
+ * codebase and this is where it runs for reels.
+ *
+ * Cached for a minute rather than `no-store`. It is the same answer for every
+ * visitor and it only moves when sync.py runs, which is a handful of times a
+ * week; the page's own count next to it stays uncached because it is on screen.
+ */
+type FactRow = {
+  followers: number | null;
+  posted_on: string | null;
+  entertaining: number | null;
+  educational: number | null;
+  inspirational: number | null;
+};
+
+export async function listReelFacts(signal?: AbortSignal): Promise<ReelFacts> {
+  const rows: FactRow[] = [];
+  for (let offset = 0; offset < FACTS_LIMIT; offset += FACTS_PAGE) {
+    const params = new URLSearchParams();
+    params.set(
+      "select",
+      "followers,posted_on,entertaining,educational,inspirational",
+    );
+    // Without `order` a paged read has no defined order at all, so pages could
+    // skip or repeat rows. It also makes the payload byte-identical between two
+    // renders, which is what keeps the client's histograms from shifting under a
+    // refresh.
+    params.set("order", "shortcode.asc");
+    params.set("limit", String(FACTS_PAGE));
+    params.set("offset", String(offset));
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?${params}`, {
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
+      signal,
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) throw new Error(`reel facts failed: ${res.status}`);
+    const page = (await res.json()) as FactRow[];
+    if (!Array.isArray(page)) throw new Error("reel facts returned a non-array");
+    rows.push(...page);
+    // A short page is the last page. PostgREST answers with whatever is left,
+    // so this is the only reliable end condition.
+    if (page.length < FACTS_PAGE) break;
+  }
+  // A silent truncation would not break anything visibly: the charts would
+  // describe a prefix of the index while the count under them came from the
+  // database. Say so instead.
+  if (rows.length >= FACTS_LIMIT) {
+    console.error(
+      `reel facts hit the ${FACTS_LIMIT}-row cap; the histograms are now a prefix of the index`,
+    );
+  }
+
+  // One date for the whole read, so two reels posted the same day cannot land in
+  // different age bars because the loop crossed midnight.
+  const today = new Date();
+  const binned: BinRow[] = rows.map((r) => {
+    const value: Record<(typeof REEL_FILTER_KEYS)[number], number | null> = {
+      followers: r.followers,
+      age: ageInDays(r.posted_on, today),
+      entertaining: r.entertaining,
+      educational: r.educational,
+      inspirational: r.inspirational,
+    };
+    // Order fixed by REEL_FILTER_KEYS, which is what the client unpacks against.
+    return REEL_FILTER_KEYS.map((key) =>
+      binOf(REEL_FILTERS.scales[key], value[key]),
+    );
+  });
+  return { packed: packBins(binned), count: binned.length };
 }

@@ -1,20 +1,21 @@
 import Link from "next/link";
 
 /**
- * The four doors into the reel library, on every one of the four pages.
+ * The three doors into the reel library, on every one of its pages.
  *
- * There used to be a single ad-hoc link between search and browse, which was
- * fine for two pages and stops working at three. This is deliberately the only
- * chrome any of them carries: no wordmark, no hero, no footer, because the
- * whole point of these pages is that nothing sits between a visitor and a reel.
+ * There were four until 2026-08-25. "search" was a search box over an empty
+ * screen and "library" was the same corpus listed under two filters, which is
+ * two pages asking two halves of one question; the search moved into the library
+ * and /viral-reels is now a redirect. This is deliberately the only chrome any
+ * of them carries: no wordmark, no hero, no footer, because the whole point of
+ * these pages is that nothing sits between a visitor and a reel.
  *
- * The order is the order of the questions: what reel is like this, who is in
- * here at all, who makes this kind of thing, and what should I film. Creators
- * sits after library because it answers a question about the same corpus from
- * the other end, and its own detail pages hang under it.
+ * The order is the order of the questions: what reels are in here, who makes
+ * this kind of thing, and what should I film. Creators sits after library
+ * because it answers a question about the same corpus from the other end, and
+ * its own detail pages hang under it.
  */
 const PAGES = [
-  { href: "/viral-reels", label: "search" },
   { href: "/viral-reels-browse", label: "library" },
   { href: "/viral-reels-creators", label: "creators" },
   { href: "/viral-reels-ideas", label: "ideas" },

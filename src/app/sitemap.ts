@@ -177,6 +177,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: "https://oleg.ae/sam-altman-ai",
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: "https://oleg.ae/claude-code-sessions",
       lastModified: new Date(),
       changeFrequency: "monthly",
@@ -201,16 +207,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: "https://oleg.ae/viral-reels",
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
+      // The library, which absorbed /viral-reels (the old search page) on
+      // 2026-08-25. That slug is a permanent redirect now, so it is gone from
+      // here: a sitemap that lists a 308 tells a crawler to fetch a page twice.
       url: "https://oleg.ae/viral-reels-browse",
       lastModified: new Date(),
       changeFrequency: "weekly",
-      priority: 0.7,
+      priority: 0.8,
     },
     {
       url: "https://oleg.ae/viral-reels-creators",

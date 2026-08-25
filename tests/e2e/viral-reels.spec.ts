@@ -1,19 +1,33 @@
 import { test, expect, type Page } from "@playwright/test";
 
-// Tests 66+: /viral-reels, the semantic search over the viral reel database.
+// Tests 66+: /viral-reels-browse, the library. Search, five range filters and
+// the whole corpus as a wall of stills.
+//
+// It absorbed /viral-reels on 2026-08-25: that page was a search box over an
+// empty screen and this one was the same corpus under two filters, which is two
+// pages asking two halves of one question.
 //
 // Everything here is deterministic without a secret. The API guard rails all
 // return before the route reaches OpenAI or Supabase, and the page renders its
-// full shell (hero, search box, example chips) before any search runs, so a
+// full shell (search box, five histograms, sliders) before any row arrives, so a
 // key-free environment exercises the same code paths a live one does.
 //
-// The happy path (a query -> three ranked cards) needs a live index and an
-// embedding call, and is verified by hand against the real project, not here.
+// The happy path (a query -> a wall of ranked reels) needs a live index and an
+// embedding call, and is verified against the real project, not here.
 
 const MOBILE_ONLY = (testInfo: { project: { name: string } }) =>
   test.skip(testInfo.project.name !== "mobile", "mobile only");
 
 const MIN_TAP = 44;
+
+/** The five filters, as the accessible names of their two thumbs. */
+const FILTERS = [
+  ["smallest audience", "largest audience"],
+  ["oldest", "newest"],
+  ["lowest entertaining", "highest entertaining"],
+  ["lowest educational", "highest educational"],
+  ["lowest inspirational", "highest inspirational"],
+] as const;
 
 async function settle(page: Page, route: string) {
   await page.goto(route, { waitUntil: "networkidle" });
@@ -22,7 +36,7 @@ async function settle(page: Page, route: string) {
 
 // ── API guard rails ──────────────────────────────────────────────────────────
 
-test.describe("66 - viral reels api validation", () => {
+test.describe("66 - library search api validation", () => {
   test("a non-JSON body -> 400 bad_request", async ({ request }) => {
     // Raw Buffer so Playwright doesn't re-serialize the string into valid JSON.
     const res = await request.post("/api/viral-reels/search", {
@@ -53,23 +67,48 @@ test.describe("66 - viral reels api validation", () => {
     expect(res.status()).toBe(400);
     expect((await res.json()).error).toBe("missing_query");
   });
+
+  test("junk filters never reach the database as a question", async ({
+    request,
+  }) => {
+    // Every one of these is malformed on its own scale, so each reads as unset.
+    // The route must answer normally rather than 400 or 500: a hand-made request
+    // cannot put an arbitrary value into a SQL filter.
+    const res = await request.post("/api/viral-reels/search", {
+      data: {
+        query: "street interview",
+        aud: "9-2",
+        posted: "0-99",
+        edu: "'; drop table reel_search; --",
+        ent: 7,
+        insp: null,
+      },
+    });
+    expect([200, 429, 502, 503]).toContain(res.status());
+    expect(res.status()).not.toBe(500);
+  });
 });
 
 // ── The page ─────────────────────────────────────────────────────────────────
 
-test("67 - viral reels: the page is the search box and the window filter, nothing else", async ({
+test("67 - library: the page is the search box, the five filters, nothing else", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels");
-  await expect(page.locator("#reel-query")).toBeVisible();
+  await settle(page, "/viral-reels-browse");
+  await expect(page.locator("#library-query")).toBeVisible();
   await expect(page.getByRole("button", { name: "search" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "all time" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "7 days" })).toBeVisible();
+
+  // Oleg's five, by name. Worth studying and doing well are creator judgements
+  // and stay on the creator page; they were dropped from here deliberately.
+  for (const [min, max] of FILTERS) {
+    await expect(page.getByRole("slider", { name: min })).toBeVisible();
+    await expect(page.getByRole("slider", { name: max })).toBeVisible();
+  }
+  await expect(page.getByRole("slider")).toHaveCount(FILTERS.length * 2);
+  await expect(page.getByRole("slider", { name: "worth studying", exact: false })).toHaveCount(0);
 
   // The whole point of the redesign: no shell, no copy, no links out.
-  await expect(page.getByRole("link", { name: /oleg melnikov/i })).toHaveCount(
-    0,
-  );
+  await expect(page.getByRole("link", { name: /oleg melnikov/i })).toHaveCount(0);
   await expect(page.getByTestId("see-all-resources")).toHaveCount(0);
   // The one heading is present for screen readers and search engines but takes
   // no space on screen. Playwright counts an sr-only clip as visible, so this
@@ -79,62 +118,58 @@ test("67 - viral reels: the page is the search box and the window filter, nothin
   expect(h1!.height).toBeLessThanOrEqual(1);
 });
 
-test("68 - viral reels: the search button is disabled until there is a query", async ({
+test("68 - library: the search button is disabled until there is a query", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels");
+  await settle(page, "/viral-reels-browse");
   const button = page.getByRole("button", { name: "search" });
   await expect(button).toBeDisabled();
-  await page.fill("#reel-query", "a dog doing something funny");
+  await page.fill("#library-query", "a dog doing something funny");
   await expect(button).toBeEnabled();
 });
 
-test("69 - viral reels: a ?q= link prefills the box and ?d= picks the window", async ({
+test("69 - library: every filter draws a histogram, not a bare slider", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels?q=street%20interview&d=30");
-  await expect(page.locator("#reel-query")).toHaveValue("street interview");
-  await expect(page.getByRole("button", { name: "30 days" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  // All time is the default, and an unknown window falls back to it.
-  await settle(page, "/viral-reels?q=street%20interview&d=13");
-  await expect(page.getByRole("button", { name: "all time" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  await settle(page, "/viral-reels-browse");
+  // One chart per filter, each labelled with what it is a spread of. Without
+  // them a visitor has to guess where the library actually sits.
+  const charts = page.getByRole("img", { name: /how the .* reels are spread/ });
+  await expect(charts).toHaveCount(FILTERS.length);
 });
 
-test("70 - viral reels: no em dashes in the copy", async ({ page }) => {
-  await settle(page, "/viral-reels");
+test("70 - library: no em dashes in the copy", async ({ page }) => {
+  await settle(page, "/viral-reels-browse");
   const text = await page.locator("body").innerText();
   expect(text).not.toMatch(/[–—]/);
 });
 
 // ── Mobile ───────────────────────────────────────────────────────────────────
 
-test("71 - viral reels: the query input is 16px so iOS does not zoom on focus", async ({
+test("71 - library: the query input is 16px so iOS does not zoom on focus", async ({
   page,
 }, testInfo) => {
   MOBILE_ONLY(testInfo);
-  await settle(page, "/viral-reels");
+  await settle(page, "/viral-reels-browse");
   const size = await page
-    .locator("#reel-query")
+    .locator("#library-query")
     .evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
   expect(size).toBeGreaterThanOrEqual(16);
 });
 
-test("72 - viral reels: the search controls are >=44px tap targets", async ({
+test("72 - library: the search controls and every thumb are >=44px tap targets", async ({
   page,
 }, testInfo) => {
   MOBILE_ONLY(testInfo);
-  await settle(page, "/viral-reels");
+  await settle(page, "/viral-reels-browse");
 
   const targets = [
-    page.locator("#reel-query"),
+    page.locator("#library-query"),
     page.getByRole("button", { name: "search" }),
-    page.getByRole("button", { name: "all time" }),
+    ...FILTERS.flatMap(([min, max]) => [
+      page.getByRole("slider", { name: min }),
+      page.getByRole("slider", { name: max }),
+    ]),
   ];
   for (const t of targets) {
     const box = await t.boundingBox();
@@ -143,120 +178,158 @@ test("72 - viral reels: the search controls are >=44px tap targets", async ({
   }
 });
 
-// ── /viral-reels-browse: the whole library, filtered and paged ───────────────
-//
-// Same deal as above: everything here is deterministic without a secret. With
-// no Supabase key the page renders its filters and says the library is not
-// connected, which is the same DOM a live environment builds before its rows
-// arrive.
+// ── The wall, its filters and its urls ───────────────────────────────────────
 
-test.describe("73 - viral reels browse api validation", () => {
-  test("an unknown window and a junk page still answer, never 500", async ({
+test.describe("73 - library browse api validation", () => {
+  test("junk ranges and a junk page still answer, never 500", async ({
     request,
   }) => {
     const res = await request.get(
-      "/api/viral-reels/browse?d=13&page=-4&fmin=99&fmax=abc",
+      "/api/viral-reels/browse?page=-4&aud=99-1&posted=abc&edu=12-14",
     );
     // 503 with no key configured, 200 with one. Never a crash, and never a 400:
-    // every parameter on this route is clamped rather than rejected.
+    // every parameter on this route reads as unset rather than being rejected.
     expect([200, 503]).toContain(res.status());
-    const json = await res.json();
     if (res.status() === 200) {
-      expect(json.days).toBeNull();
+      const json = await res.json();
       expect(json.page).toBe(1);
-      expect(json.minIndex).toBeLessThanOrEqual(json.maxIndex);
       expect(Array.isArray(json.results)).toBe(true);
-      expect(json.results.length).toBeLessThanOrEqual(20);
+      expect(json.results.length).toBeLessThanOrEqual(60);
     }
   });
 });
 
-test("74 - viral reels browse: filters render, and the page stays bare", async ({
+test("74 - library: the url carries every filter, and junk reads as unset", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels-browse");
-  await expect(
-    page.getByRole("group", { name: "how new the reel is" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("slider", { name: "smallest audience" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("slider", { name: "largest audience" }),
-  ).toBeVisible();
-  // No shell, exactly like the search page.
-  await expect(page.getByTestId("see-all-resources")).toHaveCount(0);
-  await expect(page.locator("h1")).toHaveCount(1);
-  const h1 = await page.locator("h1").boundingBox();
-  expect(h1!.height).toBeLessThanOrEqual(1);
+  await settle(page, "/viral-reels-browse?aud=2-8&posted=0-3&edu=4-8");
+  await expect(page.getByRole("slider", { name: "smallest audience" })).toHaveValue("2");
+  await expect(page.getByRole("slider", { name: "largest audience" })).toHaveValue("8");
+  await expect(page.getByRole("slider", { name: "oldest" })).toHaveValue("0");
+  await expect(page.getByRole("slider", { name: "newest" })).toHaveValue("3");
+  // A score writes its own values, so edu=4-8 is thumbs 3 and 8.
+  await expect(page.getByRole("slider", { name: "lowest educational" })).toHaveValue("3");
+  await expect(page.getByRole("slider", { name: "highest educational" })).toHaveValue("8");
+  // A filter that was never set is at full extent.
+  await expect(page.getByRole("slider", { name: "lowest inspirational" })).toHaveValue("0");
+  await expect(page.getByRole("slider", { name: "highest inspirational" })).toHaveValue("10");
+  // And a set filter announces itself, so the reader can see the page is
+  // narrowed without reading the address bar.
+  await expect(page.getByText("clear filters")).toBeVisible();
+
+  // Junk is unset, not clamped: a range nobody could have typed must not
+  // silently answer a question nobody asked.
+  await settle(page, "/viral-reels-browse?aud=9-2&edu=0-99&posted=7-7");
+  for (const [min, max] of FILTERS) {
+    const lo = Number(await page.getByRole("slider", { name: min }).inputValue());
+    const hi = Number(await page.getByRole("slider", { name: max }).inputValue());
+    expect(lo).toBe(0);
+    expect(hi).toBeGreaterThan(lo);
+  }
+  await expect(page.getByText("clear filters")).toHaveCount(0);
 });
 
-test("75 - viral reels: the four pages all reach each other", async ({
+test("74b - library: a ?q= link prefills the box", async ({ page }) => {
+  await settle(page, "/viral-reels-browse?q=street%20interview");
+  await expect(page.locator("#library-query")).toHaveValue("street interview");
+});
+
+test("74c - library: the filter count describes the whole library, not a page of it", async ({
   page,
 }) => {
-  // Every one of the four carries the same nav, so any of them can reach any
-  // other in one click. Walk the ring.
+  // The bins that draw the histograms are shipped with the page, and PostgREST
+  // caps a read at 1,000 rows however big the `limit` is. This shipped once
+  // saying "1,000 reels" under a wall that paged to 4,896, which is a chart
+  // describing a fifth of the library while the number beside it came from the
+  // database. Nothing but real data can catch it.
+  await settle(page, "/viral-reels-browse");
+  const line = (await page.locator("[aria-live='polite']").first().innerText()).trim();
+  test.skip(!line, "no database configured");
+
+  const shipped = Number(line.replace(/[^0-9]/g, ""));
+  const pageLine = await page.getByText(/page \d+ of \d+/).first().innerText();
+  const pages = Number(pageLine.split(" of ")[1]);
+  // The wall pages at 60, so the library holds more than (pages - 1) * 60. The
+  // bins have to cover at least that many reels.
+  expect(shipped).toBeGreaterThan((pages - 1) * 60);
+});
+
+test("75 - viral reels: the three pages all reach each other", async ({
+  page,
+}) => {
+  // Every one carries the same nav, so any of them can reach any other in one
+  // click. Walk the ring.
   const nav = () => page.getByRole("navigation", { name: "viral reels" });
-  await settle(page, "/viral-reels");
-  await nav().getByRole("link", { name: "library" }).click();
-  await expect(page).toHaveURL(/\/viral-reels-browse$/);
+  await settle(page, "/viral-reels-browse");
   await nav().getByRole("link", { name: "creators" }).click();
   await expect(page).toHaveURL(/\/viral-reels-creators$/);
   await nav().getByRole("link", { name: "ideas" }).click();
   await expect(page).toHaveURL(/\/viral-reels-ideas$/);
-  await nav().getByRole("link", { name: "search" }).click();
-  await expect(page).toHaveURL(/\/viral-reels(\?|$)/);
+  await nav().getByRole("link", { name: "library" }).click();
+  await expect(page).toHaveURL(/\/viral-reels-browse$/);
+  // The search tab is gone: the library has the box.
+  await expect(nav().getByRole("link", { name: "search" })).toHaveCount(0);
+  await expect(nav().getByRole("link")).toHaveCount(3);
 });
 
-test("75b - the old nested browse url still resolves", async ({ page }) => {
-  // It was linked and it is in a sitemap Google already fetched, so it has to
-  // land on the flat slug rather than 404.
+test("75b - the two retired urls still resolve", async ({ page }) => {
+  // Both were linked and are in a sitemap Google already fetched, so they have
+  // to land on the library rather than 404.
   await page.goto("/viral-reels/browse");
+  await expect(page).toHaveURL(/\/viral-reels-browse$/);
+  await page.goto("/viral-reels");
   await expect(page).toHaveURL(/\/viral-reels-browse$/);
 });
 
-test("76 - viral reels browse: the url carries the filters", async ({
+test("76 - library: dragging a thumb narrows the count and writes the url", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels-browse?d=90&fmin=2&fmax=8");
-  await expect(page.getByRole("button", { name: "90 days" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(
-    page.getByRole("slider", { name: "smallest audience" }),
-  ).toHaveValue("2");
-  await expect(
-    page.getByRole("slider", { name: "largest audience" }),
-  ).toHaveValue("8");
-  // A min dragged past the max is clamped, not accepted, so the pair the page
-  // renders is always a range the database can answer.
-  await settle(page, "/viral-reels-browse?fmin=9&fmax=3");
-  const min = Number(
-    await page.getByRole("slider", { name: "smallest audience" }).inputValue(),
-  );
-  const max = Number(
-    await page.getByRole("slider", { name: "largest audience" }).inputValue(),
-  );
-  expect(min).toBeLessThanOrEqual(max);
-});
-
-test("77 - viral reels browse: no em dashes in the copy", async ({ page }) => {
   await settle(page, "/viral-reels-browse");
-  const text = await page.locator("body").innerText();
-  expect(text).not.toMatch(/[–—]/);
-});
+  const before = await page.locator("[aria-live='polite']").first().innerText();
 
-test("78 - viral reels browse: the window pills are >=44px tap targets", async ({
-  page,
-}, testInfo) => {
-  MOBILE_ONLY(testInfo);
-  await settle(page, "/viral-reels-browse");
-  for (const name of ["all time", "30 days"]) {
-    const box = await page.getByRole("button", { name }).boundingBox();
-    expect(box, `tap target ${name}`).not.toBeNull();
-    expect(box!.height).toBeGreaterThanOrEqual(MIN_TAP);
+  // Straight to the keyboard: it is the same code path a drag takes and it does
+  // not depend on where the thumb happens to sit in pixels.
+  const thumb = page.getByRole("slider", { name: "lowest educational" });
+  await thumb.focus();
+  for (let i = 0; i < 5; i++) await thumb.press("ArrowRight");
+
+  await expect(page).toHaveURL(/edu=6-10/);
+  await expect(page.getByText("clear filters")).toBeVisible();
+  // The count is computed in the browser off the shipped bins, so it is already
+  // right before any request comes back. With no database configured there are
+  // no bins and the line stays empty, which is why this only asserts a change
+  // when there was something to change.
+  if (before.trim()) {
+    await expect(page.locator("[aria-live='polite']").first()).not.toHaveText(before);
   }
+});
+
+test("77 - library: clearing puts every thumb back", async ({ page }) => {
+  await settle(page, "/viral-reels-browse?aud=2-8&edu=4-8");
+  await page.getByText("clear filters").click();
+  await expect(page.getByText("clear filters")).toHaveCount(0);
+  for (const [min] of FILTERS) {
+    await expect(page.getByRole("slider", { name: min })).toHaveValue("0");
+  }
+  // And the url says so too, or a reload would bring the filters back.
+  await expect(page).not.toHaveURL(/aud=|edu=/);
+});
+
+test("78 - library: a thumb can never be dragged onto the other one", async ({
+  page,
+}) => {
+  // A collapsed pair highlights no bars while the query it builds is
+  // open-ended, which is the one state where the chart and the results
+  // disagree. The slider itself is what prevents it.
+  await settle(page, "/viral-reels-browse");
+  const min = page.getByRole("slider", { name: "lowest entertaining" });
+  await min.focus();
+  for (let i = 0; i < 15; i++) await min.press("ArrowRight");
+  const lo = Number(await min.inputValue());
+  const hi = Number(
+    await page.getByRole("slider", { name: "highest entertaining" }).inputValue(),
+  );
+  expect(lo).toBeLessThan(hi);
 });
 
 
@@ -347,7 +420,7 @@ test("83 - viral reels ideas: send and the nav are >=44px tap targets", async ({
   await settle(page, "/viral-reels-ideas");
   const targets = [
     page.getByRole("button", { name: "send" }),
-    page.getByRole("navigation", { name: "viral reels" }).getByRole("link", { name: "search" }),
+    page.getByRole("navigation", { name: "viral reels" }).getByRole("link", { name: "library" }),
   ];
   for (const t of targets) {
     const box = await t.boundingBox();

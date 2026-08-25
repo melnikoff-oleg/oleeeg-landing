@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Search } from "lucide-react";
 import {
+  CREATOR_FILTERS,
   CREATOR_QUERY_MAX,
-  FILTER_KEYS,
+  creatorBins,
+  filtersKey,
   normalizeCreatorQuery,
   readCreatorFilters,
   CREATOR_RESULT_COUNT,
@@ -20,12 +22,7 @@ import {
 } from "@/lib/creators/types";
 import { normalizePage } from "@/lib/reels/types";
 import { CreatorCard } from "@/components/creator-card";
-import { CreatorFilterBar } from "./creator-filters";
-
-/** One string standing for a whole filter set, for comparing two of them. */
-function filtersKey(f: CreatorFilters): string {
-  return FILTER_KEYS.map((k) => f[k].join("-")).join("|");
-}
+import { FilterBar } from "@/components/filter-bar";
 
 /** The roster's own URL, carrying every set filter with it. */
 function pageHref(page: number, filters: CreatorFilters): string {
@@ -155,6 +152,9 @@ export function CreatorSearch({
   const live = useRef(initialFilters);
 
   const pages = Math.max(1, Math.ceil(total / ROSTER_PAGE_SIZE));
+  // Values to bins, once. The charts and the count both work on bins, and doing
+  // it per render would redo 245 rows on every step of a drag.
+  const bins = useMemo(() => creatorBins(facts), [facts]);
 
   // Cancel a pending commit when the page goes away, so a fetch cannot land
   // against an unmounted component.
@@ -416,9 +416,11 @@ export function CreatorSearch({
         </button>
       </form>
 
-      <CreatorFilterBar
-        facts={facts}
-        filters={filters}
+      <FilterBar
+        set={CREATOR_FILTERS}
+        rows={bins}
+        ranges={filters}
+        noun="creators"
         onInput={onFilterInput}
         // Read from the ref, not from a prop: the ref is written by the very
         // change event that moved the thumb, so it is right even if React has

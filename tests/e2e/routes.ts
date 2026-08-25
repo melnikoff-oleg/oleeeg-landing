@@ -36,7 +36,6 @@ export const ROUTES = [
   "/claude-code-ads",
   "/marketing-brain",
   "/marketing-brain-knowledge",
-  "/viral-reels",
   "/viral-reels-browse",
   "/viral-reels-creators",
   "/viral-reels-ideas",
@@ -45,10 +44,11 @@ export const ROUTES = [
 
 // The /viral-reels pages are in ROUTES (they must still return 200, render one
 // h1 and log no console errors) but render no shared shell at all: no wordmark,
-// no footer, no copy. That is the design, not an oversight. One is a search box
-// and its results, one is the library and its filters, one is the creators
-// behind them, and each carries only the four-way nav. So the shell specs skip
-// them by name.
+// no footer, no copy. That is the design, not an oversight. One is the library,
+// its search box and its five filters, one is the creators behind it, one is the
+// chat, and each carries only the three-way nav. So the shell specs skip them by
+// name. /viral-reels itself is gone: it folded into the library on 2026-08-25
+// and its slug is a permanent redirect, which is not a route to test as a page.
 export const SHELL_ROUTES = ROUTES.filter((r) => !r.startsWith("/viral-reels"));
 
 // Pages that render the cross-linked ResourceFooter (all except the homepage,

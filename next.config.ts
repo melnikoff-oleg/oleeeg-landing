@@ -21,6 +21,15 @@ const nextConfig: NextConfig = {
         destination: "/viral-reels-browse",
         permanent: true,
       },
+      {
+        // The search page was folded into the library on 2026-08-25: it was a
+        // search box over an empty screen, and the library it searched is now
+        // under the same box. Permanent, so whatever ranking /viral-reels had
+        // follows it rather than being split between a live page and a dead one.
+        source: "/viral-reels",
+        destination: "/viral-reels-browse",
+        permanent: true,
+      },
     ];
   },
   async headers() {

@@ -89,6 +89,27 @@ function ago(n: number, unit: string): string {
   return `${n} ${unit}${n === 1 ? "" : "s"} ago`;
 }
 
+/**
+ * A number of days as the coarsest unit that still reads right: 7 -> "1 week",
+ * 90 -> "3 months", 365 -> "1 year".
+ *
+ * The age filter's own number format, so a thumb sitting on the 90-day edge says
+ * "3 months" rather than "90". Same unit ladder as formatRelative above, and the
+ * same 30.44 and 365.25: over the four-year span this library covers, the
+ * rounder 30 and 365 drift a bucket edge a whole month.
+ */
+export function formatAge(days: number): string {
+  if (!Number.isFinite(days) || days < 0) return "-";
+  if (days < 7) return plural(Math.round(days), "day");
+  if (days < 30) return plural(Math.round(days / 7), "week");
+  if (days < 365) return plural(Math.round(days / 30.44), "month");
+  return plural(Math.round(days / 365.25), "year");
+}
+
+function plural(n: number, unit: string): string {
+  return `${n} ${unit}${n === 1 ? "" : "s"}`;
+}
+
 export function formatRelative(iso: string | null | undefined): string {
   if (!iso) return "-";
   const then = Date.parse(`${iso.slice(0, 10)}T00:00:00Z`);

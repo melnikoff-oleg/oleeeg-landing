@@ -15,6 +15,7 @@
 import "server-only";
 import type Anthropic from "@anthropic-ai/sdk";
 import { browseReels } from "./browse";
+import { reelFiltersFromWindow } from "./filters";
 import { estimateEffort, normalizeMaxEffort } from "./effort";
 import { getLibraryOverview } from "./overview";
 import { searchReels } from "./search";
@@ -373,7 +374,9 @@ export async function runReelTool(
 
     const hits = await searchReels(
       query,
-      days,
+      // The follower bounds are applied again in TypeScript below, exactly, so
+      // only the recency window goes to SQL here.
+      reelFiltersFromWindow({ days }),
       Math.min(SEARCH_MAX_ROWS, limit * SEARCH_OVERFETCH),
       signal,
     );
@@ -423,9 +426,11 @@ export async function runReelTool(
     );
     const { rows, total } = await browseReels(
       {
-        days: normalizeDays(input.since_days),
-        minIndex: toStopIndex(bounds.min, "min"),
-        maxIndex: toStopIndex(bounds.max, "max"),
+        ranges: reelFiltersFromWindow({
+          days: normalizeDays(input.since_days),
+          minIndex: toStopIndex(bounds.min, "min"),
+          maxIndex: toStopIndex(bounds.max, "max"),
+        }),
         page: 1,
         limit: want,
         tags,
