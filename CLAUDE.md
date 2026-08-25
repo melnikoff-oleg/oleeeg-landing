@@ -43,6 +43,7 @@ Claude should always orient itself through `/prime` at session start, then act w
 ├── plans/                 # Implementation plans created by /create-plan
 ├── outputs/               # Work products and deliverables
 ├── reference/             # Templates, examples, reusable patterns
+├── seo/                   # Search optimization: log, backlog, keyword map, audits
 └── scripts/               # Automation scripts (if applicable)
 ```
 
@@ -54,6 +55,7 @@ Claude should always orient itself through `/prime` at session start, then act w
 | `plans/`     | Detailed implementation plans. Created by `/create-plan`, executed by `/implement`. |
 | `outputs/`   | Deliverables, analyses, reports, and work products.                                 |
 | `reference/` | Helpful docs, templates and patterns to assist in various workflows.                |
+| `seo/`       | All search-optimization work: shipped log, prioritized backlog, keyword map, audits. |
 | `scripts/`   | Any automation or tooling scripts.                                                  |
 
 ---
@@ -140,21 +142,16 @@ Key references in the main repo (`/Users/olegmelnikov/Desktop/Software Projects/
 
 ## SEO
 
+**All SEO work lives in `seo/`.** That folder is the single source of truth for search optimization now: `seo/LOG.md` is what has shipped, `seo/BACKLOG.md` is what is queued and prioritized, `seo/keywords.md` is the keyword-to-page map, `seo/audits/` holds dated state snapshots, and `seo/ubersuggest/` is where raw Ubersuggest exports get dropped before triage. Read `seo/README.md` for the workflow. Do not track SEO tasks in this file, add them to the backlog.
+
 Ongoing goal: optimize the site for search around keywords like **"AI systems for marketing"**, **"Claude Code"**, **"Claude Code for marketing"**.
 
-**Done:**
-- Sitemap (`src/app/sitemap.ts`) + robots.txt (`src/app/robots.ts`)
-- Keyword-rich meta tags (title, description, keywords, OG, Twitter cards) on all pages
-- Proper heading hierarchy (`h1` → `h2`) across all sections
-- Plausible analytics (`src/components/plausible.tsx`, domain: oleg.ae, `outboundLinks: true` since 2026-07-06 so clicks to boldane.com/GitHub/Calendly are measurable; the event is "Outbound Link: Click" — add it as a goal in the Plausible dashboard to see it there. **The Stats API is NOT queryable as of 2026-08-12**: both the key in this repo's `.env` and the one in boldane-site's return `"The account that owns this API key does not have access to Stats API"`, so the plan no longer includes it. Any analytics-driven work has to fall back to the YouTube view counts, which is arguably the truer signal anyway since 84% of traffic is YouTube-fed. `scripts/build-recommendations.mjs` calls the Stats API and will need its popularity source swapped, or the plan upgraded, before it can be regenerated.)
+Two facts that constrain every SEO decision here, kept in this file because they bite outside SEO work too:
 
-**Still to do:**
-- Open Graph images (branded preview for social shares)
-- Structured data / JSON-LD (Person schema)
-- Internal linking (resource pages are interlinked via `ResourceFooter`, which now leads with the `NextUp` ranked picks and keeps the full link list in a collapsed `see all free resources` disclosure so every internal link stays crawlable; the homepage deliberately links to NO resource pages since 2026-07-09 — Oleg wants it to end on "cheers, oleg" — so any homepage → resource linking would need a different, subtle form if ever revisited)
-- Performance audit (Lighthouse, image optimization)
-- More content pages (each YouTube video = a potential resource page targeting keywords)
-- Google Search Console verification (blocked for now, revisit later)
+- **Plausible's Stats API is NOT queryable as of 2026-08-12.** Both the key in this repo's `.env` and the one in boldane-site's return `"The account that owns this API key does not have access to Stats API"`. Any analytics-driven work has to fall back to YouTube view counts, which is arguably the truer signal anyway since 84% of traffic is YouTube-fed. `scripts/build-recommendations.mjs` calls the Stats API and will need its popularity source swapped, or the plan upgraded, before it can be regenerated. Plausible itself still tracks (`src/components/plausible.tsx`, domain oleg.ae, `outboundLinks: true` since 2026-07-06; the event is "Outbound Link: Click" and needs adding as a goal in the dashboard to be visible there).
+- **The homepage deliberately links to NO resource pages** since 2026-07-09. Oleg wants it to end on the connect section's "cheers, oleg". Any homepage to resource linking, however good for SEO, would need a different and subtle form, and his sign-off.
+
+The audit baseline as of 2026-08-24 is in `seo/audits/2026-08-24-baseline.md`: sitemap, robots, per-page canonicals (all 32 layouts, no gaps), `ArticleJsonLd` on 23 pages and the `NextUp` internal-linking surface are in place; Open Graph images, homepage Person schema, FAQPage schema on the troubleshooting blocks, and Search Console verification are the open gaps.
 
 ---
 
@@ -374,7 +371,7 @@ A full 30-route mobile audit at 390px (multi-agent, real-screenshot-driven, judg
 
 Three flat slugs over one Supabase table of viral Instagram reels: `/viral-reels` searches it by meaning, `/viral-reels-browse` lists all of it ranked by outlier score, `/viral-reels-ideas` lets Claude read it on a visitor's behalf and turn a brand description into things to film. Every reel carries its thumbnail, Instagram link, full metrics, date and the five-field write-up (idea, hook, retain, reward, tags).
 
-- **The corpus is not in this repo.** It is built in the vault (`dantane`, `areas/youtube_videos/2026-08-17_viral_reels_database/search/`) by `sync.py`, which embeds each reel and upserts it into the shared Boldane Supabase project. Adding reels needs no deploy here: the page reads Supabase live. The SQL that created `reel_search`, `reel_search_match` and the `reel-thumbs` bucket lives in that same folder as `schema.sql`.
+- **The corpus is not in this repo.** It is built in the vault (`dantane`, `software/viral_reels_database/search/`, moved there from `areas/youtube_videos/` on 2026-08-25) by `sync.py`, which embeds each reel and upserts it into the shared Boldane Supabase project. Adding reels needs no deploy here: the page reads Supabase live. The SQL that created `reel_search`, `reel_search_match` and the `reel-thumbs` bucket lives in that same folder as `schema.sql`.
 - **A search is two hops**: embed the query with OpenAI, then rank by cosine distance in the `reel_search_match` pgvector function. Measured about 500 ms end to end. `src/lib/reels/search.ts` also holds a 15-minute in-memory LRU, keyed on the window as well as the words, so repeat queries cost nothing on a warm instance.
 - **The model and the dimension count (`text-embedding-3-large`, 3072) are written in two places**, `src/lib/reels/search.ts` and the vault's `sync.py`. Changing one without the other silently breaks every search, because the query and the rows would then live in different vector spaces.
 - **`src/lib/reels/types.ts` exists so the client never imports the server module.** `search.ts` reads the service-role and OpenAI keys at import time; the client components need `ReelHit`, `QUERY_MAX`, `RESULT_COUNT` and `WINDOWS`, so those live in a module with no secrets in it rather than relying on the bundler to shake the rest out.
