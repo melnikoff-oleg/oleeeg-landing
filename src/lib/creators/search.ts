@@ -46,6 +46,9 @@ const EMBED_DIMS = 3072;
 // Prefixed like the table, so it cannot collide with another feature's match_*
 // function in this shared Supabase project.
 const MATCH_FN = "creator_search_match";
+// The ranking creator_search_match implements, as of the migration named.
+// search/creator_form.sql, 2026-08-25: sim^2.5 x craft x form.
+const RANK_VERSION = "2026-08-25-form2";
 
 export const creatorSearchConfigured = Boolean(
   SUPABASE_URL && SERVICE_KEY && OPENAI_KEY,
@@ -56,8 +59,20 @@ export const creatorSearchConfigured = Boolean(
 // The example chips and the obvious searches repeat constantly, and every
 // repeat would otherwise pay for an embedding. A warm instance answers those
 // from memory in a few milliseconds.
-
-const CACHE_TTL_MS = 15 * 60 * 1000;
+//
+// THE TTL IS 90 SECONDS AND NOT 15 MINUTES, and the reason is worth keeping.
+// The ranking lives in SQL -- creator_search_match, which is changed by running
+// a migration against Supabase and needs no deploy of this app. So a ranking
+// change used to be invisible here for up to fifteen minutes on every warm
+// instance, with nothing on screen saying so: on 2026-08-25 the database was
+// serving a corrected order for "tech" while this cache kept handing back the
+// old one, and it read exactly like the fix had never shipped.
+//
+// A cache whose key cannot express what produced its contents must not outlive
+// the thing it is caching by much. 90 seconds still absorbs the repeat traffic
+// the cache exists for (a chip clicked twice, a query retyped) and bounds the
+// lie at a minute and a half.
+const CACHE_TTL_MS = 90 * 1000;
 const CACHE_MAX = 200;
 const cache = new Map<string, { at: number; hits: CreatorHit[] }>();
 
@@ -169,6 +184,12 @@ export async function searchCreators(
   // a different answer, and serving one for the other is the classic cache bug:
   // it would look exactly like a filter that does nothing.
   const key = [
+    // Bump RANK_VERSION whenever creator_search_match changes, and the whole
+    // cache is bypassed on the next deploy rather than aged out. It is a
+    // manual step because the ranking lives in another repo's SQL; the short
+    // TTL above is the backstop for the times it is forgotten, which is what
+    // actually happened the first time.
+    RANK_VERSION,
     count,
     ...FILTER_KEYS.map((k) => filters[k].join("-")),
     query.toLowerCase(),
