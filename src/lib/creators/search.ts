@@ -109,8 +109,9 @@ async function matchCreators(
   signal: AbortSignal,
 ): Promise<CreatorHit[]> {
   // The RPC takes a min and an exclusive max per filter, named after the
-  // column, so the four ranges expand into eight arguments the same way the
-  // roster's expand into eight query params.
+  // column, so the five ranges expand into ten arguments the same way the
+  // roster's expand into ten query params. Adding a filter is one entry in
+  // FILTER_KEYS and one pair of parameters in the SQL; nothing here changes.
   //
   // null, not 0 or -1, for an end that is asking nothing: the function treats
   // null as "do not filter", and a creator judged after the last scoring pass
@@ -189,6 +190,13 @@ export async function searchCreators(
     // whether the nearest creator is near at all. Dropping the far ones here is
     // what lets the page say "nobody is close" instead of filling twelve slots
     // with the least-far creators in the index.
+    //
+    // On `similarity` and NEVER on `rank_score`. Since 2026-08-25 the database
+    // ORDERS by relevance multiplied by Oleg's 1-10 study score, and that
+    // product runs up to 40% below the relevance it came from. Filtering on it
+    // would quietly raise this floor and start reporting "nobody matched" for
+    // queries the library answers. The rows already arrive in rank order, so
+    // this filter only removes; it never reorders.
     const hits = ranked.filter((c) => c.similarity >= CREATOR_MIN_SIMILARITY);
     cacheSet(key, hits);
     return hits;

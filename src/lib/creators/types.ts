@@ -128,23 +128,24 @@ export type CreatorReel = {
 
 // ------------------------------------------------------------------- filtering
 //
-// Four range filters, drawn the way Airbnb draws a price filter: a histogram of
+// Five range filters, drawn the way Airbnb draws a price filter: a histogram of
 // the whole index with two thumbs over it, so the shape of the library is
 // visible before anything is narrowed.
 //
 // The histograms are computed in the browser off `CreatorFact[]`, every creator
-// in the index reduced to the four numbers a filter asks about. 240 creators is
+// in the index reduced to the five numbers a filter asks about. 240 creators is
 // about 5 KB that way, which is what buys a histogram that redraws on every
 // pixel of a drag instead of on a round trip.
 
 /**
- * One creator as the filters see them: four numbers and no name.
+ * One creator as the filters see them: five numbers and no name.
  *
  * A tuple rather than an object because all 240 are inlined into the page's
  * HTML, and the four repeated keys would triple that payload for nothing.
  */
 export type CreatorFact = [
   followers: number | null,
+  worth_studying: number | null,
   entertaining: number | null,
   educational: number | null,
   inspirational: number | null,
@@ -152,6 +153,7 @@ export type CreatorFact = [
 
 export const FILTER_KEYS = [
   "followers",
+  "worth_studying",
   "entertaining",
   "educational",
   "inspirational",
@@ -160,11 +162,12 @@ export const FILTER_KEYS = [
 export type FilterKey = (typeof FILTER_KEYS)[number];
 
 /** Where each filter's number sits in a CreatorFact. Same order as FILTER_KEYS. */
-const FACT_INDEX: Record<FilterKey, 0 | 1 | 2 | 3> = {
+const FACT_INDEX: Record<FilterKey, 0 | 1 | 2 | 3 | 4> = {
   followers: 0,
-  entertaining: 1,
-  educational: 2,
-  inspirational: 3,
+  worth_studying: 1,
+  entertaining: 2,
+  educational: 3,
+  inspirational: 4,
 };
 
 /**
@@ -212,6 +215,17 @@ export const SCALES: Record<FilterKey, Scale> = {
     edges: FOLLOWER_STOPS,
     urlIsValue: false,
     param: "aud",
+  },
+  // Oleg's own 1-10 answer to "how much is there to learn from this person".
+  // It is also what ORDERS a search now (search/creator_worth.sql multiplies
+  // relevance by it), so this control is the explicit version of a nudge the
+  // page already applies: use it to demand an 8, not to discover the score.
+  worth_studying: {
+    label: "worth studying",
+    anyLabel: "any",
+    edges: SCORE_EDGES,
+    urlIsValue: true,
+    param: "worth",
   },
   entertaining: {
     label: "entertaining",
@@ -262,6 +276,7 @@ export function isFullRange(key: FilterKey, [lo, hi]: Range): boolean {
 
 export const NO_FILTERS: CreatorFilters = {
   followers: fullRange("followers"),
+  worth_studying: fullRange("worth_studying"),
   entertaining: fullRange("entertaining"),
   educational: fullRange("educational"),
   inspirational: fullRange("inspirational"),
@@ -411,6 +426,7 @@ export function writeRange(key: FilterKey, range: Range): string | null {
 export function readCreatorFilters(raw: Record<string, unknown>): CreatorFilters {
   return {
     followers: readRange("followers", raw[SCALES.followers.param]),
+    worth_studying: readRange("worth_studying", raw[SCALES.worth_studying.param]),
     entertaining: readRange("entertaining", raw[SCALES.entertaining.param]),
     educational: readRange("educational", raw[SCALES.educational.param]),
     inspirational: readRange("inspirational", raw[SCALES.inspirational.param]),
@@ -487,8 +503,20 @@ export function highThumbLabel(key: FilterKey, [, hi]: Range): string {
 
 // ---------------------------------------------------------------- everything else
 
-/** A `creator_search_match` row: a creator plus how close they were to the query. */
-export type CreatorHit = CreatorRow & { similarity: number };
+/**
+ * A `creator_search_match` row: a creator, how close they were, and where they
+ * ranked.
+ *
+ * TWO numbers, and they are not interchangeable. `similarity` is pure relevance
+ * and is what CREATOR_MIN_SIMILARITY filters on. `rank_score` is that multiplied
+ * by the study score and is what the database ORDERED by; the rows arrive in
+ * that order, so nothing here needs to re-sort. Filtering on `rank_score` would
+ * silently move the floor by up to 40%. See search/creator_worth.sql.
+ */
+export type CreatorHit = CreatorRow & {
+  similarity: number;
+  rank_score: number;
+};
 
 /** Trim, collapse whitespace and cap the length. Returns "" for junk input. */
 export function normalizeCreatorQuery(raw: string): string {

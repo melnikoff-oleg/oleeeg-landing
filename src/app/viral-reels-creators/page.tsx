@@ -71,6 +71,7 @@ export default async function CreatorsPage({
   // becomes "unset" instead of being clamped into a question nobody asked.
   const filters = readCreatorFilters({
     aud: first(params.aud),
+    worth: first(params.worth),
     ent: first(params.ent),
     edu: first(params.edu),
     insp: first(params.insp),
@@ -78,7 +79,7 @@ export default async function CreatorsPage({
 
   let roster: CreatorRow[] = [];
   let total = 0;
-  // Every creator as four numbers, for the histograms. Small enough to ship
+  // Every creator as five numbers, for the histograms. Small enough to ship
   // with the page, which is what lets the charts redraw mid-drag instead of
   // once a round trip.
   let facts: CreatorFact[] = [];

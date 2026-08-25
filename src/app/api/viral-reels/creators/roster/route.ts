@@ -6,7 +6,7 @@
 //
 // It exists so that moving a filter is not a page load. The roster is still
 // server-rendered on first paint, which is what a crawler and a visitor with no
-// JavaScript get; this is what the four sliders talk to afterwards.
+// JavaScript get; this is what the five sliders talk to afterwards.
 
 import { NextResponse } from "next/server";
 import { checkRateLimit, getClientIp } from "@/lib/marketing-brain/rate-limit";

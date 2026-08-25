@@ -13,7 +13,7 @@ import {
 import { RangeFilter } from "./range-filter";
 
 /**
- * The four range filters over the creator index.
+ * The five range filters over the creator index.
  *
  * Every one of them is off by default, which is the whole point: Oleg asked for
  * filters he can set, not a shape the page forces on him. Nothing here narrows
@@ -38,7 +38,7 @@ export function CreatorFilterBar({
   onCommit,
   onReset,
 }: {
-  /** Every creator in the index, as four numbers. The charts are drawn from
+  /** Every creator in the index, as five numbers. The charts are drawn from
    *  this in the browser, which is what lets them redraw mid-drag. */
   facts: readonly CreatorFact[];
   filters: CreatorFilters;

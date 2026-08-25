@@ -134,13 +134,23 @@ export type RosterPage = {
 };
 
 /**
- * The roster, deepest first.
+ * The roster, most worth studying first.
  *
- * Ordered by how many of a creator's reels the database has read, because that
- * is exactly what a visitor gets by opening one: a creator with 95 reels on
- * their page is worth more of an unfocused browse than one with two. Followers
- * break the tie, so the front page is not a wall of accounts nobody has heard of
- * that happen to have been scraped hard.
+ * `worth_studying` is Oleg's own 1-10 answer to "how much is there to learn from
+ * this person", and browsing with an empty box is exactly the question it
+ * answers, so it leads. Before 2026-08-25 the column existed, was selected here,
+ * and ordered nothing.
+ *
+ * Then depth, because that is what a visitor actually gets by opening one: a
+ * creator with 95 reels on their page is worth more of an unfocused browse than
+ * one with two. Then followers, so the front page is not a wall of accounts
+ * nobody has heard of that happen to have been scraped hard.
+ *
+ * `nullslast` on the score: a creator judged after the last scoring pass has
+ * none, and sorting them to the top would put the least-known accounts first.
+ * The search does the opposite with a null and deliberately -- see the header of
+ * search/creator_worth.sql -- because there a null is one term in a product, not
+ * the whole order.
  */
 export async function listCreators(
   {
@@ -151,7 +161,10 @@ export async function listCreators(
 ): Promise<RosterPage> {
   const params = new URLSearchParams();
   params.set("select", COLUMNS);
-  params.set("order", "reels_indexed.desc,followers.desc.nullslast");
+  params.set(
+    "order",
+    "worth_studying.desc.nullslast,reels_indexed.desc,followers.desc.nullslast",
+  );
   params.set("limit", String(ROSTER_PAGE_SIZE));
   params.set("offset", String((page - 1) * ROSTER_PAGE_SIZE));
   applyFilters(params, filters);
@@ -244,7 +257,7 @@ export async function getCreatorReels(
 }
 
 /**
- * Every creator in the index reduced to the four numbers the filters ask about.
+ * Every creator in the index reduced to the five numbers the filters ask about.
  *
  * This is what makes the histograms instant: the whole index is about 5 KB in
  * this shape, so it ships with the page and every bar redraws in the browser on
@@ -260,7 +273,10 @@ export async function getCreatorReels(
  */
 export async function listCreatorFacts(signal?: AbortSignal): Promise<CreatorFact[]> {
   const params = new URLSearchParams();
-  params.set("select", "followers,entertaining,educational,inspirational");
+  params.set(
+    "select",
+    "followers,worth_studying,entertaining,educational,inspirational",
+  );
   // Without `order` a paged read has no defined order at all. It costs nothing
   // here and it makes the payload byte-identical between two renders, which is
   // what keeps the client's histograms from shifting under a refresh.
@@ -275,6 +291,7 @@ export async function listCreatorFacts(signal?: AbortSignal): Promise<CreatorFac
   if (!res.ok) throw new Error(`creator facts failed: ${res.status}`);
   const rows = (await res.json()) as {
     followers: number | null;
+    worth_studying: number | null;
     entertaining: number | null;
     educational: number | null;
     inspirational: number | null;
@@ -287,8 +304,12 @@ export async function listCreatorFacts(signal?: AbortSignal): Promise<CreatorFac
   if (rows.length >= FACTS_LIMIT) {
     console.error(`creator facts hit the ${FACTS_LIMIT}-row cap; the histograms are now a prefix of the index`);
   }
+  // Order fixed by CreatorFact, which is fixed by FILTER_KEYS. Adding a filter
+  // means adding it in both places or the histograms silently describe the
+  // wrong column.
   return rows.map((r) => [
     r.followers,
+    r.worth_studying,
     r.entertaining,
     r.educational,
     r.inspirational,

@@ -99,7 +99,7 @@ function Skeletons() {
 }
 
 /**
- * The creator search, the four range filters, and the roster underneath them.
+ * The creator search, the five range filters, and the roster underneath them.
  *
  * Unlike /viral-reels, this page shows something before a visitor types: the
  * creators the database has read the most of, server-rendered. A search box over
@@ -121,7 +121,7 @@ export function CreatorSearch({
 }: {
   initialQuery: string;
   initialFilters: CreatorFilters;
-  /** Every creator as four numbers, for the histograms. Empty when the index
+  /** Every creator as five numbers, for the histograms. Empty when the index
    *  is unreachable, which leaves the sliders working over empty charts. */
   facts: CreatorFact[];
   roster: CreatorRow[];
@@ -472,7 +472,7 @@ export function CreatorSearch({
                 ? rosterError
                 : total === 0
                   ? "nobody matches those filters. try widening one."
-                  : "the ones the database has read the most of first"}
+                  : "the ones most worth studying first"}
             </p>
             <div className="space-y-4">
               {rows.map((creator) => (
