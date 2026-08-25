@@ -113,6 +113,8 @@ export type CreatorRow = {
    * Null for a creator with no reel in the last 90 days.
    */
   form: number | null;
+  /** craft x form, stored by the database. What the roster is ordered by. */
+  rank_base?: number | null;
   /**
    * One sentence on who this creator is worth studying FOR.
    *

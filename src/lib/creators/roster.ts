@@ -65,6 +65,8 @@ const COLUMNS = [
   "top_thumbs",
   "avatar_url",
   "worth_studying",
+  // Craft x form, stored and generated. What the roster is ordered by.
+  "rank_base",
   // How the last 90 days went, 1-10. Computed by scripts/form_score.py, and the
   // second thing creator_search_match multiplies relevance by.
   "form",
@@ -176,9 +178,16 @@ export async function listCreators(
   params.set("select", COLUMNS);
   params.set(
     "order",
-    // Craft first, then who is actually winning right now, which is the same
-    // order the search multiplies them in.
-    "worth_studying.desc.nullslast,form.desc.nullslast,reels_indexed.desc,followers.desc.nullslast",
+    // rank_base, not "worth then form". It is a stored generated column holding
+    // craft MULTIPLIED by form, the identical expression creator_search_match
+    // ranks with, so the front page and the search results cannot disagree
+    // about who is best.
+    //
+    // Sorting by craft and using form to break ties is a different question and
+    // it gave a different answer: a creator rated 10 whose form is 1 outranked
+    // every creator rated 9 whose form is 10, which put @aiconversation -- the
+    // whole reason form exists -- 6th on the page Oleg actually opens.
+    "rank_base.desc.nullslast,reels_indexed.desc,followers.desc.nullslast",
   );
   params.set("limit", String(ROSTER_PAGE_SIZE));
   params.set("offset", String((page - 1) * ROSTER_PAGE_SIZE));
