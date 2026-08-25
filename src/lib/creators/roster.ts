@@ -68,6 +68,10 @@ const COLUMNS = [
   "entertaining",
   "educational",
   "inspirational",
+  // The sentence saying what this creator is worth studying for. Read here and
+  // not from the search RPC, which returns a fixed column list; the profile
+  // header is the only thing that paints it and it always comes through here.
+  "study_note",
 ].join(",");
 
 // Four numbers and a picture. The write-up columns are gone from this page on
@@ -84,6 +88,12 @@ const REEL_COLUMNS = [
   "score",
   "analyzed",
   "thumb_url",
+  // Who else is credited, and whether Instagram was told it is an ad. Two more
+  // columns on a row that is already four integers and a URL, and they are what
+  // separates "this creator can do 28M on their own" from "this creator did 28M
+  // once, with a brand paying for it".
+  "collab_with",
+  "sponsored",
 ].join(",");
 
 /**

@@ -4,9 +4,7 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   BadgeCheck,
-  Eye,
   Film,
-  Flame,
   GraduationCap,
   Laugh,
   Link2,
@@ -76,34 +74,88 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 /**
- * One of Oleg's 1-10 judgements, or a dash.
+ * The header's two headline counts: how big they are, and how much of them we
+ * hold.
  *
- * Null and not zero for a creator judged after the last pass, so a missing
- * score has to read as unknown rather than as a zero out of ten. The same
- * distinction the range filters make.
+ * Seven identical rows used to sit here -- followers, reels, best outlier,
+ * typical, and the three 1-10 reads -- in one grid at one size, so nothing on
+ * the card said which number to look at first. Two of the seven are gone by
+ * Oleg's instruction (the outlier scores: on one creator's page the audience is
+ * a constant, so "beat their own audience by 394x" is a fact about one old reel
+ * and not about the person) and the five that remain are now two ranks.
+ *
+ * These are the big rank. Number above, label below, at a size that reads from
+ * across the room, and the same two hues the roster card uses for the same two
+ * ideas -- silver for the audience, blue for how much of their work is here.
  */
-function formatRating(n: number | null | undefined): string {
-  return n === null || n === undefined || !Number.isFinite(n) ? "-" : `${n}/10`;
-}
-
-function Stat({
+function Headline({
   icon: Icon,
   value,
   label,
+  tone,
 }: {
-  icon: typeof Eye;
+  icon: typeof Users;
   value: string;
   label: string;
+  tone: "silver" | "blue";
 }) {
+  const hue =
+    tone === "blue"
+      ? "border-vivid-blue/25 bg-vivid-blue/[0.07] text-vivid-blue"
+      : "border-silver/15 bg-silver/[0.05] text-silver";
   return (
-    <div className="flex items-center gap-2">
-      <Icon className="size-3.5 shrink-0 text-silver-muted/70" aria-hidden />
-      <span className="min-w-0">
-        <span className="font-display text-sm font-medium tabular-nums text-silver">
+    <div className={`rounded-xl border px-3.5 py-2.5 ${hue}`}>
+      <div className="flex items-center gap-1.5">
+        <Icon className="size-3.5 shrink-0 opacity-70" aria-hidden />
+        <span className="font-display text-xl font-semibold leading-none tabular-nums sm:text-2xl">
           {value}
-        </span>{" "}
-        <span className="text-xs text-silver-muted">{label}</span>
-      </span>
+        </span>
+      </div>
+      <p className="mt-1.5 font-body text-[11px] text-silver-muted">{label}</p>
+    </div>
+  );
+}
+
+/**
+ * One of Oleg's three 1-10 reads of what a creator makes.
+ *
+ * The small rank, and one shape for all three so they read as a set rather than
+ * as three more facts: the same "n/10" on a track that fills to n, which turns
+ * comparing them into comparing bar lengths instead of parsing three numbers.
+ * A creator judged after the last pass has no score, and that draws as an empty
+ * track and a dash -- unknown, never a zero out of ten.
+ */
+function Rating({
+  icon: Icon,
+  score,
+  label,
+  bar,
+  text,
+}: {
+  icon: typeof Laugh;
+  score: number | null | undefined;
+  label: string;
+  bar: string;
+  text: string;
+}) {
+  const known = score !== null && score !== undefined && Number.isFinite(score);
+  const n = known ? Math.min(10, Math.max(0, score as number)) : 0;
+  return (
+    <div>
+      <div className="flex items-center gap-1.5">
+        <Icon className={`size-3.5 shrink-0 ${known ? text : "text-silver-muted/40"}`} aria-hidden />
+        <span className="font-body text-[11px] text-silver-muted">{label}</span>
+        <span
+          className={`ml-auto font-display text-xs font-semibold tabular-nums ${
+            known ? text : "text-silver-muted/50"
+          }`}
+        >
+          {known ? `${score}/10` : "-"}
+        </span>
+      </div>
+      <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-silver/10">
+        <div className={`h-full rounded-full ${bar}`} style={{ width: `${n * 10}%` }} />
+      </div>
     </div>
   );
 }
@@ -234,7 +286,6 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
 
   const pages = Math.max(1, Math.ceil(total / CREATOR_REELS_PAGE_SIZE));
   const name = creator?.name?.trim() || `@${handle}`;
-  const tags = creator?.tags ?? [];
   const signature = creator?.signature ?? [];
 
   return (
@@ -316,46 +367,68 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
               </p>
             ) : null}
 
-            {/* Four columns, so the row breaks exactly where the meaning does:
-                the top line is how they perform, the second is Oleg's own 1-10
-                read of what they make. */}
-            <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 border-t border-hairline pt-4 sm:grid-cols-3 lg:grid-cols-4">
-              <Stat
-                icon={Users}
-                value={compactNumber(creator.followers)}
-                label="followers"
-              />
-              <Stat
-                icon={Film}
-                value={`${total}`}
-                label="reels scraped"
-              />
-              <Stat
-                icon={Flame}
-                value={`${formatScore(creator.top_score)}x`}
-                label="best outlier"
-              />
-              <Stat
-                icon={Flame}
-                value={`${formatScore(creator.median_score)}x`}
-                label="typical"
-              />
-              <Stat
-                icon={Laugh}
-                value={formatRating(creator.entertaining)}
-                label="entertaining"
-              />
-              <Stat
-                icon={GraduationCap}
-                value={formatRating(creator.educational)}
-                label="educational"
-              />
-              <Stat
-                icon={Sparkles}
-                value={formatRating(creator.inspirational)}
-                label="inspirational"
-              />
+            {/* Two ranks, split by a gap and not by a divider: the two counts
+                that say how big this creator is and how much of them we hold,
+                then the three 1-10 reads of what they actually make. The order
+                is Oleg's. */}
+            <div className="mt-4 border-t border-hairline pt-4">
+              <div className="grid grid-cols-2 gap-2 sm:max-w-md">
+                <Headline
+                  icon={Users}
+                  value={compactNumber(creator.followers)}
+                  label="followers"
+                  tone="silver"
+                />
+                <Headline
+                  icon={Film}
+                  value={`${total}`}
+                  label="reels scraped"
+                  tone="blue"
+                />
+              </div>
+
+              {/* Capped, and at the same width as the two blocks above it: a
+                  1-10 bar stretched across a 1200px card puts its label and its
+                  number half a screen apart, and three of those read as three
+                  unrelated rows rather than as one comparable set. */}
+              <div className="mt-4 grid max-w-3xl grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-3">
+                <Rating
+                  icon={Laugh}
+                  score={creator.entertaining}
+                  label="entertaining"
+                  bar="bg-amber-400"
+                  text="text-amber-300"
+                />
+                <Rating
+                  icon={GraduationCap}
+                  score={creator.educational}
+                  label="educational"
+                  bar="bg-emerald-400"
+                  text="text-emerald-300"
+                />
+                <Rating
+                  icon={Sparkles}
+                  score={creator.inspirational}
+                  label="inspirational"
+                  bar="bg-violet-400"
+                  text="text-violet-300"
+                />
+              </div>
             </div>
+
+            {/* What this person is actually FOR. It is the only sentence in the
+                database that answers that, it existed all along in the sheet's
+                `who_should_study_it` column, and until now it stopped there --
+                so a header could say 9/10 educational and never say what they
+                teach. 243 of 243 creators have one. */}
+            {creator.study_note ? (
+              <p className="mt-4 border-t border-hairline pt-4 text-sm leading-relaxed text-silver">
+                <span className="eyebrow mr-2 text-[10px] text-vivid-blue">
+                  worth studying for
+                </span>
+                {creator.study_note}
+              </p>
+            ) : null}
 
             {signature.length > 0 && (
               <p className="mt-4 border-t border-hairline pt-4 text-sm leading-relaxed text-silver-muted">
@@ -364,22 +437,6 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
                 </span>
                 {signature.slice(0, 8).join(", ")}
               </p>
-            )}
-
-            {tags.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-1.5 border-t border-hairline pt-4">
-                {/* Twelve, not all twenty-six. The row is a fingerprint of what
-                    they make, and a fingerprint that wraps to five lines is a
-                    paragraph competing with the reels underneath it. */}
-                {tags.slice(0, 12).map((tag, i) => (
-                  <span
-                    key={`${i}-${tag}`}
-                    className="rounded-full border border-hairline px-2.5 py-1 text-[11px] text-silver-muted"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
             )}
           </header>
 

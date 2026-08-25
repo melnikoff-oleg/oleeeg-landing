@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Eye, Flame, Users } from "lucide-react";
 import { compactNumber } from "@/lib/reels/format";
 import type { CreatorRow } from "@/lib/creators/types";
 
@@ -43,6 +43,55 @@ function Avatar({ src, handle }: { src: string | null; handle: string }) {
 }
 
 /**
+ * One of the three numbers on a card, in its own colour.
+ *
+ * They used to be one grey sentence -- "48K followers · 39M views · 4.6M best
+ * reel" -- and Oleg kept reading the follower count as the view count, which is
+ * exactly what that layout invites: three numbers in the same weight, the same
+ * colour and the same size, separated by a dot, told apart only by a word set
+ * SMALLER than the number it labels.
+ *
+ * Three signals now do the separating instead of one. Each number gets its own
+ * pill with its own border, its own icon, and its own hue -- silver for the
+ * audience, blue for total views, amber for the best single reel -- so which is
+ * which is answered by colour and shape before any word is read. The hues are
+ * not decoration: they are the same three the profile page uses for the same
+ * three things, so the association survives the click.
+ */
+const TONES = {
+  silver: "border-silver/15 bg-silver/[0.06] text-silver",
+  blue: "border-vivid-blue/30 bg-vivid-blue/10 text-vivid-blue",
+  amber: "border-amber-400/25 bg-amber-400/10 text-amber-300",
+} as const;
+
+function Metric({
+  icon: Icon,
+  value,
+  label,
+  tone,
+}: {
+  icon: typeof Eye;
+  value: string;
+  label: string;
+  tone: keyof typeof TONES;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 ${TONES[tone]}`}
+    >
+      <Icon className="size-3.5 shrink-0 opacity-80" aria-hidden />
+      <span className="font-display text-sm font-semibold tabular-nums">
+        {value}
+      </span>
+      {/* The label is deliberately dimmer than the number and never colour-
+          coded: the colour is already carrying the meaning, so the word is a
+          caption for the first read and furniture after that. */}
+      <span className="font-body text-[11px] text-silver-muted">{label}</span>
+    </span>
+  );
+}
+
+/**
  * One creator, as minimal as the information allows.
  *
  * Oleg's brief, near enough verbatim: the picture, the username, the follower
@@ -77,30 +126,30 @@ export function CreatorCard({ creator }: { creator: CreatorRow }) {
             </Link>
           </h3>
 
-          <p className="mt-1 font-body text-xs text-silver-muted">
-            <span className="tabular-nums text-silver">
-              {compactNumber(creator.followers)}
-            </span>{" "}
-            followers
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <Metric
+              icon={Users}
+              value={compactNumber(creator.followers)}
+              label="followers"
+              tone="silver"
+            />
             {creator.total_views ? (
-              <>
-                {" · "}
-                <span className="tabular-nums text-silver">
-                  {compactNumber(creator.total_views)}
-                </span>{" "}
-                views
-              </>
+              <Metric
+                icon={Eye}
+                value={compactNumber(creator.total_views)}
+                label="views"
+                tone="blue"
+              />
             ) : null}
             {creator.best_views ? (
-              <>
-                {" · "}
-                <span className="tabular-nums text-silver">
-                  {compactNumber(creator.best_views)}
-                </span>{" "}
-                best reel
-              </>
+              <Metric
+                icon={Flame}
+                value={compactNumber(creator.best_views)}
+                label="best reel"
+                tone="amber"
+              />
             ) : null}
-          </p>
+          </div>
 
           {creator.bio ? (
             // whitespace-pre-line, so the bio keeps the line breaks the creator

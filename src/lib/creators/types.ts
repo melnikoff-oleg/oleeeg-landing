@@ -103,6 +103,20 @@ export type CreatorRow = {
   entertaining: number | null;
   educational: number | null;
   inspirational: number | null;
+  /**
+   * One sentence on who this creator is worth studying FOR.
+   *
+   * "bakeries and food businesses; 66 outliers in 90 days, all of them recent."
+   * Written per creator by the judging pass and carried in the sheet's
+   * `who_should_study_it` column; the only prose anywhere in this database that
+   * says what a creator is for, as opposed to how they score.
+   *
+   * Optional, not just nullable: the roster selects it by name but the search
+   * RPC does not return it, so a search hit genuinely does not carry the key.
+   * Only the profile header paints it, and that page always comes from the
+   * roster read.
+   */
+  study_note?: string | null;
 };
 
 /**
@@ -124,6 +138,23 @@ export type CreatorReel = {
   score: number | null;
   analyzed: boolean;
   thumb_url: string | null;
+  /**
+   * The other accounts Instagram credits on this reel, owner removed.
+   *
+   * Empty for the four fifths that are one creator's own work. Instagram spells
+   * it two ways across the two scrapers and the pipeline merges both; a reel
+   * re-credited to the bigger partner has the smaller one put back in here, so
+   * a collab never reads as "with themselves".
+   */
+  collab_with: string[] | null;
+  /**
+   * Instagram's own paid-partnership flag, or null when the row came from a
+   * source that never carried it.
+   *
+   * Three states, painted as two: only `true` gets a badge. false is a real
+   * denial and null is an absence, and they must not be conflated in any count.
+   */
+  sponsored: boolean | null;
 };
 
 // ------------------------------------------------------------------- filtering
