@@ -10,6 +10,7 @@ import {
   normalizeCreatorQuery,
   readCreatorFilters,
   CREATOR_RESULT_COUNT,
+  CREATOR_RESULT_MAX,
   filtersAreEmpty,
   filtersToBody,
   NO_FILTERS,
@@ -17,7 +18,7 @@ import {
   writeCreatorFilters,
   type CreatorFact,
   type CreatorFilters,
-  type CreatorHit,
+  type CreatorTileHit,
   type CreatorRow,
 } from "@/lib/creators/types";
 import { normalizePage } from "@/lib/reels/types";
@@ -74,7 +75,7 @@ function PageLink({
 type State =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "done"; query: string; results: CreatorHit[] }
+  | { kind: "done"; query: string; results: CreatorTileHit[] }
   | { kind: "error"; message: string };
 
 function Skeletons() {
@@ -132,9 +133,14 @@ export function CreatorSearch({
   const [total, setTotal] = useState(rosterTotal);
   const [page, setPage] = useState(rosterPage);
   const [rosterBusy, setRosterBusy] = useState(false);
+  // How much of a search answer is on screen. The whole answer is already in
+  // memory; this is the part of it the list has drawn.
+  const [shown, setShown] = useState(CREATOR_RESULT_COUNT);
   const [rosterError, setRosterError] = useState("");
 
   const inflight = useRef<AbortController | null>(null);
+  // The empty div under the list whose arrival on screen reveals the next ten.
+  const moreRef = useRef<HTMLDivElement | null>(null);
   const rosterInflight = useRef<AbortController | null>(null);
   const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // What is actually on screen. A commit that matches it changes nothing, and
@@ -216,6 +222,9 @@ export function CreatorSearch({
     inflight.current = controller;
 
     setState({ kind: "loading" });
+    // Back to one screenful. A new query that kept the old scroll depth would
+    // open five creators down its own answer.
+    setShown(CREATOR_RESULT_COUNT);
 
     try {
       const res = await fetch("/api/viral-reels/creators", {
@@ -225,7 +234,7 @@ export function CreatorSearch({
         signal: controller.signal,
       });
       const json = (await res.json().catch(() => ({}))) as {
-        results?: CreatorHit[];
+        results?: CreatorTileHit[];
         error?: string;
       };
       if (controller.signal.aborted) return;
@@ -374,6 +383,35 @@ export function CreatorSearch({
   const results = state.kind === "done" ? state.results : [];
   const showRoster = state.kind === "idle";
 
+  /**
+   * The list grows as it is scrolled: another ten creators each time the bottom
+   * comes into view, up to five screenfuls. The same behaviour the library wall
+   * got, and Oleg asked for both.
+   *
+   * This REVEALS, it does not fetch. All 50 arrived with the first answer, so
+   * reaching the bottom cannot spin, cannot fail and costs no second embedding.
+   * 800px of rootMargin means the next card exists before the last one has been
+   * read.
+   *
+   * The sentinel is only in the tree while there is more to show, so the observer
+   * stops existing at the cap rather than sitting there firing.
+   */
+  useEffect(() => {
+    if (shown >= results.length) return;
+    const node = moreRef.current;
+    if (!node) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShown((n) => Math.min(n + CREATOR_RESULT_COUNT, CREATOR_RESULT_MAX));
+        }
+      },
+      { rootMargin: "800px 0px" },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, [shown, results.length]);
+
   return (
     <div>
       <form onSubmit={submit} className="relative">
@@ -461,9 +499,12 @@ export function CreatorSearch({
 
         {state.kind === "done" && results.length > 0 && (
           <div className="mt-8 space-y-4">
-            {results.slice(0, CREATOR_RESULT_COUNT).map((creator) => (
+            {results.slice(0, shown).map((creator) => (
               <CreatorCard key={creator.account} creator={creator} />
             ))}
+            {shown < results.length && (
+              <div ref={moreRef} aria-hidden className="h-px w-full" />
+            )}
           </div>
         )}
 

@@ -26,8 +26,34 @@ export type { Range } from "@/lib/filters/range";
 
 export const CREATOR_QUERY_MAX = 200;
 
-/** How many creators one search returns, and shows. All of them, no second click. */
-export const CREATOR_RESULT_COUNT = 12;
+/**
+ * How many creators one screenful of a search is.
+ *
+ * 10 rather than the 12 that used to be the whole answer. Since the list scrolls
+ * (see CREATOR_RESULT_MAX) this is what is on screen at first and how many more
+ * appear each time the bottom comes into view.
+ */
+export const CREATOR_RESULT_COUNT = 10;
+
+/**
+ * How many creators one search returns in total, at most.
+ *
+ * 50, five screenfuls, Oleg's number, and the same shape the library wall got:
+ * ten to begin with, another ten each time the bottom arrives, four more times,
+ * and then it ends.
+ *
+ * All 50 arrive in the first answer and the scroll only reveals them, so
+ * reaching the bottom costs no second embedding and cannot fail halfway. That is
+ * affordable because /api/viral-reels/creators sends CARD ROWS: the card paints
+ * an avatar, a handle, three numbers, the bio and the niche, and never reads
+ * top_ideas, which alone is half the bytes of a row. 50 trimmed creators are
+ * ~15 KB against the 135 KB the same 50 full rows weigh.
+ *
+ * It is exactly creator_search_match's own ceiling (least(match_count, 50)), so
+ * raising this number means a migration first. The library's ceiling was lifted
+ * to 200 for that reason; this one has not needed it.
+ */
+export const CREATOR_RESULT_MAX = 50;
 
 /**
  * How close a creator has to be before they are worth showing.
@@ -360,6 +386,51 @@ export type CreatorHit = CreatorRow & {
   similarity: number;
   rank_score: number;
 };
+
+/**
+ * A creator as the search list actually draws them.
+ *
+ * Ten fields of the forty a search returns. The card is an avatar, a handle,
+ * three colour-coded numbers, the bio and the short niche; it reads none of the
+ * tags, signatures, top ideas, thumbnails or scores, and top_ideas alone is
+ * 1,416 bytes of a 2,774-byte row. Sending the rest was affordable at 12
+ * creators and is not at 50.
+ *
+ * CreatorRow satisfies this structurally, so the roster, which has full rows on
+ * the server, draws the same card with no conversion.
+ */
+export type CreatorTileRow = Pick<
+  CreatorRow,
+  | "account"
+  | "name"
+  | "profile_url"
+  | "bio"
+  | "niche"
+  | "followers"
+  | "verified"
+  | "best_views"
+  | "total_views"
+  | "avatar_url"
+>;
+
+export type CreatorTileHit = CreatorTileRow & { similarity: number };
+
+/** The fields above, and nothing else, off a full search hit. */
+export function toCreatorTile(c: CreatorHit): CreatorTileHit {
+  return {
+    account: c.account,
+    name: c.name,
+    profile_url: c.profile_url,
+    bio: c.bio,
+    niche: c.niche,
+    followers: c.followers,
+    verified: c.verified,
+    best_views: c.best_views,
+    total_views: c.total_views,
+    avatar_url: c.avatar_url,
+    similarity: c.similarity,
+  };
+}
 
 /** Trim, collapse whitespace and cap the length. Returns "" for junk input. */
 export function normalizeCreatorQuery(raw: string): string {

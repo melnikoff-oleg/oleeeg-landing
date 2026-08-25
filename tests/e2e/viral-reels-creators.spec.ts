@@ -566,3 +566,94 @@ test("106 - a creator's header carries the three ratings and one link out", asyn
   await expect(out).toHaveCount(1);
   await expect(out).toContainText("@");
 });
+
+// ── the scrolling list ───────────────────────────────────────────────────────
+//
+// A search answers with up to 50 creators in one payload and the list draws ten
+// of them, another ten each time the bottom comes into view. Deterministic here
+// because the answer is mocked: what is being tested is the reveal, not the
+// ranking.
+
+/** `n` card rows, the shape /api/viral-reels/creators actually answers with. */
+function cardRows(n: number) {
+  return Array.from({ length: n }, (_, i) => ({
+    account: `creator${i}`,
+    name: `Creator ${i}`,
+    profile_url: `https://www.instagram.com/creator${i}/`,
+    bio: "makes things",
+    niche: "ai, tools",
+    followers: 100_000 - i,
+    verified: false,
+    best_views: 2_000_000,
+    total_views: 40_000_000,
+    // Null on purpose: a card with no avatar draws its placeholder and the test
+    // makes no network request for an image.
+    avatar_url: null,
+    similarity: 0.5 - i * 0.002,
+  }));
+}
+
+async function mockCreatorSearch(page: Page, n: number) {
+  await page.route("**/api/viral-reels/creators", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ query: "ai", filters: {}, results: cardRows(n) }),
+    });
+  });
+}
+
+async function toBottom(page: Page) {
+  await page.evaluate(() => globalThis.scrollTo(0, document.body.scrollHeight));
+}
+
+test("107 - the creator list reveals 10 at a time and stops at 50", async ({
+  page,
+}) => {
+  await mockCreatorSearch(page, 50);
+  await settle(page, "/viral-reels-creators?q=ai");
+
+  const cards = page.getByRole("article");
+  await expect(cards).toHaveCount(10);
+
+  for (const expected of [20, 30, 40, 50]) {
+    await toBottom(page);
+    await expect(cards).toHaveCount(expected);
+  }
+
+  // And there it ends. The sentinel leaves the tree at the cap, so scrolling
+  // again reveals nothing and asks for nothing.
+  await toBottom(page);
+  await page.waitForTimeout(300);
+  await expect(cards).toHaveCount(50);
+});
+
+test("108 - a shorter creator answer stops where it runs out", async ({
+  page,
+}) => {
+  await mockCreatorSearch(page, 14);
+  await settle(page, "/viral-reels-creators?q=ai");
+
+  const cards = page.getByRole("article");
+  await expect(cards).toHaveCount(10);
+  await toBottom(page);
+  await expect(cards).toHaveCount(14);
+  await toBottom(page);
+  await page.waitForTimeout(300);
+  await expect(cards).toHaveCount(14);
+});
+
+test("109 - a second creator search starts at the top of its own answer", async ({
+  page,
+}) => {
+  await mockCreatorSearch(page, 50);
+  await settle(page, "/viral-reels-creators?q=ai");
+
+  const cards = page.getByRole("article");
+  await toBottom(page);
+  await expect(cards).toHaveCount(20);
+
+  await page.fill("#creator-query", "people who cook");
+  await page.getByRole("button", { name: "search" }).click();
+  await expect(cards).toHaveCount(10);
+});

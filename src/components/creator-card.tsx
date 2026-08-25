@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BadgeCheck, Eye, Flame, Users } from "lucide-react";
 import { compactNumber } from "@/lib/reels/format";
-import type { CreatorRow } from "@/lib/creators/types";
+import type { CreatorTileRow } from "@/lib/creators/types";
 
 /**
  * The creator's own profile picture.
@@ -99,7 +99,7 @@ function Metric({
  * and the short niche line. Everything else that used to be here is gone -- the
  * tag row, the three-thumbnail strip, the reels-read count, the outlier score.
  */
-export function CreatorCard({ creator }: { creator: CreatorRow }) {
+export function CreatorCard({ creator }: { creator: CreatorTileRow }) {
   const handle = `@${creator.account}`;
   const href = `/viral-reels-creators/${creator.account}`;
 

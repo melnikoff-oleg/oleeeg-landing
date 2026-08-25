@@ -7,9 +7,10 @@ import { NextResponse } from "next/server";
 import { checkRateLimit, getClientIp } from "@/lib/marketing-brain/rate-limit";
 import { creatorSearchConfigured, searchCreators } from "@/lib/creators/search";
 import {
-  CREATOR_RESULT_COUNT,
+  CREATOR_RESULT_MAX,
   normalizeCreatorQuery,
   readCreatorFilters,
+  toCreatorTile,
 } from "@/lib/creators/types";
 
 export const runtime = "nodejs";
@@ -57,13 +58,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    const results = await searchCreators(
-      query,
-      filters,
-      CREATOR_RESULT_COUNT,
-      req.signal,
-    );
-    return NextResponse.json({ query, filters, results });
+    const hits = await searchCreators(query, filters, CREATOR_RESULT_MAX, req.signal);
+    // Card rows, not full ones. The card paints an avatar, a handle, three
+    // numbers, the bio and the niche; the tags, signatures, top ideas and
+    // thumbnails it never reads are four fifths of the payload. At 50 creators
+    // that is ~15 KB rather than 135 KB, which is what makes sending the whole
+    // answer at once cheaper than sending twelve rows used to be.
+    return NextResponse.json({ query, filters, results: hits.map(toCreatorTile) });
   } catch (err) {
     // A dropped request is not a failure. Every filter change can abort the one
     // before it, and clicking into a creator aborts whatever was in flight, so
