@@ -9,11 +9,19 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Accordion } from "@/components/accordion";
 import { ResourceFooter } from "@/components/resource-footer";
-import { ArticleJsonLd } from "@/components/json-ld";
+import {
+  ArticleJsonLd,
+  BreadcrumbJsonLd,
+  FaqJsonLd,
+  HowToJsonLd,
+} from "@/components/json-ld";
+import { GuideFaq } from "@/components/guide-faq";
+import type { FaqEntry, HowToStep } from "@/lib/seo/schema";
 import { BoldaneCta } from "@/components/boldane-cta";
 import { RepoCta } from "@/components/repo-cta";
 import { YouTubeEmbed } from "@/components/youtube-embed";
-import { Troubleshooting, type FIXES } from "@/components/troubleshooting";
+import { Troubleshooting } from "@/components/troubleshooting";
+import { faqEntriesFor, type FixKey } from "@/components/troubleshooting-data";
 import { Reveal, RevealGroup } from "@/components/motion/reveal";
 
 type Step = { title: string; content: ReactNode };
@@ -39,7 +47,7 @@ type ResourcePageShellProps = {
    * after the setup guide. Pick only what applies to the page. See
    * troubleshooting.tsx for where the list came from.
    */
-  troubleshooting?: (keyof typeof FIXES)[];
+  troubleshooting?: FixKey[];
   jsonLd: {
     title: string;
     description: string;
@@ -47,6 +55,27 @@ type ResourcePageShellProps = {
     datePublished: string;
     dateModified: string;
   };
+  /**
+   * The written guide: the video's content as a readable article, rendered
+   * visibly (not behind the accordion) after the setup steps. This is what
+   * makes the page worth landing on from a search result rather than only from
+   * a video description. Compose it from src/components/guide.tsx.
+   */
+  guide?: ReactNode;
+  /**
+   * Questions people really type, answered on the page and mirrored into
+   * FAQPage schema from the same array so the two can never drift.
+   */
+  faq?: FaqEntry[];
+  /**
+   * Emits HowTo schema. Pass the same steps the guide renders: the step urls
+   * point at the `#step-N` ids GuideSteps writes, so a rich result deep links
+   * into the walkthrough. Omit on pages that are not how-tos (pricing,
+   * comparisons).
+   */
+  howTo?: { name: string; description: string; steps: HowToStep[]; totalTime?: string };
+  /** Trail below Home, for BreadcrumbList. Defaults to the page itself. */
+  breadcrumb?: { name: string; path: string }[];
   /** Inner content of a BoldaneCta card, rendered after the video (optional). */
   boldaneCta?: ReactNode;
   /** Show the "founder of Boldane" footer credit (only on pages with no other Boldane mention). */
@@ -64,9 +93,21 @@ export function ResourcePageShell({
   repoCta,
   troubleshooting,
   jsonLd,
+  guide,
+  faq,
+  howTo,
+  breadcrumb,
   boldaneCta,
   boldaneCredit,
 }: ResourcePageShellProps) {
+  const trail = breadcrumb ?? [{ name: title, path: `/${slug}` }];
+  // ONE FAQPage per page, built from the page's own questions plus the exact
+  // troubleshooting entries it renders. Two FAQPage blocks on one document is a
+  // validation smell, and the troubleshooting answers are the long-tail queries
+  // people type verbatim ("command not found claude", "credit balance too
+  // low"), so leaving them out of the markup wastes the best-matching copy on
+  // the page.
+  const faqEntries = [...(faq ?? []), ...faqEntriesFor(troubleshooting ?? [])];
   return (
     <>
       <ArticleJsonLd
@@ -78,6 +119,17 @@ export function ResourcePageShell({
         videoId={videoId}
         videoTitle={videoTitle}
       />
+      <BreadcrumbJsonLd trail={trail} />
+      {faqEntries.length ? <FaqJsonLd entries={faqEntries} /> : null}
+      {howTo ? (
+        <HowToJsonLd
+          name={howTo.name}
+          description={howTo.description}
+          url={jsonLd.url}
+          steps={howTo.steps}
+          totalTime={howTo.totalTime}
+        />
+      ) : null}
       {/* Minimal header */}
       <header className="px-2">
         <div className="mx-auto mt-2 flex max-w-3xl items-center justify-between px-6 py-4">
@@ -142,11 +194,17 @@ export function ResourcePageShell({
           </RevealGroup>
         </section>
 
+        {/* The written guide. Visible prose, no toggle: the accordion above is a
+            checklist, this is the article. */}
+        {guide}
+
         {/* The recurring failures, answered where people get stuck: right after
             the steps, not at the bottom of the page. */}
         {troubleshooting?.length ? (
           <Troubleshooting items={troubleshooting} />
         ) : null}
+
+        {faq?.length ? <GuideFaq entries={faq} /> : null}
 
         {/* YouTube video (click-to-load facade). Omitted when videoId is unset. */}
         {videoId ? (

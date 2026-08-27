@@ -45,6 +45,7 @@ export function RepoCta({
 }) {
   return (
     <div
+      data-testid="hero-cta"
       className={`flex flex-col items-center justify-center gap-3 sm:flex-row ${className ?? ""}`}
     >
       <Button asChild size="lg" variant="primary">

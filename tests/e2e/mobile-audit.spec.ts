@@ -17,20 +17,21 @@ const MOBILE_ONLY = (testInfo: { project: { name: string } }) =>
 // ROUTES by hand and drifted).
 const ALL_ROUTES = ROUTES;
 
-// Resource/tool pages that carry a video (now via the click-to-load facade).
-// NOTE: /claude-outreach, /claude-trend-scanner, /claude-seo and
-// /claude-interviewer had their video blocks removed entirely (the source
-// YouTube videos were hidden for low views), so they are intentionally absent.
-// Every route that renders a YouTubeEmbed facade. Kept in sync with the pages
-// whose source video is still live on the channel: /claude-website dropped off
-// this list when its video was removed from YouTube (the id 403s), and the three
-// newest companion pages joined it.
+// Every route that renders a YouTubeEmbed facade, kept in sync with the videos
+// that are still live on the channel. A page whose source video was hidden
+// renders no facade and no VideoObject schema, because an embed that shows
+// YouTube's grey "unavailable" panel is worse than no embed, and schema
+// pointing at a dead watch page is a claim Google can check.
+//
+// Re-verified against the channel on 2026-08-27 with `yt-dlp --flat-playlist`
+// and the oembed endpoint (403 means private or removed). Dropped that day:
+// /ads-ai (5_QP6_EmReQ) and /claude-code-second-brain (TdYYRm_Ph5E), whose
+// videos had gone private since the last sweep and were still being embedded.
 const YT_FACADE_ROUTES = [
   "/claude-reels", "/claude-tiktok", "/claude-content", "/claude-twitter",
   "/claude-b2b-outreach", "/claude-cowork-outreach",
   "/claude-marketing", "/claude-social-growth",
-  "/ads-ai", "/5-levels-ai",
-  "/claude-code-instagram", "/claude-code-second-brain",
+  "/5-levels-ai", "/claude-code-instagram",
 ];
 
 const MIN_TAP = 44;

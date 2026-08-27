@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Instagram Reels with Claude Code: Free Setup Guide (2026)",
+  title: "Viral Instagram Reels With Claude Code",
   description:
-    "Use Claude Code to study the Instagram Reels winning in your niche, understand the hooks and retention patterns behind their reach, and generate ready-to-film AI Reels scripts.",
+    "Scrape the reels winning in your niche, analyse hook and retention, and generate ready-to-film scripts. Free setup guide plus what the system gets wrong.",
   keywords: [
     "Claude Code",
     "Claude AI",

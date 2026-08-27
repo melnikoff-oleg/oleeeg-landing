@@ -8,7 +8,10 @@
   --color-silver: #d0d6e0;
   --color-silver-muted: #8a93a3;
   --color-hairline: rgba(208, 214, 224, 0.1);
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  /* Inter is gone: it was downloaded on every visit and rendered nothing.
+     font-sans now resolves to the body face, so unstyled text inherits the
+     family the design already uses for body copy. */
+  --font-sans: var(--font-space), system-ui, sans-serif;
   --font-display: var(--font-dm-sans), system-ui, sans-serif;
   --font-body: var(--font-space), system-ui, sans-serif;
 }
@@ -227,4 +230,70 @@ body {
 .range-input:focus-visible::-moz-range-thumb {
   outline: 2px solid var(--color-vivid-blue);
   outline-offset: 3px;
+}
+
+/* ---- Long-form guide prose (src/components/guide.tsx) ----
+   The reading surface of the written tutorials. Styling the raw tags here means
+   a guide section's body can be plain <p>/<ul>/<strong> markup with no class
+   soup, and it ships as CSS rather than as another component tree.
+
+   Body copy is 1rem (16px) and never smaller: below 16px iOS Safari zooms on
+   focus, and this is primary reading copy on a phone. */
+.prose-guide {
+  font-family: var(--font-body);
+  color: var(--color-silver);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.prose-guide p {
+  margin: 0;
+}
+
+.prose-guide strong {
+  color: #fff;
+  /* 700, not 600: Space Grotesk is loaded at 400/500/700, and asking for a
+     weight that is not loaded gets a browser-synthesised fake bold. */
+  font-weight: 700;
+}
+
+.prose-guide ul,
+.prose-guide ol.guide-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.prose-guide ul {
+  list-style: disc;
+}
+
+.prose-guide ol.guide-list {
+  list-style: decimal;
+}
+
+.prose-guide li::marker {
+  color: var(--color-silver-muted);
+}
+
+.prose-guide a:not([class]) {
+  color: var(--color-vivid-blue);
+  text-decoration: underline;
+  text-decoration-color: rgba(40, 99, 240, 0.4);
+  text-underline-offset: 4px;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+
+.prose-guide a:not([class]):hover {
+  color: #fff;
+  text-decoration-color: #fff;
+}
+
+/* Long unbreakable strings (commands, urls, env var names) must never push the
+   page past 390px. */
+.prose-guide code,
+.prose-guide pre {
+  overflow-wrap: anywhere;
 }

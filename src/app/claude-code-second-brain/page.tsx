@@ -3,7 +3,6 @@ import { ChevronDown } from "lucide-react";
 import { CopyButton } from "@/components/copy-button";
 import { ResourcePageShell } from "@/components/resource-page-shell";
 
-const VIDEO_ID = "TdYYRm_Ph5E";
 const VIDEO_TITLE =
   "how i actually use my claude code second brain (boring, useful)";
 
@@ -305,8 +304,6 @@ export default function ClaudeCodeSecondBrainPage() {
   return (
     <ResourcePageShell
       slug="claude-code-second-brain"
-      videoId={VIDEO_ID}
-      videoTitle={VIDEO_TITLE}
       title="your ai second brain on claude code"
       subhead="an Obsidian vault that Claude Code operates: you dump thoughts and documents in plain English, it does the filing, linking and remembering. about 10 minutes to set up, no technical experience."
       steps={steps}

@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/build-recommendations.mjs",
-  "_note": "Ranked 'up next' picks per resource page (position 0 = hero). Regenerate with: node scripts/build-recommendations.mjs",
+  "_note": "Ranked 'up next' picks per resource page (position 0 = hero). Regenerate with: node scripts/build-recommendations.mjs (blocked: Plausible Stats API is off the plan). Hand-edited 2026-08-27 for the SEO consolidation: five slugs were redirected into stronger siblings and five new cluster pages were added, so their picks are hand-set.",
   "_model": "claude-sonnet-4-6",
   "recommendations": {
     "marketing-brain": [
@@ -10,23 +10,18 @@
     ],
     "high-converting-website": [
       "marketing-brain",
-      "claude-outreach",
-      "claude-b2b-outreach"
-    ],
-    "claude-outreach": [
       "claude-b2b-outreach",
-      "claude-cowork-outreach",
-      "high-converting-website"
+      "claude-code-tutorial"
     ],
     "claude-b2b-outreach": [
       "claude-cowork-outreach",
-      "claude-outreach",
-      "high-converting-website"
+      "high-converting-website",
+      "claude-code-tutorial"
     ],
     "claude-cowork-outreach": [
       "claude-b2b-outreach",
-      "claude-outreach",
-      "high-converting-website"
+      "high-converting-website",
+      "claude-code-tutorial"
     ],
     "claude-twitter": [
       "claude-content",
@@ -46,37 +41,17 @@
     "claude-tiktok": [
       "claude-code-instagram",
       "claude-reels",
-      "claude-trend-scanner"
+      "claude-social-growth"
     ],
     "claude-social-growth": [
       "claude-reels",
       "claude-content",
-      "claude-trend-scanner"
-    ],
-    "claude-trend-scanner": [
-      "claude-reels",
-      "claude-content",
-      "claude-tiktok"
+      "claude-code-tutorial"
     ],
     "claude-marketing": [
       "claude-b2b-outreach",
       "ads-ai",
       "claude-cowork-outreach"
-    ],
-    "claude-seo": [
-      "high-converting-website",
-      "claude-website",
-      "marketing-brain"
-    ],
-    "claude-website": [
-      "high-converting-website",
-      "claude-seo",
-      "marketing-brain"
-    ],
-    "claude-interviewer": [
-      "60k-linkedin-post",
-      "claude-content",
-      "claude-twitter"
     ],
     "ads-ai": [
       "claude-code-ads",
@@ -84,7 +59,7 @@
       "marketing-brain"
     ],
     "60k-linkedin-post": [
-      "claude-interviewer",
+      "claude-content",
       "marketing-brain",
       "claude-twitter"
     ],
@@ -122,6 +97,31 @@
       "claude-code-instagram",
       "claude-reels",
       "claude-content"
+    ],
+    "claude-code-tutorial": [
+      "claude-code-pricing",
+      "claude-cowork",
+      "claude-marketing"
+    ],
+    "claude-code-pricing": [
+      "claude-code-tutorial",
+      "claude-code-vs-cursor",
+      "claude-cowork-pricing"
+    ],
+    "claude-code-vs-cursor": [
+      "claude-code-tutorial",
+      "claude-code-pricing",
+      "claude-cowork"
+    ],
+    "claude-cowork": [
+      "claude-cowork-outreach",
+      "claude-cowork-pricing",
+      "claude-code-tutorial"
+    ],
+    "claude-cowork-pricing": [
+      "claude-cowork",
+      "claude-code-pricing",
+      "claude-cowork-outreach"
     ]
   }
 }

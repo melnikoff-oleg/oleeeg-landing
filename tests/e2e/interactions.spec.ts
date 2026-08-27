@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const SAMPLE_RESOURCE = "/claude-outreach";
+const SAMPLE_RESOURCE = "/claude-b2b-outreach";
 
 // Tests 16-18: interactive behavior still works after the restyle.
 
@@ -54,13 +54,13 @@ test("17 - accordion opens and closes", async ({ page }) => {
 // collapsed behind the "see all free resources" disclosure, so open it first.
 // The homepage no longer renders the footer, so use a resource page.
 test("18 - resource footer link navigates", async ({ page }) => {
-  await page.goto("/claude-seo", { waitUntil: "networkidle" });
+  await page.goto("/claude-marketing", { waitUntil: "networkidle" });
   await page.getByTestId("see-all-resources").click();
   const footerLink = page
     .getByRole("contentinfo")
-    .getByRole("link", { name: /cold outreach/i })
+    .getByRole("link", { name: /b2b outreach/i })
     .first();
   await footerLink.click();
-  await page.waitForURL(/\/claude-outreach/);
-  expect(page.url()).toMatch(/\/claude-outreach/);
+  await page.waitForURL(/\/claude-b2b-outreach/);
+  expect(page.url()).toMatch(/\/claude-b2b-outreach/);
 });

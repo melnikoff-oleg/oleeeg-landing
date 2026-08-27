@@ -1,5 +1,4 @@
 import {
-  Send,
   Target,
   MousePointerClick,
   MessageSquare,
@@ -7,11 +6,7 @@ import {
   Film,
   Clapperboard,
   TrendingUp,
-  Search,
   Megaphone,
-  Globe,
-  Code,
-  Mic,
   Sparkles,
   DollarSign,
   Brain,
@@ -21,6 +16,10 @@ import {
   Scissors,
   FolderTree,
   Library,
+  BookOpen,
+  Bot,
+  Wallet,
+  GitCompare,
   type LucideIcon,
 } from "lucide-react";
 
@@ -39,6 +38,41 @@ export type Resource = {
  */
 export const RESOURCES: Resource[] = [
   {
+    slug: "claude-code-tutorial",
+    title: "Claude Code, Start Here",
+    description:
+      "What Claude Code is, how to install it, and the four ideas that make it click. Written for people who are not developers",
+    icon: BookOpen,
+  },
+  {
+    slug: "claude-cowork",
+    title: "Claude Cowork, Explained",
+    description:
+      "What it does, how it differs from Claude Code, the new built-in browser, and the eight jobs I hand it every week",
+    icon: Bot,
+  },
+  {
+    slug: "claude-code-pricing",
+    title: "What Claude Code Costs",
+    description:
+      "Every plan, the API route, Anthropic's own spend figures, and the four things that actually drive your bill",
+    icon: DollarSign,
+  },
+  {
+    slug: "claude-cowork-pricing",
+    title: "What Claude Cowork Costs",
+    description:
+      "It is not free. Every tier compared, when Max is worth it, and the real monthly bill for running outreach through it",
+    icon: Wallet,
+  },
+  {
+    slug: "claude-code-vs-cursor",
+    title: "Claude Code vs Cursor and Codex",
+    description:
+      "Editor or agent is the real question. An honest comparison, including what Claude Code is genuinely worse at",
+    icon: GitCompare,
+  },
+  {
     slug: "marketing-brain",
     title: "The Marketing Brain",
     description:
@@ -51,13 +85,6 @@ export const RESOURCES: Resource[] = [
     description:
       "Build a landing page that actually sells with Claude Code, powered by a conversion playbook from Hormozi and top marketers",
     icon: LayoutTemplate,
-  },
-  {
-    slug: "claude-outreach",
-    title: "Cold Outreach",
-    description:
-      "Build an AI outreach system that scrapes leads and sends personalized messages",
-    icon: Send,
   },
   {
     slug: "claude-b2b-outreach",
@@ -108,38 +135,11 @@ export const RESOURCES: Resource[] = [
     icon: TrendingUp,
   },
   {
-    slug: "claude-trend-scanner",
-    title: "Trend Scanner",
-    description:
-      "Scan trending topics in your niche to create content worth watching",
-    icon: Search,
-  },
-  {
     slug: "claude-marketing",
     title: "Marketing (SMM, Ads, Outreach)",
     description:
       "Set up AI-powered marketing workflows for social media, ads, and outreach",
     icon: Megaphone,
-  },
-  {
-    slug: "claude-seo",
-    title: "SEO Optimization",
-    description: "SEO-optimize your website using Claude Code and AI tools",
-    icon: Globe,
-  },
-  {
-    slug: "claude-website",
-    title: "Build Personal Website",
-    description:
-      "Build a personal website from scratch with Claude Code in minutes",
-    icon: Code,
-  },
-  {
-    slug: "claude-interviewer",
-    title: "AI Interviewer for Content",
-    description:
-      "Build a voice AI agent that interviews you and turns conversations into LinkedIn posts",
-    icon: Mic,
   },
   {
     slug: "ads-ai",

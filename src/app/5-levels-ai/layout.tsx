@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "The Builder's Ladder: the 5 Levels of AI Adoption",
+  title: "The 5 Levels of AI Adoption",
   description:
-    "A map of how people actually adopt AI, from copy-pasting out of a chat window to running a thousand agents that launch themselves. Find your level and the exact move to the next one, with Claude Code.",
+    "Anthropic's own research on how the top 1% actually use AI, as five levels. Where most people stop, and what changes at each rung.",
   keywords: [
     "AI adoption levels",
     "Claude Code",

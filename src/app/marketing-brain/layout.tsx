@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "$1B Marketing Brain: Ask the Greatest Marketing Minds (AI Chat)",
+  title: "The $1B Marketing Brain: Ask the Greats",
   description:
-    "Ask anything about offers, content, persuasion, and growth. An AI chat grounded in the best marketing books and talks (Hormozi, Brunson, Cialdini, Gary Vee, Ogilvy, Godin, Patel, MrBeast), with every answer cited to the exact page or video timecode.",
+    "An AI chat grounded in 8 marketing books and 75 talks from Hormozi, Brunson, Cialdini and Godin. Every answer cited to the page or the timecode.",
   keywords: [
     "marketing AI chat",
     "ask marketing experts AI",

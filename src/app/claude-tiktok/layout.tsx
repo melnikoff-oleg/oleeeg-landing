@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI TikTok Content with Claude Code: Free Setup Guide (2026)",
+  title: "Viral TikTok Videos With Claude Code",
   description:
-    "Build a Claude Code workflow that studies the TikToks earning real reach in your niche, learns what makes them work, and generates thumb-stopping video concepts and scripts.",
+    "Track competitors, analyse hook, retention and call to action, and get three scripts per idea. Free setup guide, and the window setting that decides it.",
   keywords: [
     "Claude Code",
     "Claude AI",

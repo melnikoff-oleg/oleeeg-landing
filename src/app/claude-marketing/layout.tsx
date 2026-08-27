@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Claude Code for Marketing: AI Marketing Automation Guide (2026)",
+    "Claude Code for Marketing: SMM, Ads, Outreach",
   description:
-    "A complete guide to using Claude Code for marketing. Five real use cases: AI Instagram Reels, competitor analysis, ad campaigns, cold outreach, and social media content automation.",
+    "One workspace that knows your business, running competitor ad analysis, content and outreach. Five real use cases, the two APIs, and what they cost.",
   keywords: [
     "Claude Code for marketing",
     "Claude Code",

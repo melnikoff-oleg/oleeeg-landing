@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "$1B Marketing Brain: Knowledge Base of the Greatest Marketing Minds",
+  title: "Marketing Knowledge Base: 8 Books, 75 Talks",
   description:
-    "A curated knowledge base of the best marketing and content minds: Hormozi, Brunson, Cialdini, Gary Vee, Ogilvy, Godin, Patel, Ralston, MrBeast. 8 books and 75 talks distilled into one searchable AI brain for marketing.",
+    "The whole corpus behind the Marketing Brain, grouped by expert: every book and talk from Hormozi, Brunson, Cialdini, Godin and more.",
   keywords: [
     "marketing knowledge base",
     "best marketing books",
