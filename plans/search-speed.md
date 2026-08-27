@@ -54,3 +54,49 @@ D. Shrink the probe so the hot path fits in 256 MB, and stop rebuilding 384
    tsvectors on every keystroke.
 E. Paint the first row first: eager and high priority for what is on screen,
    lazy for the rest, and never blank the grid while a new answer is coming.
+
+## What it measures now
+
+Same script, `npm run bench:search`, against production. The queries carry the
+run's own minute so nothing is answered from a cache -- the first version of
+this benchmark reused a fixed list and reported 186 ms, which was the cache
+answering and not a search happening.
+
+| | before | after |
+|---|---|---|
+| reels, median | 2,275 ms | 1,018 ms |
+| reels, worst | 2,826 ms | 1,898 ms |
+| creators, median | 2,235 ms | 1,151 ms |
+| creators, worst | 5,845 ms | 1,522 ms |
+| a query asked twice | n/a | 188 ms |
+| reel_library_match, in Postgres | 531 ms | 89 ms |
+| creator_search_match, in Postgres | 277 ms | 200 ms |
+
+Every number above includes the measuring machine's own trip to Frankfurt,
+about 80-100 ms of each.
+
+## What was tried and thrown away
+
+Kept because each one looked obviously right and each one measured worse. This
+project has been wrong about its own speed twice before by reasoning instead of
+running something.
+
+- ONE SCAN INSTEAD OF TWO on the creator probe. `near` and `cand` read the same
+  36,465 rows one after the other; a window function gets the group minimum
+  from the scan that computes the distance. 391 ms against 205 ms, and 365 MB
+  of buffers against 342 MB. A window partitioned by (account, level) is a
+  SORT; the two-pass version gets its minimum from a HashAggregate, which does
+  not sort at all. The first attempt also left the 2 KB vector in the sort's
+  input and spilled 13 MB to disk.
+- A 256-DIMENSION CREATOR PROBE, to fit 97 MB of hot table into 21 MB. The band
+  has to widen from 0.02 to 0.10 before the top twelve is right, and a wider
+  band sends far more candidates into the expensive exact stage: 225 ms against
+  200 ms, 650 MB of buffers against 342 MB, and 5 of 6 queries matching the
+  control instead of 8 of 8. Worse on every axis at once.
+- ONE STAGE FOR THE CREATORS, scoring the 1,024-dimension probe directly and
+  skipping the exact rescore. 0 of 6 top-twelves matched the control and
+  similarity drifted by up to 0.03. The creator rescore earns its cost.
+- A SMALLER REEL SHORTLIST. 300 instead of 600 was checked against a 2,000-reel
+  shortlist over six queries and missed on one. The existing `match_count * 5`
+  is already the right size; it was the detoasting that was expensive, not the
+  width.

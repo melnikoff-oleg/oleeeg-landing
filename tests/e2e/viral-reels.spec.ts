@@ -242,7 +242,10 @@ test("74c - library: the filter count describes the whole library, not a page of
   // saying "1,000 reels" under a wall that paged to 4,896, which is a chart
   // describing a fifth of the library while the number beside it came from the
   // database. Nothing but real data can catch it.
-  await settle(page, "/reels");
+  // ?all=1 and not "/reels", because the resting page is the hand-picked screen
+  // and a hand-picked screen has no pages to count. The paged wall is what this
+  // is about.
+  await settle(page, "/reels?all=1");
   const line = (await page.locator("[aria-live='polite']").first().innerText()).trim();
   test.skip(!line, "no database configured");
 

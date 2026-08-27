@@ -24,6 +24,8 @@ import {
 import { normalizePage } from "@/lib/reels/types";
 import { CreatorCard } from "@/components/creator-card";
 import { AnswerCache, answerKey } from "@/lib/search/answer-cache";
+import { PREFETCH_DELAY_MS, shouldPrefetch } from "@/lib/search/prefetch";
+import { Pending } from "@/lib/search/pending";
 import { FilterBar } from "@/components/filter-bar";
 
 /** The roster's own URL, carrying every set filter with it. */
@@ -100,6 +102,14 @@ type State =
  * Bounded and short-lived; the reasoning is in src/lib/search/answer-cache.ts.
  */
 const answers = new AnswerCache<CreatorTileHit[]>(30);
+
+/**
+ * The requests currently on their way, so a prefetch and the keypress that
+ * follows it are ONE request rather than two. Module scope, beside the cache it
+ * feeds, and for the same reason: it has to survive this component being
+ * unmounted and remounted.
+ */
+const pending = new Pending<CreatorTileHit[]>();
 
 /**
  * A hairline that fills while a search is in flight.
@@ -227,12 +237,6 @@ export function CreatorSearch({
   // it per render would redo 245 rows on every step of a drag.
   const bins = useMemo(() => creatorBins(facts), [facts]);
 
-  // Cancel a pending commit when the page goes away, so a fetch cannot land
-  // against an unmounted component.
-  useEffect(() => () => {
-    if (commitTimer.current) clearTimeout(commitTimer.current);
-  }, []);
-
   const loadRoster = useCallback(
     async (nextPage: number, active: CreatorFilters, force = false) => {
       const key = pageHref(nextPage, active);
@@ -299,6 +303,90 @@ export function CreatorSearch({
     [rosterAll],
   );
 
+  /**
+   * One request for one question, whoever asked.
+   *
+   * `signal` decides whether THIS caller still wants the answer; it does not
+   * cancel the request, because the request may belong to somebody else. That
+   * is the point: the visitor pauses, a prefetch starts, they press Enter, and
+   * the keypress joins the request already in flight instead of starting an
+   * identical second one and waiting on that.
+   *
+   * A prefetch passes no signal at all. Nobody is waiting on it, so there is
+   * nobody to change their mind, and an answer it has already paid for is
+   * worth keeping even if the visitor has typed on -- they may well backspace
+   * to it, and the cache is where it belongs either way.
+   */
+  const ask = useCallback(
+    async (query: string, active: CreatorFilters, signal?: AbortSignal): Promise<CreatorTileHit[] | null> => {
+      const results = await pending.share(answerKey(query, active), async () => {
+        const res = await fetch("/api/viral-reels/creators", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, ...filtersToBody(active) }),
+        });
+        const json = (await res.json().catch(() => ({}))) as {
+          results?: CreatorTileHit[];
+          error?: string;
+        };
+        if (!res.ok) {
+          const err = new Error(json.error ?? "search_failed");
+          (err as Error & { reason?: string }).reason = json.error;
+          throw err;
+        }
+        return json.results ?? [];
+      });
+      return signal?.aborted ? null : results;
+    },
+    [],
+  );
+
+  // ------------------------------------------------------------- prefetching
+  //
+  // The visitor types a phrase, stops, and then reaches for Enter. That stop is
+  // when we start, so the answer is usually in hand before the keypress lands.
+  // See src/lib/search/prefetch.ts for the argument and the two constants.
+  //
+  // A prefetch NEVER touches the screen. It writes to the answer cache and
+  // nothing else, so a wrong guess costs one request nobody sees and cannot
+  // flash an answer to a half-typed query or overwrite a real search.
+  const prefetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const prefetch = useCallback((raw: string, active: CreatorFilters) => {
+    const key = (q: string) => answerKey(q, active);
+    if (!shouldPrefetch({
+      query: raw,
+      applied: applied.current.query,
+      known: (q) => Boolean(answers.get(key(q))),
+    })) return;
+    // At most one per pause: the timer that armed this replaced the one before
+    // it, and Pending folds a repeat into the request already on its way.
+    const query = raw.trim();
+    void ask(query, active)
+      .then((results) => {
+        if (results) answers.set(key(query), results);
+      })
+      // Silent on purpose. Nobody asked for this request, so nobody is owed a
+      // message about it failing; the real search will fail loudly enough.
+      .catch(() => {});
+  }, [ask]);
+
+  /** Restart the clock on the visitor's pause. */
+  const armPrefetch = useCallback((raw: string, active: CreatorFilters) => {
+    if (prefetchTimer.current) clearTimeout(prefetchTimer.current);
+    prefetchTimer.current = setTimeout(() => prefetch(raw, active), PREFETCH_DELAY_MS);
+  }, [prefetch]);
+
+  // Everything with a timer or a request behind it, stopped when the page goes
+  // away, so nothing lands against an unmounted component. The aborts do not
+  // cancel the requests themselves -- a request may be shared, see `ask` -- they
+  // are how this component says it is no longer the one waiting.
+  useEffect(() => () => {
+    if (commitTimer.current) clearTimeout(commitTimer.current);
+    if (prefetchTimer.current) clearTimeout(prefetchTimer.current);
+    inflight.current?.abort();
+  }, []);
+
   const run = useCallback(async (raw: string, active: CreatorFilters) => {
     const query = raw.trim();
     if (!query) return;
@@ -329,38 +417,24 @@ export function CreatorSearch({
     setShown(CREATOR_RESULT_COUNT);
 
     try {
-      const res = await fetch("/api/viral-reels/creators", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, ...filtersToBody(active) }),
-        signal: controller.signal,
-      });
-      const json = (await res.json().catch(() => ({}))) as {
-        results?: CreatorTileHit[];
-        error?: string;
-      };
-      if (controller.signal.aborted) return;
-      if (!res.ok) {
-        setState({
-          kind: "error",
-          message:
-            json.error === "rate_limited"
-              ? "that is a lot of searching for one day. try again tomorrow."
-              : "the search did not come back. try again in a moment.",
-        });
-        return;
-      }
-      const results = json.results ?? [];
+      const results = await ask(query, active, controller.signal);
+      // Null means this caller stopped caring: the visitor searched again, or
+      // clicked into a reel. The request itself may still be running for
+      // somebody else, and its answer will land in the cache either way.
+      if (results === null) return;
       answers.set(answerKey(query, active), results);
       setState({ kind: "done", query, results });
     } catch (err) {
-      if ((err as Error).name === "AbortError") return;
+      if ((err as Error).name === "AbortError" || controller.signal.aborted) return;
       setState({
         kind: "error",
-        message: "the search did not come back. try again in a moment.",
+        message:
+          (err as Error & { reason?: string }).reason === "rate_limited"
+            ? "that is a lot of searching for one day. try again tomorrow."
+            : "the search did not come back. try again in a moment.",
       });
     }
-  }, []);
+  }, [ask]);
 
   /**
    * Take the URL as the truth about what should be on screen.
@@ -557,6 +631,9 @@ export function CreatorSearch({
           value={input}
           onChange={(e) => {
             setInput(e.target.value);
+            // Start guessing at what they are typing. Costs nothing when the
+            // guess is wrong; when it is right, Enter is a memory read.
+            armPrefetch(e.target.value, live.current);
             // Emptying the box puts the roster back rather than leaving the
             // last answer stranded on screen with nothing that produced it.
             if (!e.target.value.trim() && state.kind !== "idle") {
