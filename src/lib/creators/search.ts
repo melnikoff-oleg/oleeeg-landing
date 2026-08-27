@@ -48,8 +48,9 @@ const EMBED_DIMS = 3072;
 // function in this shared Supabase project.
 const MATCH_FN = "creator_search_match";
 // The ranking creator_search_match implements, as of the migration named.
-// search/creator_form.sql, 2026-08-25: sim^2.5 x craft x form.
-const RANK_VERSION = "2026-08-25-form2";
+// search/creator_handle.sql, 2026-08-27: sim^2.5 x craft x form, and an exact
+// handle floors similarity at 0.95 so naming a creator returns that creator.
+const RANK_VERSION = "2026-08-27-handle";
 
 export const creatorSearchConfigured = Boolean(
   SUPABASE_URL && SERVICE_KEY && OPENAI_KEY,
