@@ -22,7 +22,6 @@ Open work, highest value first. IDs are stable, so a task keeps its ID after it 
 | --- | --- | --- | --- | --- |
 | U-02 | **Work out why `/claude-content` is not winning its cluster, then fix that page** | Medium | Half a day | Ubersuggest emitted 7 separate "create new content" rows for one topic. Do **not** build 7 pages: that is a doorway-page pattern and Google treats those morphological variants as one query anyway. `/claude-content` now carries a full written guide and 7 FAQ entries, so the thin-content half is done. What is left is diagnosis, and it is blocked on Search Console (`S-06`). |
 | S-12 | **Real-device Core Web Vitals, on the deployed site** | Medium | 2 hours | `tests/e2e/perf-budget.spec.ts` (81-84) now enforces payload budgets against a local server, which catches regressions but is not a field measurement. Run PageSpeed Insights across the route list once this is deployed, record it in `audits/`, and fix whatever LCP or CLS says. Ubersuggest has a `pagespeed_audit` tool that wraps PSI if it is easier than the web UI. |
-| S-16 | **Real screenshots on the guide pages** | Medium | Half a day | The rewritten guides are text, tables and callouts, with the YouTube facade thumbnail as the only image. Real screenshots of the dashboards being described (the reels concept table, the b2b lead scoring page, the content dashboard) would make them more credible and give the pages image-search surface. **Blocked on tooling, not on the idea**: YouTube now refuses video downloads to the installed `yt-dlp` (2026.03.03, over 90 days old, hits the SABR-only experiment and 403s). Updating yt-dlp should unblock it. Do NOT substitute generated images for this: the value is that the screenshots are real. |
 | S-13 | **Refresh the prices** | Low | 20 min | Every price on the site now comes from `src/lib/pricing.ts`, read off the vendors' own pages on 2026-08-27. Anthropic changes plans, so this is a recurring chore rather than a task: re-read `claude.com/pricing` and `cursor.com/pricing`, update the one file, and bump `PRICING_CHECKED`. Unit tests catch a transcription slip; nothing catches a stale-but-consistent number. |
 
 ## Needs a decision from Oleg
@@ -69,6 +68,7 @@ Recorded so the same suggestion does not get re-triaged next month.
 
 | ID | Task | Shipped |
 | --- | --- | --- |
+| S-16 | Get the videos' visual content onto the pages | 2026-08-27. Resolved as **text, not screenshots**, and the text is better: see `LOG.md`. |
 | S-01 | Open Graph images, every route | 2026-08-27. One build-time generator plus 31 route files. |
 | S-02 | Honest `lastModified` in the sitemap | 2026-08-27. Real per-page dates, plus unit tests that diff the list against `src/app` both ways. |
 | S-03 | Add `/sam-altman-ai` to the sitemap | 2026-08-24 |

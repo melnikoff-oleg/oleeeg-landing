@@ -97,9 +97,23 @@ of scope by his instruction.
   typo in a troubleshooting key is a compile error instead of a section that silently renders
   nothing.
 
-**Not done, and why.** Real screenshots on the guide pages (backlog `S-16`). YouTube now refuses
-video downloads to the installed `yt-dlp`, and generated illustrations would have been worse than
-no image on a site whose whole argument is that the systems are real.
+**The visual content of the videos, extracted as text rather than screenshots.** The first attempt
+at screenshots failed because YouTube refuses video downloads to the installed `yt-dlp` (2026.03.03,
+which hits the SABR-only experiment and 403s). Running a current yt-dlp in a throwaway venv, leaving
+the global install alone, unblocked it. Two things came out of actually looking at the frames:
+
+- **The screenshots were the wrong deliverable.** What the frames contained was readable *text*:
+  Oleg's two real config prompts for the reels system, the report's own definitions of the ICE axes
+  and its top-scored tip in full, the audience segments with their real weights, and the "image
+  notes" block the content system attaches to every post. All of that is now on the pages as
+  copy-pasteable, indexable text, which beats a picture of a spreadsheet on every axis that matters.
+  `/claude-reels` carries both configs verbatim with a copy button (one en dash changed to a comma),
+  `/claude-social-growth` carries the real ICE definitions, the 1,000-scored tip and the 45/30/15/10
+  segment split, and `/claude-content` carries both shapes of the image-notes block.
+- **One frame must not be published, and the rule is worth writing down.** The lead-scoring frame in
+  the B2B video is a spreadsheet of real prospects: named companies, logos, profile URLs. Oleg put it
+  in his own video, but re-publishing a still of third-party personal data as a page asset is a
+  different act with a different risk. **Do not screenshot anything containing a real lead list.**
 
 Suite: 455 passing, 0 failing. Unit: 87 passing.
 

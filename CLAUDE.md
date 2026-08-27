@@ -159,7 +159,7 @@ Three findings from that pass that constrain future work:
 - **The old keyword map targeted terms that do not exist.** "claude code instagram", "claude code cold outreach", "claude code content creation", "claude code tiktok" and "claude code b2b outreach" all measure **zero** monthly US searches. YouTube demand is not Google demand, and the video title is almost never the query. Check volume before writing a page for a term.
 - **DA 3 is now the binding constraint, not content.** The winnable terms are the SD 15-30 ones in `seo/keywords.md`. Anything above SD 50 is not realistic yet no matter how good the page is.
 
-**Ubersuggest is reachable over MCP** (`ubersuggest` server, `https://ubersuggest-mcp.neilpatelapi.com/mcp`, OAuth as `oleg@boldane.com`, custom tier). It is configured in the `dantane` project rather than this one. It has `keyword_overview`, `match_keywords`, `serp_analysis`, `domain_overview`, `pagespeed_audit` and a site-audit flow. Always pass `locId: 2840` for US data; the field on `keyword_overview` is `search_volume`, not `volume`.
+**Ubersuggest is reachable over MCP**: the `ubersuggest` server is now configured for this project in `.mcp.json` (`https://ubersuggest-mcp.neilpatelapi.com/mcp`, OAuth as `oleg@boldane.com`, custom tier). It holds no secret, only the url, because it authenticates through OAuth: the first session to use it will prompt for approval and the token is stored in the keychain, not in the repo. It has `keyword_overview`, `match_keywords`, `serp_analysis`, `domain_overview`, `pagespeed_audit` and a site-audit flow. Always pass `locId: 2840` for US data; the field on `keyword_overview` is `search_volume`, not `volume`.
 
 ---
 
@@ -497,6 +497,16 @@ in 20 of the 24 live video descriptions, while `melnikoff_oleg` appears only in 
 (the visible link was the stale one). And **Anthropic does not publish a price for Max 20x**: the
 pricing page says "from $100" with 5x and 20x tiers and stops. A $200 figure had been on 16 pages
 via the troubleshooting copy and has been removed; do not re-add it without a source.
+
+**Pulling content out of the videos.** The transcripts (`yt-dlp --write-auto-subs`) carry the
+spoken half; the other half is on screen. Extracting video frames needs a **current yt-dlp**: the
+globally installed one (2026.03.03) hits YouTube's SABR-only experiment and 403s on any download,
+so run a fresh one from a throwaway venv rather than upgrading the user's global install. What the
+frames are worth is usually the **text** in them, not the picture: the reels configs, the ICE
+definitions, the image-notes blocks all went onto the pages as copy-pasteable text, which beats a
+screenshot of a spreadsheet for both readers and crawlers. **One hard rule: never publish a frame
+containing a real lead list.** The B2B video shows a spreadsheet of named prospects; it is his own
+video, but re-publishing a still of third-party personal data as a site asset is a different act.
 
 **Performance.** `Inter` was removed: it was the largest font on the site (~47 kB every cold visit)
 and rendered almost nothing, because `font-sans` appeared twice in the whole codebase and every

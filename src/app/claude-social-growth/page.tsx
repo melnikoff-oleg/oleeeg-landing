@@ -425,11 +425,12 @@ export default function ClaudeSocialGrowthPage() {
             </p>
             <KeyFacts
               rows={[
-                { label: "impact", value: "how much this moves the number if it works" },
-                { label: "confidence", value: "how sure the evidence makes us that it will work" },
-                { label: "ease", value: "how cheap it is to actually do" },
-                { label: "score", value: "the three multiplied, so 1,000 is a perfect ten on all three" },
+                { label: "impact", value: "impact on views, subscribers and conversions" },
+                { label: "confidence", value: "how confident we are that the pattern generalises, rather than being one creator's quirk" },
+                { label: "ease", value: "how easy it is to ship in your next video" },
+                { label: "score", value: "the three multiplied, each rated 1 to 10, so 1,000 is a perfect ten on all three" },
               ]}
+              caption="the report's own wording. tips are sorted by score, so the list picks itself: start at the top and ship one per video."
             />
             <p>
               multiplying rather than adding is the right call, because it
@@ -437,9 +438,33 @@ export default function ClaudeSocialGrowthPage() {
               that would take three months, drops down the list where it belongs.
             </p>
             <p>
-              the top item on my report scored 1,000. that is the thing you do
-              first, and knowing which one it is turns out to be most of the
-              value.
+              the top item on my report scored 1,000, a perfect ten on all
+              three. here it is, because it is more useful than any description
+              of the method:
+            </p>
+            <Callout title="tip 01, scored 1,000">
+              <p>
+                <strong>lead with a specific revenue or proof number in the
+                first 15 seconds. every single mega-outlier does this.</strong>
+              </p>
+              <p>
+                the evidence it gave: &quot;generated over $5 million in
+                revenue&quot; on a 2 million view video, &quot;94% profit
+                margins&quot; on a million, &quot;$72,000 a month&quot;, &quot;$4
+                million a year in profit&quot;. not vague adjectives. specific
+                dollars.
+              </p>
+              <p>
+                and then it turned that on me: i have real numbers i was
+                underusing, and i was burying them. <strong>the credential line
+                is the hook.</strong>
+              </p>
+            </Callout>
+            <p>
+              that is the shape of a good output. not &quot;improve your
+              hooks&quot;, which is advice. a pattern, the evidence for it
+              across several channels, and the specific thing i personally was
+              getting wrong.
             </p>
           </GuideSection>
 
@@ -493,11 +518,32 @@ export default function ClaudeSocialGrowthPage() {
               </li>
             </ol>
             <p>
-              it also split the audience into segments: automation beginners,
-              content creators, B2B marketers, AI builders. those are four
-              different videos, and knowing which one you are making is the
-              difference between a video that works and one that is aimed at
-              nobody in particular.
+              it also split my audience into segments and weighted them, which
+              is the part that changed what i film:
+            </p>
+            <ul>
+              <li>
+                <strong>45% automation beginners looking for templates.</strong>{" "}
+                the top videos there are template databases, and they have
+                &quot;free&quot; in the title. which is exactly the trap in the
+                last section.
+              </li>
+              <li>
+                <strong>30% content creators wanting viral systems.</strong>
+              </li>
+              <li>
+                <strong>15% B2B marketers needing automation.</strong>
+              </li>
+              <li>
+                <strong>10% AI SaaS builders.</strong> and it noted that build
+                vlogs consistently underperform for them.
+              </li>
+            </ul>
+            <p>
+              those are four different videos. knowing which one you are making,
+              and that the largest group is not the group you most want, is the
+              difference between a video that works and one aimed at nobody in
+              particular.
             </p>
           </GuideSection>
 

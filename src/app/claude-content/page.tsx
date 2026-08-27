@@ -458,6 +458,31 @@ export default function ClaudeContentPage() {
                 <Code>orange-sofa-laptop.jpg</Code> is a decision it can make.
               </p>
             </Callout>
+            <p>
+              you can see this working in the output. every post comes with an{" "}
+              <strong>image notes</strong> block underneath it, naming the exact
+              file it chose and why:
+            </p>
+            <Block>{`## Image Notes
+Personal photo: \`oleg-selfie-at-desk-imac-night-city-lights-dubai-highrise.jpeg\`
+Vibe: casual, unpolished, matches the "imperfection" message.
+Real desk, real setting, not a photoshoot.`}</Block>
+            <p>
+              and for a generated one it names the reference, the content and the
+              style instead:
+            </p>
+            <Block>{`## Image Notes
+AI infographic using \`reference/infographic-ref-3.jpeg\` (vertical flowing path).
+Content: "From Voice to Published Post", vertical flow showing
+Speak -> AI Processes -> Draft in Your Voice -> Quick Review -> Published.
+Side-by-side time comparison: Old Way (90+ min) vs New Way (16 min).
+Style: cream background, lime green accents, brand banner.`}</Block>
+            <p>
+              this is the part worth stealing even if you never use the project.
+              a post and its image are one decision, so the system that writes
+              the post should be the one that picks the picture, and it should
+              have to say why.
+            </p>
           </GuideSection>
 
           <GuideSection title="the command, and how to change it">

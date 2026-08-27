@@ -1,5 +1,7 @@
 import { ResourcePageShell } from "@/components/resource-page-shell";
+import { CopyButton } from "@/components/copy-button";
 import {
+  Block,
   Callout,
   Code,
   Guide,
@@ -229,12 +231,107 @@ irm https://claude.ai/install.ps1 | iex`}
 ];
 
 
+// Oleg's two real configs, transcribed from the video (JhtbnZUU_8E, around
+// 4:00). They are the actual product of this system, so the page hands them
+// over verbatim rather than paraphrasing them. Kept as consts so the copy
+// button and the displayed text can never drift.
+//
+// One character changed: an en dash in "THE SHORTER THE ANALYSIS - THE BETTER"
+// became a comma, per the site-wide no-dash rule. Nothing else is edited.
+const ANALYSIS_PROMPT = `# CONCEPT
+Overall description of the concept of this video, and what makes it valuable and interesting (1-3 sentences).
+-> Clarify the core tension: what belief is challenged, what mistake is exposed, or what outcome is promised.
+-> One clear idea only. No subtopics.
+
+# HOOK
+Detailed description of the first 5 seconds of the video, what makes it scroll-stopping and attention-grabbing, why a viewer needs to stop to watch it (1-3 sentences).
+-> Break it down into:
+- VISUAL (what is seen in the first 1-2 seconds: movement, facial expression, contrast, pattern break)
+- TEXT (short on-screen statement: danger, promise, or contradiction, max 6-8 words)
+- AUDIO (first spoken words: confident, direct, no intro, no context)
+-> The hook must create either fear of loss, strong curiosity, or identity relevance.
+
+# RETENTION MECHANISMS
+Detailed description of how the creator manages to retain viewers throughout the video (1-7 sentences).
+-> Open loops ("in a second I'll show you why...", "most people miss this part...")
+-> Delayed payoff (main insight is intentionally held back)
+-> Micro-escalations every 3-5 seconds (new angle, sharper wording, visual or tonal shift)
+-> Pattern interrupts (pauses, emphasis, cut, zoom, gesture)
+-> Clear forward momentum: the viewer feels the video is going somewhere.
+
+# REWARD
+Describe the ultimate value that the viewer gets by watching this video (1-3 sentences).
+-> Be explicit: what does the viewer now understand, feel, or see differently?
+-> Define whether the reward is Education (clarity), Entertainment (emotional release), or Inspiration (self-belief / action).
+-> The reward should feel proportional to the time invested.
+
+# SCRIPT
+Describe the full script of the video (1-20 sentences, as many as needed).
+-> Structure:
+1. Immediate hook (no greeting)
+2. Problem framing / tension escalation
+3. Why this matters (stakes)
+4. Main insight or shift in perspective (this comes AFTER retention is established)
+5. Clean close (no rambling; optional CTA only if natural)
+-> Include: scenes, actions, voiceover, exact wording if possible.
+-> Keep sentences short. Spoken language only.
+
+OVERALL RULE:
+THE SHORTER THE ANALYSIS, THE BETTER.
+If it can be said in fewer words, it should be.
+Clarity > cleverness.
+Retention > information.`;
+
+// The concepts config, with the client-specific lines replaced by capitalised
+// placeholders. The shape is exactly what is on screen in the video.
+const CONCEPTS_PROMPT = `Adapt this video for WHO YOU ARE: WHAT YOU DO, WHO YOU SERVE, WHAT MAKES YOU DIFFERENT IN ONE OR TWO SENTENCES.
+
+Task:
+Give us 3 NEW video concepts inspired by the ORIGINAL reference.
+Do not copy the original.
+Translate the core idea into the CONTEXT OF YOUR NICHE AND YOUR AUDIENCE.
+MAINLY iterate and sharpen the HOOKS.
+
+Focus:
+- First 3 seconds must stop YOUR BUYER from scrolling
+- Hooks should challenge a belief, fear, or misconception they have
+- Calm authority > hype
+- Emotional credibility > performance
+- No shouting, no buzzwords, no exaggeration
+
+The output should have this format:
+
+# CONCEPT 1
+Text description (1-3 sentences)
+
+## HOOK
+Detailed hook description (1-3 sentences)
+Describe:
+- What is seen in the first 2 seconds
+- What is said in the first line
+- Why this hook works specifically for YOUR AUDIENCE
+
+## SCRIPT
+Detailed script description (1-20 sentences, as many as needed)
+Include:
+- Scene flow
+- Spoken text / voiceover
+- Clear but understated payoff
+- Subtle authority, not selling
+
+# CONCEPT 2
+...
+
+# CONCEPT 3
+...`;
+
 const SECTIONS = [
   "the idea: stop guessing what to post",
   "what the system does, in order",
   "what it costs to run",
   "how to pick the creators to study",
   "the two prompts that decide everything",
+  "the exact configs i use",
   "reading the output without fooling yourself",
   "what it gets wrong",
 ];
@@ -538,6 +635,41 @@ export default function ClaudeReelsPage() {
               the product.
             </p>
             <GuideSteps steps={guideSteps} />
+          </GuideSection>
+
+          <GuideSection title="the exact configs i use">
+            <p>
+              these are the two configs from the video, not a cleaned-up
+              version. the first one goes in the analysis field, the second in
+              the concepts field. the second has the client-specific lines
+              swapped for capitals, and those capitals are the only part you
+              have to write.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <p className="font-display text-lg font-medium text-silver">
+                analysis instruction
+              </p>
+              <CopyButton text={ANALYSIS_PROMPT} label="copy" />
+            </div>
+            <Block>{ANALYSIS_PROMPT}</Block>
+            <p>
+              the last four lines do more work than the rest. without them the
+              analysis comes back as an essay per video, and twenty-four essays
+              is a thing you will not read.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <p className="font-display text-lg font-medium text-silver">
+                new concepts instruction
+              </p>
+              <CopyButton text={CONCEPTS_PROMPT} label="copy" />
+            </div>
+            <Block>{CONCEPTS_PROMPT}</Block>
+            <p>
+              <strong>&quot;do not copy the original&quot;</strong> and{" "}
+              <strong>&quot;translate the core idea&quot;</strong> are the two
+              lines that keep this from being plagiarism with extra steps. the
+              mechanism transfers, the subject does not.
+            </p>
           </GuideSection>
 
           <GuideSection title="reading the output without fooling yourself">
