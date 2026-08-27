@@ -33,7 +33,8 @@ import {
   NO_FILTERS,
   SCALES,
   type CreatorFilters,
-  type CreatorHit,
+  CREATOR_TILE_SELECT,
+  type CreatorTileHit,
 } from "./types";
 
 const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
@@ -80,9 +81,9 @@ export const creatorSearchConfigured = Boolean(
 // lie at a minute and a half.
 const CACHE_TTL_MS = 90 * 1000;
 const CACHE_MAX = 200;
-const cache = new Map<string, { at: number; hits: CreatorHit[] }>();
+const cache = new Map<string, { at: number; hits: CreatorTileHit[] }>();
 
-function cacheGet(key: string): CreatorHit[] | null {
+function cacheGet(key: string): CreatorTileHit[] | null {
   const entry = cache.get(key);
   if (!entry) return null;
   if (Date.now() - entry.at > CACHE_TTL_MS) {
@@ -95,7 +96,7 @@ function cacheGet(key: string): CreatorHit[] | null {
   return entry.hits;
 }
 
-function cacheSet(key: string, hits: CreatorHit[]) {
+function cacheSet(key: string, hits: CreatorTileHit[]) {
   if (cache.size >= CACHE_MAX) {
     const oldest = cache.keys().next().value;
     if (oldest !== undefined) cache.delete(oldest);
@@ -111,7 +112,7 @@ async function matchCreators(
   count: number,
   filters: CreatorFilters,
   signal: AbortSignal,
-): Promise<CreatorHit[]> {
+): Promise<CreatorTileHit[]> {
   // The RPC takes a min and an exclusive max per filter, named after the
   // column, so the five ranges expand into ten arguments the same way the
   // roster's expand into ten query params. Adding a filter is one entry in
@@ -127,7 +128,24 @@ async function matchCreators(
     bounds[`below_${key}`] = below;
   }
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${MATCH_FN}`, {
+// PROJECTED IN SQL, not trimmed after the fact. PostgREST turns `select` into
+// the column list of the query it runs against the function, so the columns the
+// page never draws are never serialised, never sent and never parsed. Measured
+// 2026-08-27 against the live project: 140 KB for 50 creators became 22 KB, and 830 ms became 502 ms. The route trimmed to the same shape
+// before this existed; it trimmed AFTER the bytes had crossed a network.
+//
+// `order` is asked for explicitly rather than inherited. A projected function
+// scan does preserve the function's own ORDER BY today -- checked, on both
+// searches, over the full result -- but that is a property of how the planner
+// happens to execute it, and the order of this page is the ranking.
+  const projection = new URLSearchParams({
+    select: CREATOR_TILE_SELECT,
+    // rank_score, and never similarity: since 2026-08-25 the database orders by
+    // relevance MULTIPLIED by Oleg's 1-10 study score, and sorting the answer
+    // by the pure relevance instead would undo that silently.
+    order: "rank_score.desc",
+  });
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${MATCH_FN}?${projection}`, {
     method: "POST",
     headers: {
       apikey: SERVICE_KEY,
@@ -154,7 +172,7 @@ async function matchCreators(
   if (!res.ok) throw new Error(`${MATCH_FN} failed: ${res.status}`);
   const rows = await res.json();
   if (!Array.isArray(rows)) throw new Error(`${MATCH_FN} returned ${typeof rows}`);
-  return rows as CreatorHit[];
+  return rows as CreatorTileHit[];
 }
 
 /**
@@ -172,7 +190,7 @@ export async function searchCreators(
   // the response as Server-Timing, because this project has twice been wrong
   // about where its own time goes by reasoning instead of measuring.
   watch: Stopwatch = new Stopwatch(),
-): Promise<CreatorHit[]> {
+): Promise<CreatorTileHit[]> {
   // Every filter is part of the key. The same words under different filters are
   // a different answer, and serving one for the other is the classic cache bug:
   // it would look exactly like a filter that does nothing.

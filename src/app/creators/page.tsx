@@ -44,11 +44,6 @@ export const metadata: Metadata = {
 
 // The roster depends on searchParams and on a table creators.py rewrites, so it
 // is rendered per request.
-// Mumbai, where this project's Supabase lives. The argument is written out in
-// full in src/app/api/viral-reels/search/route.ts: the function used to run in
-// Washington DC and every read crossed an ocean each way. This page is
-// database calls and nothing else, so it is the clearest case of the lot.
-export const preferredRegion = ["bom1"];
 export const dynamic = "force-dynamic";
 
 /**

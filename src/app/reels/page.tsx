@@ -35,11 +35,6 @@ export const metadata: Metadata = {
 // The wall depends on searchParams and on a table sync.py rewrites, so it is
 // rendered per request. The facts read beside it caches for a minute, which is
 // what keeps a burst of paging off that query.
-// Mumbai, where this project's Supabase lives. The argument is written out in
-// full in src/app/api/viral-reels/search/route.ts: the function used to run in
-// Washington DC and every read crossed an ocean each way. This page is
-// database calls and nothing else, so it is the clearest case of the lot.
-export const preferredRegion = ["bom1"];
 export const dynamic = "force-dynamic";
 
 /**

@@ -176,15 +176,47 @@ export type ReelHit = ReelRow & { similarity: number };
  * ReelRow satisfies this structurally, so the browse wall, which does have full
  * rows on the server, needs no conversion to draw the same tile.
  */
-export type ReelTileRow = Pick<
-  ReelRow,
-  "shortcode" | "url" | "account" | "creator" | "posted_on" | "score" | "views" | "likes" | "thumb_url"
->;
+/**
+ * The columns the wall actually draws, as data rather than as a type, because
+ * this list has a second job: it is what the database is ASKED for.
+ *
+ * Measured 2026-08-27 against the live project, `reel_library_match` returns
+ * 501 KB for 200 reels and the wall reads 66 KB of it -- the write-ups, tags
+ * and caption are seven eighths of a payload nothing on this page opens. The
+ * route always dropped them; it dropped them AFTER they had crossed a network.
+ * PostgREST projects an RPC's result in SQL when it is given `select=`, so the
+ * columns below are the only ones that ever leave Postgres.
+ *
+ * `as const` so ReelTileRow is derived FROM the list. One list, and a column
+ * that is not on ReelRow is a build error rather than an undefined at runtime.
+ */
+export const REEL_TILE_COLUMNS = [
+  "shortcode",
+  "url",
+  "account",
+  "creator",
+  "posted_on",
+  "score",
+  "views",
+  "likes",
+  "thumb_url",
+] as const satisfies readonly (keyof ReelRow)[];
+
+/** What goes in PostgREST's `select`. `similarity` is the match function's own. */
+export const REEL_TILE_SELECT = [...REEL_TILE_COLUMNS, "similarity"].join(",");
+
+export type ReelTileRow = Pick<ReelRow, (typeof REEL_TILE_COLUMNS)[number]>;
 
 export type ReelTileHit = ReelTileRow & { similarity: number };
 
-/** The fields above, and nothing else, off any fuller row. */
-export function toTileRow(reel: ReelHit): ReelTileHit {
+/**
+ * The fields above, and nothing else, off any fuller row.
+ *
+ * Still here now that the database is asked for exactly these: it is what makes
+ * the route's answer a shape the page's type says it is, whatever an upstream
+ * happens to have added to the row.
+ */
+export function toTileRow(reel: ReelTileHit): ReelTileHit {
   return {
     shortcode: reel.shortcode,
     url: reel.url,

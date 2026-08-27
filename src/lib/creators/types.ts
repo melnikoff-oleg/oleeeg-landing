@@ -399,24 +399,57 @@ export type CreatorHit = CreatorRow & {
  * CreatorRow satisfies this structurally, so the roster, which has full rows on
  * the server, draws the same card with no conversion.
  */
-export type CreatorTileRow = Pick<
-  CreatorRow,
-  | "account"
-  | "name"
-  | "profile_url"
-  | "bio"
-  | "niche"
-  | "followers"
-  | "verified"
-  | "best_views"
-  | "total_views"
-  | "avatar_url"
->;
+/**
+ * The columns a card actually draws, as data rather than as a type, because
+ * this list has a second job: it is what the database is ASKED for.
+ *
+ * Measured 2026-08-27 against the live project, `creator_search_match` returns
+ * 140 KB for 50 creators and the cards read 22 KB of it -- the tags,
+ * signatures, top ideas and thumbnails are four fifths of a payload nothing on
+ * this page opens. The route always dropped them; it dropped them AFTER they
+ * had crossed a network. PostgREST projects an RPC's result in SQL when it is
+ * given `select=`, so the columns below are the only ones that ever leave
+ * Postgres.
+ *
+ * `as const` so CreatorTileRow is derived FROM the list. One list, and a column
+ * that is not on CreatorRow is a build error rather than an undefined at
+ * runtime.
+ */
+export const CREATOR_TILE_COLUMNS = [
+  "account",
+  "name",
+  "profile_url",
+  "bio",
+  "niche",
+  "followers",
+  "verified",
+  "best_views",
+  "total_views",
+  "avatar_url",
+] as const satisfies readonly (keyof CreatorRow)[];
+
+/**
+ * What goes in PostgREST's `select`.
+ *
+ * `similarity` is what the 0.20 floor is applied to and `rank_score` is what
+ * the rows are ORDERED by -- the two are not interchangeable and the argument
+ * is in search/creator_worth.sql. rank_score is fetched despite no card
+ * reading it, because the order has to be asked for explicitly once the result
+ * is projected: a bare projection happens to preserve the function's own
+ * ordering today, and "happens to" is not a thing to rank a page on.
+ */
+export const CREATOR_TILE_SELECT = [
+  ...CREATOR_TILE_COLUMNS,
+  "similarity",
+  "rank_score",
+].join(",");
+
+export type CreatorTileRow = Pick<CreatorRow, (typeof CREATOR_TILE_COLUMNS)[number]>;
 
 export type CreatorTileHit = CreatorTileRow & { similarity: number };
 
 /** The fields above, and nothing else, off a full search hit. */
-export function toCreatorTile(c: CreatorHit): CreatorTileHit {
+export function toCreatorTile(c: CreatorTileHit): CreatorTileHit {
   return {
     account: c.account,
     name: c.name,

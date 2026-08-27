@@ -15,16 +15,13 @@ import {
 } from "@/lib/creators/types";
 
 export const runtime = "nodejs";
-// SAME CITY AS THE DATABASE. Measured 2026-08-27: `x-vercel-id` read
-// `fra1::iad1::...`, so the function ran in Washington DC while the Supabase
-// project's region is `ap-south-1`, Mumbai. Every database call was crossing
-// 12,000 km and back, plus a fresh TLS handshake on a cold instance, which is
-// why a read that costs 220 ms straight to Supabase cost 700-1,260 ms through
-// a route. `bom1` is Vercel's Mumbai region. The trade is real and it was
-// checked: the OpenAI hop gets slower from here, but a search makes that call
-// at most once and now usually not at all (src/lib/search/embed-cache.ts),
-// while every page and every filter change is database calls only.
-export const preferredRegion = ["bom1"];
+// bom1, Vercel's Mumbai region, declared in vercel.json at the deployment level.
+// It is NOT declared here: `preferredRegion` is honoured only for the Edge
+// runtime, and these routes run on Node. The measurement that made it matter is
+// in plans/search-speed.md -- the function ran in iad1, Washington DC, while
+// this project's Supabase region is ap-south-1, Mumbai, so every database call
+// crossed 12,000 km each way plus a TLS handshake on a cold instance, and a read
+// that costs 220 ms straight to Supabase cost 700-1,260 ms through a route.
 export const dynamic = "force-dynamic";
 // Two short upstream hops with a 12s budget of their own; this only stops a
 // wedged function from holding open for the platform maximum.
