@@ -19,6 +19,7 @@
 // visible in the shipped /ideas client chunk.
 import "server-only";
 import { rangesKey } from "@/lib/filters/range";
+import { embedQuery } from "@/lib/search/embed";
 import {
   NO_REEL_FILTERS,
   reelRangeArgs,
@@ -31,10 +32,9 @@ const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 const OPENAI_KEY = process.env.OPENAI_API_KEY ?? "";
 
-// Must match search/sync.py. Changing either value invalidates every stored
-// vector, so the corpus has to be re-embedded in the same commit.
-const EMBED_MODEL = "text-embedding-3-large";
-const EMBED_DIMS = 3072;
+// The model and the dimension count are in src/lib/search/embed.ts, beside the
+// call that uses them. They must match search/sync.py in the reels-database
+// repo, because the corpus and the query have to be embedded by the same model.
 // Prefixed like the table, so it cannot collide with another feature's
 // match_* function in this shared Supabase project. It superseded
 // reel_search_match on 2026-08-25: same vector scan, but it takes a min and an
@@ -48,7 +48,7 @@ const MATCH_FN = "reel_library_match";
  * lives in another repo's SQL; the short TTL below is the backstop for the times
  * it is forgotten.
  */
-const RANK_VERSION = "v2";
+const RANK_VERSION = "2026-08-27-probe";
 
 export const reelSearchConfigured = Boolean(SUPABASE_URL && SERVICE_KEY && OPENAI_KEY);
 
@@ -84,23 +84,6 @@ function cacheSet(key: string, hits: ReelHit[]) {
 }
 
 // --------------------------------------------------------------------- search
-
-async function embedQuery(query: string, signal: AbortSignal): Promise<number[]> {
-  const res = await fetch("https://api.openai.com/v1/embeddings", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENAI_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ model: EMBED_MODEL, input: query, dimensions: EMBED_DIMS }),
-    signal,
-  });
-  if (!res.ok) throw new Error(`embedding failed: ${res.status}`);
-  const json = (await res.json()) as { data?: { embedding: number[] }[] };
-  const vector = json.data?.[0]?.embedding;
-  if (!vector) throw new Error("embedding failed: no vector");
-  return vector;
-}
 
 async function matchReels(
   embedding: number[],

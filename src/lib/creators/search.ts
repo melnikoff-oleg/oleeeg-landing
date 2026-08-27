@@ -24,6 +24,7 @@
 // bundle. It reads three secrets at import time.
 import "server-only";
 import { boundsOf } from "@/lib/filters/range";
+import { embedQuery } from "@/lib/search/embed";
 import {
   CREATOR_MIN_SIMILARITY,
   CREATOR_RESULT_COUNT,
@@ -38,19 +39,21 @@ const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 const OPENAI_KEY = process.env.OPENAI_API_KEY ?? "";
 
-// Must match search/creators.py, and match src/lib/reels/search.ts, because all
-// three corpora are embedded by the same model. Changing either value
-// invalidates every stored vector, so the index has to be rebuilt in the same
-// commit.
-const EMBED_MODEL = "text-embedding-3-large";
-const EMBED_DIMS = 3072;
+// The model and the dimension count are in src/lib/search/embed.ts, beside the
+// call that uses them. They must match search/creators.py in the reels-database
+// repo, because the corpus and the query have to be embedded by the same model;
+// keeping a second copy of that here is how half the site drifts silently.
 // Prefixed like the table, so it cannot collide with another feature's match_*
 // function in this shared Supabase project.
 const MATCH_FN = "creator_search_match";
 // The ranking creator_search_match implements, as of the migration named.
-// search/creator_handle.sql, 2026-08-27: sim^2.5 x craft x form, and an exact
-// handle floors similarity at 0.95 so naming a creator returns that creator.
-const RANK_VERSION = "2026-08-27-handle";
+// search/creator_probe.sql, 2026-08-27: the blend is unchanged from
+// creator_handle.sql to the character -- sim^2.5 x craft x form, an exact handle
+// floors similarity at 0.95 -- but the facet channels are now scored in two
+// stages, a 1,024-dimension probe over all 36,465 facets followed by the real
+// 3,072-dimension cosine for the ~2,000 that came out close. Measured identical
+// on the top twelve over 40 queries, and 5.3-8.6 s became 0.4-1.1 s.
+const RANK_VERSION = "2026-08-27-probe";
 
 export const creatorSearchConfigured = Boolean(
   SUPABASE_URL && SERVICE_KEY && OPENAI_KEY,
@@ -100,23 +103,6 @@ function cacheSet(key: string, hits: CreatorHit[]) {
 }
 
 // --------------------------------------------------------------------- search
-
-async function embedQuery(query: string, signal: AbortSignal): Promise<number[]> {
-  const res = await fetch("https://api.openai.com/v1/embeddings", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENAI_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ model: EMBED_MODEL, input: query, dimensions: EMBED_DIMS }),
-    signal,
-  });
-  if (!res.ok) throw new Error(`embedding failed: ${res.status}`);
-  const json = (await res.json()) as { data?: { embedding: number[] }[] };
-  const vector = json.data?.[0]?.embedding;
-  if (!vector) throw new Error("embedding failed: no vector");
-  return vector;
-}
 
 async function matchCreators(
   embedding: number[],
