@@ -23,6 +23,7 @@ import {
 } from "@/lib/creators/types";
 import { normalizePage } from "@/lib/reels/types";
 import { CreatorCard } from "@/components/creator-card";
+import { AnswerCache, answerKey } from "@/lib/search/answer-cache";
 import { FilterBar } from "@/components/filter-bar";
 
 /** The roster's own URL, carrying every set filter with it. */
@@ -83,9 +84,37 @@ function PageLink({
 
 type State =
   | { kind: "idle" }
-  | { kind: "loading" }
+  // `previous` is what was on screen when this search started, already cut to
+  // the length it was drawn at. A new answer replaces the old one in place
+  // rather than blanking the list first: five pulsing grey rectangles where ten
+  // creators were is a page that got WORSE while it worked.
+  | { kind: "loading"; previous: CreatorTileHit[] }
   | { kind: "done"; query: string; results: CreatorTileHit[] }
   | { kind: "error"; message: string };
+
+/**
+ * The answers this browser already has.
+ *
+ * Module scope on purpose, so it survives the component unmounting and
+ * remounting -- which is exactly what opening a creator and pressing Back does.
+ * Bounded and short-lived; the reasoning is in src/lib/search/answer-cache.ts.
+ */
+const answers = new AnswerCache<CreatorTileHit[]>(30);
+
+/**
+ * A hairline that fills while a search is in flight.
+ *
+ * It never reaches the end, because it is not measuring anything -- there is no
+ * progress to report from a single upstream call. It exists so that a list
+ * dimmed for a slow answer still says something is happening.
+ */
+function Bar() {
+  return (
+    <div className="mb-4 h-px w-full overflow-hidden bg-hairline" aria-hidden>
+      <div className="h-full w-1/3 animate-[searchbar_1.1s_ease-in-out_infinite] bg-vivid-blue" />
+    </div>
+  );
+}
 
 function Skeletons() {
   return (
@@ -157,6 +186,14 @@ export function CreatorSearch({
   // How much of a search answer is on screen. The whole answer is already in
   // memory; this is the part of it the list has drawn.
   const [shown, setShown] = useState(CREATOR_RESULT_COUNT);
+  // A mirror of `shown`, readable from `run` without making `run` depend on it.
+  // `run` is handed to effects and to the debounced commit; rebuilding it every
+  // time another twenty-four reels are revealed would churn both for a value
+  // that only decides how much of the OLD answer stays on screen while the new
+  // one loads.
+  const shownRef = useRef(shown);
+  shownRef.current = shown;
+
   const [rosterError, setRosterError] = useState("");
 
   const inflight = useRef<AbortController | null>(null);
@@ -269,10 +306,24 @@ export function CreatorSearch({
     // A new search abandons the one before it, so a fast typist never sees an
     // older answer overwrite a newer one.
     inflight.current?.abort();
+
+    // Already answered this session. No request at all, and no loading state to
+    // flash through: a chip clicked twice, a word retyped after clearing it, or
+    // the Back button should cost nothing.
+    const remembered = answers.get(answerKey(query, active));
+    if (remembered) {
+      setShown(CREATOR_RESULT_COUNT);
+      setState({ kind: "done", query, results: remembered });
+      return;
+    }
+
     const controller = new AbortController();
     inflight.current = controller;
 
-    setState({ kind: "loading" });
+    setState((prev) => ({
+      kind: "loading",
+      previous: prev.kind === "done" ? prev.results.slice(0, shownRef.current) : [],
+    }));
     // Back to one screenful. A new query that kept the old scroll depth would
     // open five creators down its own answer.
     setShown(CREATOR_RESULT_COUNT);
@@ -299,7 +350,9 @@ export function CreatorSearch({
         });
         return;
       }
-      setState({ kind: "done", query, results: json.results ?? [] });
+      const results = json.results ?? [];
+      answers.set(answerKey(query, active), results);
+      setState({ kind: "done", query, results });
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
       setState({
@@ -454,6 +507,10 @@ export function CreatorSearch({
   };
 
   const results = state.kind === "done" ? state.results : [];
+  // What to draw while a new answer is on its way. Ten cards going slightly
+  // quiet reads as "this is being replaced"; ten cards going away reads as
+  // "it broke".
+  const holding = state.kind === "loading" ? state.previous : [];
   const showRoster = state.kind === "idle";
 
   /**
@@ -552,7 +609,18 @@ export function CreatorSearch({
 
         {state.kind === "loading" && (
           <div className="mt-8">
-            <Skeletons />
+            {holding.length ? (
+              <>
+                <Bar />
+                <div className="space-y-4 opacity-45 transition-opacity duration-200">
+                  {holding.map((creator) => (
+                    <CreatorCard key={creator.account} creator={creator} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <Skeletons />
+            )}
           </div>
         )}
 

@@ -29,6 +29,11 @@ import { normalizePage } from "@/lib/reels/types";
 import { CreatorReelTile } from "@/components/creator-reel-tile";
 
 // One creator, read live from a table creators.py rewrites.
+// Mumbai, where this project's Supabase lives. The argument is written out in
+// full in src/app/api/viral-reels/search/route.ts: the function used to run in
+// Washington DC and every read crossed an ocean each way. This page is
+// database calls and nothing else, so it is the clearest case of the lot.
+export const preferredRegion = ["bom1"];
 export const dynamic = "force-dynamic";
 
 type Params = { params: Promise<{ account: string }> };
@@ -457,8 +462,8 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
             // page is the wall of stills, so the thumbnails get the width and
             // the numbers ride on top of them.
             <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2 lg:grid-cols-4">
-              {reels.map((reel) => (
-                <CreatorReelTile key={reel.shortcode} reel={reel} />
+              {reels.map((reel, i) => (
+                <CreatorReelTile key={reel.shortcode} reel={reel} index={i} />
               ))}
             </div>
           )}

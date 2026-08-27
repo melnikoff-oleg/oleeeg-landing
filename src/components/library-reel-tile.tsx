@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Eye, Film, Flame, Heart } from "lucide-react";
 import { compactNumber, formatRelative, formatScore } from "@/lib/reels/format";
+import { tileImage } from "@/lib/reels/paint-order";
 import type { ReelTileRow } from "@/lib/reels/types";
 
 /**
@@ -33,10 +34,22 @@ import type { ReelTileRow } from "@/lib/reels/types";
  * The handle sits above the strip rather than in it, and it is the one link that
  * does not go to Instagram: from a wall of many creators, "who made this" is the
  * question the tile cannot answer without it.
+ *
+ * `index` is the tile's place in the wall and it decides only one thing: how
+ * this tile asks for its picture. See src/lib/reels/paint-order.ts. It defaults
+ * to the lazy end rather than the eager one, so a caller that forgets to pass
+ * it costs a late picture and never stolen bandwidth.
  */
-export function LibraryReelTile({ reel }: { reel: ReelTileRow }) {
+export function LibraryReelTile({
+  reel,
+  index = Number.POSITIVE_INFINITY,
+}: {
+  reel: ReelTileRow;
+  index?: number;
+}) {
   const posted = formatRelative(reel.posted_on);
   const score = formatScore(reel.score);
+  const image = tileImage(index);
 
   return (
     // A group, not an anchor. The tile's own link covers the picture and the
@@ -54,7 +67,13 @@ export function LibraryReelTile({ reel }: { reel: ReelTileRow }) {
             alt=""
             width={360}
             height={640}
-            loading="lazy"
+            // The top row is fetched at once and at high priority, the rest of
+            // the first screen at once but yielding to it, everything below
+            // only when it is scrolled towards. Every tile was `lazy` before
+            // 2026-08-27, the top row included, which deferred exactly the four
+            // pictures the visitor was waiting for.
+            loading={image.loading}
+            fetchPriority={image.fetchPriority}
             decoding="async"
             className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />

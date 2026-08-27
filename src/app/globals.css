@@ -40,6 +40,30 @@ body {
     transform: none;
   }
 }
+/* ---- Search progress ----
+   A hairline that crosses the top of the wall while a new answer is coming.
+   It measures nothing on purpose: one upstream call reports no progress, so a
+   bar that filled towards an end would be lying about how far along it is.
+   Its job is only to say that the dimmed wall underneath is being replaced
+   rather than broken. */
+@keyframes searchbar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Still visible, just still. A moving element is the thing being avoided,
+     not the information it carries. */
+  [class*="animate-[searchbar"] {
+    animation: none;
+    width: 100%;
+    opacity: 0.5;
+  }
+}
+
 @keyframes reveal-blur {
   from {
     opacity: 0;

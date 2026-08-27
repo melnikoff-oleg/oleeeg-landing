@@ -20,6 +20,7 @@
 import "server-only";
 import { rangesKey } from "@/lib/filters/range";
 import { embedQuery } from "@/lib/search/embed";
+import { Stopwatch } from "@/lib/perf/timing";
 import {
   NO_REEL_FILTERS,
   reelRangeArgs,
@@ -126,6 +127,10 @@ export async function searchReels(
   ranges: ReelFilters = NO_REEL_FILTERS,
   count: number = RESULT_COUNT,
   callerSignal?: AbortSignal,
+  // Optional, and the route always passes one. Every hop it records leaves on
+  // the response as Server-Timing, because this project has twice been wrong
+  // about where its own time goes by reasoning instead of measuring.
+  watch: Stopwatch = new Stopwatch(),
 ): Promise<ReelHit[]> {
   // Every filter is part of the key. The same words under different filters are
   // a different answer, and serving one for the other is the classic cache bug:
@@ -137,7 +142,10 @@ export async function searchReels(
     query.toLowerCase(),
   ].join(":");
   const cached = cacheGet(key);
-  if (cached) return cached;
+  if (cached) {
+    watch.record("answer-hit", 0);
+    return cached;
+  }
 
   // One budget for both hops. A hung upstream must not hold the function open
   // for the platform maximum.
@@ -147,8 +155,13 @@ export async function searchReels(
   // point finishing the embedding they will never see.
   callerSignal?.addEventListener("abort", () => controller.abort(), { once: true });
   try {
-    const embedding = await embedQuery(query, controller.signal);
-    const ranked = await matchReels(embedding, count, ranges, controller.signal);
+    const { vector, source } = await watch.time("embed", () =>
+      embedQuery(query, controller.signal),
+    );
+    watch.record(`embed-${source}`, 0);
+    const ranked = await watch.time("match", () =>
+      matchReels(vector, count, ranges, controller.signal),
+    );
     // pgvector orders by distance and stops at the limit; it never judges
     // whether the nearest reel is near at all. Dropping the far ones here is
     // what lets the page say "nothing is close" instead of filling ten slots

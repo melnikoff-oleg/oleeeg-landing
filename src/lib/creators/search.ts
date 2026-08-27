@@ -25,6 +25,7 @@
 import "server-only";
 import { boundsOf } from "@/lib/filters/range";
 import { embedQuery } from "@/lib/search/embed";
+import { Stopwatch } from "@/lib/perf/timing";
 import {
   CREATOR_MIN_SIMILARITY,
   CREATOR_RESULT_COUNT,
@@ -167,6 +168,10 @@ export async function searchCreators(
   filters: CreatorFilters = NO_FILTERS,
   count: number = CREATOR_RESULT_COUNT,
   callerSignal?: AbortSignal,
+  // Optional, and the route always passes one. Every hop it records leaves on
+  // the response as Server-Timing, because this project has twice been wrong
+  // about where its own time goes by reasoning instead of measuring.
+  watch: Stopwatch = new Stopwatch(),
 ): Promise<CreatorHit[]> {
   // Every filter is part of the key. The same words under different filters are
   // a different answer, and serving one for the other is the classic cache bug:
@@ -183,7 +188,10 @@ export async function searchCreators(
     query.toLowerCase(),
   ].join(":");
   const cached = cacheGet(key);
-  if (cached) return cached;
+  if (cached) {
+    watch.record("answer-hit", 0);
+    return cached;
+  }
 
   // One budget for both hops. A hung upstream must not hold the function open
   // for the platform maximum.
@@ -193,8 +201,13 @@ export async function searchCreators(
   // point finishing the embedding they will never see.
   callerSignal?.addEventListener("abort", () => controller.abort(), { once: true });
   try {
-    const embedding = await embedQuery(query, controller.signal);
-    const ranked = await matchCreators(embedding, query, count, filters, controller.signal);
+    const { vector, source } = await watch.time("embed", () =>
+      embedQuery(query, controller.signal),
+    );
+    watch.record(`embed-${source}`, 0);
+    const ranked = await watch.time("match", () =>
+      matchCreators(vector, query, count, filters, controller.signal),
+    );
     // pgvector orders by distance and stops at the limit; it never judges
     // whether the nearest creator is near at all. Dropping the far ones here is
     // what lets the page say "nobody is close" instead of filling twelve slots

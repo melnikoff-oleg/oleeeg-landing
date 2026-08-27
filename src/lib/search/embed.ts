@@ -9,9 +9,22 @@
 // same argument as src/lib/filters/range.ts: one implementation, handed what
 // differs.
 //
+// SINCE 2026-08-27 THE PAID CALL IS THE LAST RESORT, not the first move.
+// Measured that day, this hop is 270-1,900 ms and it is the slowest single
+// thing in a search. It is also the only thing in a search that can be cached
+// forever, because an embedding of a given string under a given model at a
+// given width never changes. src/lib/search/embed-cache.ts holds that argument
+// and the race; this file supplies the two upstreams it races.
+//
 // A build error, not a runtime one, if this is ever pulled into a client
 // bundle. It reads a secret at call time.
 import "server-only";
+import {
+  cacheKey,
+  resolveEmbedding,
+  VectorMemo,
+  type EmbeddingSource,
+} from "./embed-cache";
 
 /**
  * Must match search/sync.py and search/creator_facets.py in the reels-database
@@ -92,7 +105,7 @@ async function attempt(
  * the second time -- and neither is an abort from the caller, which means the
  * visitor typed again and nobody is waiting for this answer.
  */
-export async function embedQuery(query: string, signal: AbortSignal): Promise<number[]> {
+async function embedFresh(query: string, signal: AbortSignal): Promise<number[]> {
   try {
     return await attempt(query, signal, FIRST_ATTEMPT_MS);
   } catch (err) {
@@ -103,4 +116,94 @@ export async function embedQuery(query: string, signal: AbortSignal): Promise<nu
     // function only owns how that total is divided between two tries.
     return attempt(query, signal, Infinity);
   }
+}
+
+// ------------------------------------------------------------- the two caches
+
+const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+
+function supabaseHeaders(): HeadersInit {
+  return {
+    apikey: SERVICE_KEY,
+    Authorization: `Bearer ${SERVICE_KEY}`,
+    "Content-Type": "application/json",
+  };
+}
+
+/**
+ * Survives a cold instance, which the memo does not. Created by
+ * search/query_embedding.sql in the reels-database repo.
+ *
+ * A LOOKUP THAT FAILS MUST READ AS A MISS, never as a failure. This whole file
+ * is an optimisation, and the only acceptable failure mode for an optimisation
+ * is that a search costs what it cost before there was one.
+ */
+async function lookupStored(key: string, signal: AbortSignal): Promise<number[] | null> {
+  if (!SUPABASE_URL || !SERVICE_KEY) return null;
+  const params = new URLSearchParams({
+    select: "embedding",
+    key: `eq.${key}`,
+    limit: "1",
+  });
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/query_embedding?${params}`, {
+    headers: supabaseHeaders(),
+    signal,
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  const rows = (await res.json()) as { embedding?: string | number[] }[];
+  const stored = rows?.[0]?.embedding;
+  if (!stored) return null;
+  // pgvector comes back over PostgREST as its own text form, "[0.1,0.2,...]",
+  // which is also valid JSON. Parsed rather than trusted: a row written by a
+  // different model, or half-written, must read as a miss.
+  const vector = typeof stored === "string" ? (JSON.parse(stored) as unknown) : stored;
+  if (!Array.isArray(vector) || vector.length !== EMBED_DIMS) return null;
+  return vector as number[];
+}
+
+/** Fire and forget. A cache that cannot be written is still a cache. */
+async function storeVector(key: string, query: string, vector: number[]): Promise<void> {
+  if (!SUPABASE_URL || !SERVICE_KEY) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/rpc/remember_query_embedding`, {
+    method: "POST",
+    headers: supabaseHeaders(),
+    body: JSON.stringify({
+      k: key,
+      q: query,
+      m: EMBED_MODEL,
+      d: EMBED_DIMS,
+      v: vector,
+    }),
+  });
+}
+
+/**
+ * Bounded and never expired: see the argument in embed-cache.ts. 200 vectors is
+ * roughly 5 MB, which a serverless instance has hundreds of.
+ */
+const memo = new VectorMemo(200);
+
+/**
+ * The query as a vector, from the cheapest place that has it.
+ *
+ * `source` is returned rather than logged because it goes onto the response as
+ * a Server-Timing metric: "was that search slow because it was a new query, or
+ * is something else wrong" is the first question anyone asks, and it should be
+ * answerable off a response header rather than by reasoning.
+ */
+export async function embedQuery(
+  query: string,
+  signal: AbortSignal,
+): Promise<{ vector: number[]; source: EmbeddingSource }> {
+  const key = cacheKey(query, EMBED_MODEL, EMBED_DIMS);
+  return resolveEmbedding({
+    key,
+    memo,
+    lookup: (k) => lookupStored(k, signal),
+    // The key is what the cache is keyed on; the WORDS are what OpenAI is sent.
+    embed: (_k, paidSignal) => embedFresh(query, paidSignal),
+    store: (vector) => storeVector(key, query, vector),
+  });
 }

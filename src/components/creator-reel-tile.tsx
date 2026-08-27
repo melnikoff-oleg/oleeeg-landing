@@ -1,3 +1,4 @@
+import { tileImage } from "@/lib/reels/paint-order";
 import { Eye, Film, Handshake, Heart, Users2 } from "lucide-react";
 import { compactNumber, formatRelative } from "@/lib/reels/format";
 import type { CreatorReel } from "@/lib/creators/types";
@@ -82,7 +83,16 @@ function Credits({ reel }: { reel: CreatorReel }) {
  * Still no outlier score, comment count or read/unread marker: those belong to a
  * page that ranks reels from different creators against each other.
  */
-export function CreatorReelTile({ reel }: { reel: CreatorReel }) {
+export function CreatorReelTile({
+  reel,
+  // The tile's place in the grid, and the only thing it decides is how this
+  // tile asks for its picture. See src/lib/reels/paint-order.ts.
+  index = Number.POSITIVE_INFINITY,
+}: {
+  reel: CreatorReel;
+  index?: number;
+}) {
+  const image = tileImage(index);
   const posted = formatRelative(reel.posted_on);
 
   return (
@@ -106,7 +116,8 @@ export function CreatorReelTile({ reel }: { reel: CreatorReel }) {
             alt=""
             width={360}
             height={640}
-            loading="lazy"
+            loading={image.loading}
+            fetchPriority={image.fetchPriority}
             decoding="async"
             className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />

@@ -4,6 +4,7 @@
 // bucket-free cost: one embedding and one indexed read, a fraction of a cent.
 
 import { NextResponse } from "next/server";
+import { Stopwatch } from "@/lib/perf/timing";
 import { checkRateLimit, getClientIp } from "@/lib/marketing-brain/rate-limit";
 import { creatorSearchConfigured, searchCreators } from "@/lib/creators/search";
 import {
@@ -14,6 +15,16 @@ import {
 } from "@/lib/creators/types";
 
 export const runtime = "nodejs";
+// SAME CITY AS THE DATABASE. Measured 2026-08-27: `x-vercel-id` read
+// `fra1::iad1::...`, so the function ran in Washington DC while the Supabase
+// project's region is `ap-south-1`, Mumbai. Every database call was crossing
+// 12,000 km and back, plus a fresh TLS handshake on a cold instance, which is
+// why a read that costs 220 ms straight to Supabase cost 700-1,260 ms through
+// a route. `bom1` is Vercel's Mumbai region. The trade is real and it was
+// checked: the OpenAI hop gets slower from here, but a search makes that call
+// at most once and now usually not at all (src/lib/search/embed-cache.ts),
+// while every page and every filter change is database calls only.
+export const preferredRegion = ["bom1"];
 export const dynamic = "force-dynamic";
 // Two short upstream hops with a 12s budget of their own; this only stops a
 // wedged function from holding open for the platform maximum.
@@ -26,6 +37,7 @@ export const maxDuration = 20;
 const DAILY_LIMIT = 300;
 
 export async function POST(req: Request) {
+  const watch = new Stopwatch();
   // Validation first, before any config or upstream call, so the guard-rail
   // branches are deterministic and cost nothing.
   let body: unknown;
@@ -58,13 +70,19 @@ export async function POST(req: Request) {
   }
 
   try {
-    const hits = await searchCreators(query, filters, CREATOR_RESULT_MAX, req.signal);
+    const hits = await searchCreators(query, filters, CREATOR_RESULT_MAX, req.signal, watch);
     // Card rows, not full ones. The card paints an avatar, a handle, three
     // numbers, the bio and the niche; the tags, signatures, top ideas and
     // thumbnails it never reads are four fifths of the payload. At 50 creators
     // that is ~15 KB rather than 135 KB, which is what makes sending the whole
     // answer at once cheaper than sending twelve rows used to be.
-    return NextResponse.json({ query, filters, results: hits.map(toCreatorTile) });
+    return NextResponse.json(
+      { query, filters, results: hits.map(toCreatorTile) },
+      // Every hop, on the response. Chrome's network panel draws it as a bar
+      // chart with no setup, so "why was that slow" is read off a header rather
+      // than argued from the source.
+      { headers: { "Server-Timing": watch.header() } },
+    );
   } catch (err) {
     // A dropped request is not a failure. Every filter change can abort the one
     // before it, and clicking into a creator aborts whatever was in flight, so

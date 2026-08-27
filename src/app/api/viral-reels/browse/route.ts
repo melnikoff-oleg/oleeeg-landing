@@ -16,6 +16,11 @@ import { LIBRARY_PAGE_SIZE, REEL_FILTERS } from "@/lib/reels/filters";
 import { normalizePage } from "@/lib/reels/types";
 
 export const runtime = "nodejs";
+// Mumbai, where this project's Supabase lives. The argument is written out in
+// full in src/app/api/viral-reels/search/route.ts: the function used to run in
+// Washington DC and every read crossed an ocean each way. This page is
+// database calls and nothing else, so it is the clearest case of the lot.
+export const preferredRegion = ["bom1"];
 export const dynamic = "force-dynamic";
 export const maxDuration = 20;
 

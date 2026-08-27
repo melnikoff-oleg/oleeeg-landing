@@ -27,6 +27,7 @@ import {
 } from "@/lib/reels/types";
 import { FilterBar } from "@/components/filter-bar";
 import { LibraryReelTile } from "@/components/library-reel-tile";
+import { AnswerCache, answerKey } from "@/lib/search/answer-cache";
 
 /** The library's own URL, carrying every set filter with it. */
 function pageHref(page: number, ranges: ReelFilters, query: string): string {
@@ -87,9 +88,39 @@ function PageLink({
 
 type SearchState =
   | { kind: "idle" }
-  | { kind: "loading" }
+  // `previous` is what was on screen when this search started, already cut to
+  // the length it was drawn at. A new answer replaces the old one in place
+  // rather than blanking the wall first: eight pulsing grey rectangles where
+  // sixty reels were is a page that got WORSE while it worked, and it is the
+  // single loudest thing about waiting here.
+  | { kind: "loading"; previous: ReelTileHit[] }
   | { kind: "done"; query: string; results: ReelTileHit[] }
   | { kind: "error"; message: string };
+
+/**
+ * The answers this browser already has.
+ *
+ * Module scope on purpose, so it survives the component unmounting and
+ * remounting -- which is exactly what opening a reel and pressing Back does.
+ * Bounded and short-lived; the reasoning is in src/lib/search/answer-cache.ts.
+ */
+const answers = new AnswerCache<ReelTileHit[]>(30);
+
+/**
+ * A hairline that fills while a search is in flight.
+ *
+ * It never reaches the end, because it is not measuring anything -- there is no
+ * progress to report from a single upstream call. It exists so that a wall
+ * dimmed for a slow answer still says something is happening, which a dimmed
+ * wall on its own does not.
+ */
+function Bar() {
+  return (
+    <div className="mb-4 h-px w-full overflow-hidden bg-hairline" aria-hidden>
+      <div className="h-full w-1/3 animate-[searchbar_1.1s_ease-in-out_infinite] bg-vivid-blue" />
+    </div>
+  );
+}
 
 function Skeletons() {
   return (
@@ -114,8 +145,8 @@ function Wall({ reels }: { reels: readonly ReelTileRow[] }) {
     // wall of stills, so the thumbnails get the width and the numbers ride on
     // top of them.
     <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2 lg:grid-cols-4">
-      {reels.map((reel) => (
-        <LibraryReelTile key={reel.shortcode} reel={reel} />
+      {reels.map((reel, i) => (
+        <LibraryReelTile key={reel.shortcode} reel={reel} index={i} />
       ))}
     </div>
   );
@@ -179,6 +210,14 @@ export function Library({
   // How much of a search answer is on screen. The whole answer is already in
   // memory; this is the part of it the wall has drawn.
   const [shown, setShown] = useState(LIBRARY_RESULT_COUNT);
+  // A mirror of `shown`, readable from `run` without making `run` depend on it.
+  // `run` is handed to effects and to the debounced commit; rebuilding it every
+  // time another twenty-four reels are revealed would churn both for a value
+  // that only decides how much of the OLD answer stays on screen while the new
+  // one loads.
+  const shownRef = useRef(shown);
+  shownRef.current = shown;
+
   const [wallError, setWallError] = useState(initialFailed ? "the library did not come back. try again in a moment." : "");
 
   const searchInflight = useRef<AbortController | null>(null);
@@ -291,10 +330,24 @@ export function Library({
     // A new search abandons the one before it, so a fast typist never sees an
     // older answer overwrite a newer one.
     searchInflight.current?.abort();
+
+    // Already answered this session. No request at all, and no loading state to
+    // flash through: a chip clicked twice, a word retyped after clearing it, or
+    // the Back button should cost nothing.
+    const remembered = answers.get(answerKey(query, active));
+    if (remembered) {
+      setShown(LIBRARY_RESULT_COUNT);
+      setState({ kind: "done", query, results: remembered });
+      return;
+    }
+
     const controller = new AbortController();
     searchInflight.current = controller;
 
-    setState({ kind: "loading" });
+    setState((prev) => ({
+      kind: "loading",
+      previous: prev.kind === "done" ? prev.results.slice(0, shownRef.current) : [],
+    }));
     // Back to one screenful. A new query that kept the old scroll depth would
     // open six rows down its own answer.
     setShown(LIBRARY_RESULT_COUNT);
@@ -321,7 +374,9 @@ export function Library({
         });
         return;
       }
-      setState({ kind: "done", query, results: json.results ?? [] });
+      const results = json.results ?? [];
+      answers.set(answerKey(query, active), results);
+      setState({ kind: "done", query, results });
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
       setState({
@@ -471,6 +526,10 @@ export function Library({
 
   const results = state.kind === "done" ? state.results : [];
   const showWall = state.kind === "idle";
+  // What to draw while a new answer is on its way. Sixty reels going slightly
+  // quiet reads as "this is being replaced"; sixty reels going away reads as
+  // "it broke".
+  const holding = state.kind === "loading" ? state.previous : [];
 
   /**
    * Instagram's behaviour, which is what Oleg asked for: another screenful of
@@ -568,7 +627,17 @@ export function Library({
           </p>
         )}
 
-        {state.kind === "loading" && <Skeletons />}
+        {state.kind === "loading" &&
+          (holding.length ? (
+            <>
+              <Bar />
+              <div className="opacity-45 transition-opacity duration-200">
+                <Wall reels={holding} />
+              </div>
+            </>
+          ) : (
+            <Skeletons />
+          ))}
 
         {state.kind === "error" && (
           <p className="rounded-2xl border border-hairline px-5 py-4 text-sm text-silver-muted">
