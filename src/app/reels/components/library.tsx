@@ -604,7 +604,7 @@ export function Library({
                   : count === 0
                     ? "no reels match those filters. try widening one."
                     : featured
-                      ? "a few worth watching, from the creators worth studying"
+                      ? "hand-picked, from the creators worth studying"
                       : "the biggest outliers first"}
               </p>
               {!featured && pages > 1 && (

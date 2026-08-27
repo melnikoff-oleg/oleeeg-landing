@@ -110,9 +110,9 @@ function Skeletons() {
  *
  * This page shows something before a visitor types: a search box over an empty
  * page asks the visitor to guess what is in here, and a list answers that before
- * they ask. At rest that list is sixteen hand-picked accounts (see
- * featuredCreators in src/lib/creators/roster.ts); under a filter it is the
- * roster itself; with words in the box it is the search.
+ * they ask. At rest that list is the hand-picked accounts in
+ * src/lib/featured/accounts.ts; under a filter it is the roster itself; with
+ * words in the box it is the search.
  *
  * The filters drive both halves. With words in the box they narrow the search;
  * with an empty box they narrow the roster, which is re-fetched rather than
@@ -589,7 +589,7 @@ export function CreatorSearch({
                 : total === 0
                   ? "nobody matches those filters. try widening one."
                   : featured
-                    ? "worth studying, under a million followers, winning right now"
+                    ? "hand-picked, the ones to study first"
                     : "the ones most worth studying first"}
             </p>
             <div className="space-y-4">

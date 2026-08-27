@@ -12,6 +12,7 @@
 
 import "server-only";
 import { boundsOf } from "@/lib/filters/range";
+import { FEATURED_ACCOUNTS, mixedAccounts } from "@/lib/featured/accounts";
 import {
   CREATOR_REELS_PAGE_SIZE,
   FILTER_KEYS,
@@ -209,42 +210,20 @@ export async function listCreators(
 }
 
 /**
- * How many creators the default screen holds. Oleg's number.
- */
-export const FEATURED_CREATOR_COUNT = 16;
-
-/**
- * The screen /creators opens on: 16 accounts worth opening, not 24 of whoever
- * scores highest.
+ * The screen /creators opens on: the ten accounts in
+ * src/lib/featured/accounts.ts, in that module's mixed order.
  *
- * The roster is ordered by rank_base, which is right and was still opening on
- * accounts nobody wants as a first impression: the top of that order is comedy
- * skits, carpet cleaning and satisfying-floor ASMR, because craft times form has
- * no opinion about what a creator is FOR. So the resting state of the page is a
- * hand-picked screenful and everything else -- every filter, every search, and
- * an explicit "see all" -- is the roster exactly as it was.
+ * The roster is ordered by rank_base -- craft multiplied by form -- which is
+ * right and was still opening on accounts nobody wants as a first impression,
+ * because craft times form has no opinion about what a creator is FOR. A rule
+ * over the same columns was tried next and Oleg read its output and rejected it
+ * too. So the resting state of the page is a hand-written list, and everything
+ * else -- every filter, every search, and an explicit "see all" -- is the roster
+ * exactly as it was.
  *
- * Four conditions, each of them Oleg's words:
- *
- *   under a million followers   an account with 40M is not a model anybody can
- *                               copy, and it is the one everybody has seen.
- *   worth studying 7+           his own 1-10 read of how much there is to learn.
- *   doing well now 6+           `form` is the decile rank of median views over
- *                               the last 90 days x sqrt(reels in that window),
- *                               over followers^0.7, so "consistent, frequent and
- *                               winning lately" is already one number and this
- *                               is it. A creator with no reel in 90 days has no
- *                               form at all and is dropped, which is the
- *                               intended reading of "lately".
- *   educational or inspirational 5+
- *                               either one clears the bar, never both: an
- *                               account can be worth the screen for what it
- *                               teaches or for what it makes you want to do. It
- *                               is being neither that this excludes.
- *
- * That leaves 23 of 384 creators today, ordered by rank_base like the roster
- * itself, so the front page is the best of the ones that pass rather than a
- * different ranking nobody else on the site uses.
+ * PostgREST returns an `in.(...)` filter in whatever order the plan produces, so
+ * the rows are re-ordered here against the same mix the reel wall uses. A handle
+ * in the list that is not in the index simply does not come back.
  *
  * Cached for a minute: it is the same answer for every visitor and it only moves
  * when creators.py runs. It deliberately carries no count, so there is no number
@@ -255,14 +234,15 @@ export const FEATURED_CREATOR_COUNT = 16;
  * worse than an ugly one.
  */
 export async function featuredCreators(signal?: AbortSignal): Promise<CreatorRow[]> {
+  // Checked rather than trusted: a typo added to the list years from now should
+  // drop one account, not corrupt a filter.
+  const handles = FEATURED_ACCOUNTS.filter((a) => /^[A-Za-z0-9._]{1,64}$/.test(a));
+  if (!handles.length) return [];
+
   const params = new URLSearchParams();
   params.set("select", COLUMNS);
-  params.set("followers", "lt.1000000");
-  params.set("worth_studying", "gte.7");
-  params.set("form", "gte.6");
-  params.set("or", "(educational.gte.5,inspirational.gte.5)");
-  params.set("order", "rank_base.desc.nullslast,followers.desc.nullslast");
-  params.set("limit", String(FEATURED_CREATOR_COUNT));
+  params.set("account", `in.(${handles.join(",")})`);
+  params.set("limit", String(handles.length));
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?${params}`, {
     headers: headers(),
@@ -272,7 +252,11 @@ export async function featuredCreators(signal?: AbortSignal): Promise<CreatorRow
   if (!res.ok) throw new Error(`featured creators failed: ${res.status}`);
   const rows = (await res.json()) as CreatorRow[];
   if (!Array.isArray(rows)) throw new Error("featured creators returned a non-array");
-  return rows;
+
+  const byAccount = new Map(rows.map((row) => [row.account, row]));
+  return mixedAccounts()
+    .map((account) => byAccount.get(account))
+    .filter((row): row is CreatorRow => Boolean(row));
 }
 
 /** One creator, or null if that handle is not in the index. */
