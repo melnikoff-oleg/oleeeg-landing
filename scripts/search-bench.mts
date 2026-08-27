@@ -13,7 +13,18 @@
 
 const ORIGIN = process.argv[2] ?? "https://www.oleg.ae";
 
-/** Nonsense-free but unlikely to be warm: real questions nobody has asked. */
+/**
+ * Real questions, made unrepeatable.
+ *
+ * A benchmark that sends the same words twice measures the cache and calls it
+ * the search. Both caches this site now has are keyed on the words -- the
+ * embedding cache in Postgres, which never expires, and the answer cache in the
+ * instance, which lasts ninety seconds -- so a second run of a fixed list comes
+ * back in under 200 ms and reports a search that never happened. The suffix is
+ * the run's own minute: enough to miss every cache, few enough words changed
+ * that the question is still a real one.
+ */
+const SALT = new Date().toISOString().slice(0, 16).replace(/[^0-9]/g, "");
 const QUERIES = [
   "kitchen renovation before and after",
   "sourdough starter troubleshooting",
@@ -21,7 +32,7 @@ const QUERIES = [
   "marathon training for beginners",
   "small boat restoration",
   "learning classical guitar late",
-];
+].map((q) => `${q} ${SALT}`);
 
 type Row = { label: string; ms: number; timing: string; count: number };
 
@@ -49,7 +60,7 @@ function report(name: string, rows: Row[]) {
   console.log(`\n${name}  median ${Math.round(at(0.5))} ms   worst ${Math.round(at(1))} ms`);
   for (const r of rows) {
     console.log(
-      `  ${String(Math.round(r.ms)).padStart(5)} ms  ${String(r.count).padStart(3)} rows  ${r.label.padEnd(34)} ${r.timing}`,
+      `  ${String(Math.round(r.ms)).padStart(5)} ms  ${String(r.count).padStart(3)} rows  ${r.label.slice(0, 34).padEnd(34)} ${r.timing}`,
     );
   }
 }
@@ -66,7 +77,7 @@ report("reels    ", reels);
 report("creators ", creators);
 
 // The same query twice: the first pays for the embedding, the second must not.
-const warm = "sourdough starter troubleshooting";
+const warm = QUERIES[1];
 report("repeat   ", [
   await once("/api/viral-reels/search", { query: warm }, "second time"),
 ]);

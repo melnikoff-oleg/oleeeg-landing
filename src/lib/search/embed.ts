@@ -45,6 +45,37 @@ export const EMBED_DIMS = 3072;
  */
 const FIRST_ATTEMPT_MS = 4_000;
 
+/**
+ * The 3,072 numbers, out of whatever shape the provider sent them in.
+ *
+ * ASKED FOR AS BASE64 since 2026-08-27. The same vector as JSON decimals is
+ * about 60 KB of text; as base64 it is 16 KB, because a float32 is four bytes
+ * however many digits it prints as. That is 44 KB less to send across a
+ * continent on the one hop of a search that leaves this cloud, and it is not a
+ * loss of precision: the base64 carries the exact float32 bits, where the
+ * decimal form is a rendering of them. It is also how the corpus was embedded,
+ * since the Python client asks for base64 by default.
+ *
+ * A width that is not the expected one returns null rather than a short vector.
+ * Half a vector does not fail, it RANKS -- wrongly, against a corpus embedded
+ * at full width, with nothing on screen suggesting anything went wrong.
+ */
+export function decodeEmbedding(raw: unknown, dims: number): number[] | null {
+  if (Array.isArray(raw)) {
+    return raw.length === dims && raw.every((n) => typeof n === "number")
+      ? (raw as number[])
+      : null;
+  }
+  if (typeof raw !== "string") return null;
+  // `Buffer.from` on base64 ignores anything it cannot decode rather than
+  // throwing, so the length check below is what actually rejects rubbish.
+  const bytes = Buffer.from(raw, "base64");
+  if (bytes.length !== dims * 4) return null;
+  const out = new Array<number>(dims);
+  for (let i = 0; i < dims; i++) out[i] = bytes.readFloatLE(i * 4);
+  return out;
+}
+
 /** A status worth trying again: rate limiting and the provider's own faults. */
 function worthRetrying(status: number): boolean {
   return status === 429 || status >= 500;
@@ -71,7 +102,14 @@ async function attempt(
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ model: EMBED_MODEL, input: query, dimensions: EMBED_DIMS }),
+      body: JSON.stringify({
+        model: EMBED_MODEL,
+        input: query,
+        dimensions: EMBED_DIMS,
+        // See decodeEmbedding: 16 KB on the wire instead of 60 KB, at no cost
+        // in precision.
+        encoding_format: "base64",
+      }),
       signal: control.signal,
     });
     if (!res.ok) {
@@ -81,8 +119,8 @@ async function attempt(
       (err as Error & { status?: number }).status = res.status;
       throw err;
     }
-    const json = (await res.json()) as { data?: { embedding: number[] }[] };
-    const vector = json.data?.[0]?.embedding;
+    const json = (await res.json()) as { data?: { embedding: unknown }[] };
+    const vector = decodeEmbedding(json.data?.[0]?.embedding, EMBED_DIMS);
     if (!vector) throw new Error("embedding failed: no vector");
     return vector;
   } finally {
