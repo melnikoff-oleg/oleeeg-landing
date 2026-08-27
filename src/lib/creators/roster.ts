@@ -208,6 +208,73 @@ export async function listCreators(
   return { rows, total: totalFrom(res, rows.length) };
 }
 
+/**
+ * How many creators the default screen holds. Oleg's number.
+ */
+export const FEATURED_CREATOR_COUNT = 16;
+
+/**
+ * The screen /creators opens on: 16 accounts worth opening, not 24 of whoever
+ * scores highest.
+ *
+ * The roster is ordered by rank_base, which is right and was still opening on
+ * accounts nobody wants as a first impression: the top of that order is comedy
+ * skits, carpet cleaning and satisfying-floor ASMR, because craft times form has
+ * no opinion about what a creator is FOR. So the resting state of the page is a
+ * hand-picked screenful and everything else -- every filter, every search, and
+ * an explicit "see all" -- is the roster exactly as it was.
+ *
+ * Four conditions, each of them Oleg's words:
+ *
+ *   under a million followers   an account with 40M is not a model anybody can
+ *                               copy, and it is the one everybody has seen.
+ *   worth studying 7+           his own 1-10 read of how much there is to learn.
+ *   doing well now 6+           `form` is the decile rank of median views over
+ *                               the last 90 days x sqrt(reels in that window),
+ *                               over followers^0.7, so "consistent, frequent and
+ *                               winning lately" is already one number and this
+ *                               is it. A creator with no reel in 90 days has no
+ *                               form at all and is dropped, which is the
+ *                               intended reading of "lately".
+ *   educational or inspirational 5+
+ *                               either one clears the bar, never both: an
+ *                               account can be worth the screen for what it
+ *                               teaches or for what it makes you want to do. It
+ *                               is being neither that this excludes.
+ *
+ * That leaves 23 of 384 creators today, ordered by rank_base like the roster
+ * itself, so the front page is the best of the ones that pass rather than a
+ * different ranking nobody else on the site uses.
+ *
+ * Cached for a minute: it is the same answer for every visitor and it only moves
+ * when creators.py runs. It deliberately carries no count, so there is no number
+ * on screen a stale read could contradict.
+ *
+ * Returns an empty array rather than throwing on an empty result, so the caller
+ * can fall back to the ordinary roster. An empty front page is the one outcome
+ * worse than an ugly one.
+ */
+export async function featuredCreators(signal?: AbortSignal): Promise<CreatorRow[]> {
+  const params = new URLSearchParams();
+  params.set("select", COLUMNS);
+  params.set("followers", "lt.1000000");
+  params.set("worth_studying", "gte.7");
+  params.set("form", "gte.6");
+  params.set("or", "(educational.gte.5,inspirational.gte.5)");
+  params.set("order", "rank_base.desc.nullslast,followers.desc.nullslast");
+  params.set("limit", String(FEATURED_CREATOR_COUNT));
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?${params}`, {
+    headers: headers(),
+    signal,
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) throw new Error(`featured creators failed: ${res.status}`);
+  const rows = (await res.json()) as CreatorRow[];
+  if (!Array.isArray(rows)) throw new Error("featured creators returned a non-array");
+  return rows;
+}
+
 /** One creator, or null if that handle is not in the index. */
 export async function getCreator(
   account: string,

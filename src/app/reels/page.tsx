@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { browseReels, listReelFacts, reelBrowseConfigured } from "@/lib/reels/browse";
+import { featuredReels } from "@/lib/reels/featured";
 import { LIBRARY_PAGE_SIZE, REEL_FILTERS, type ReelFilters } from "@/lib/reels/filters";
-import { readRanges } from "@/lib/filters/range";
-import { normalizePage, normalizeQuery, type ReelRow } from "@/lib/reels/types";
+import { rangesAreEmpty, readRanges } from "@/lib/filters/range";
+import { normalizePage, normalizeQuery, type ReelTileRow } from "@/lib/reels/types";
 import { ReelNav } from "@/components/reel-nav";
 import { Library } from "./components/library";
 
@@ -70,32 +71,75 @@ export default async function LibraryPage({
     ),
   );
 
-  let rows: ReelRow[] = [];
+  // "Show me everything", the one thing the hand-picked default takes away. It
+  // is a URL rather than client state so that it survives a reload and a shared
+  // link, exactly like every filter on this page.
+  const showAll = first(params.all) === "1";
+
+  // The resting state of the page: nothing typed, nothing filtered, page one,
+  // and no request for the whole library. That, and only that, gets the
+  // hand-picked screen.
+  const resting =
+    !query && page === 1 && !showAll && rangesAreEmpty(REEL_FILTERS, ranges);
+
+  let rows: ReelTileRow[] = [];
   let total = 0;
   let facts = "";
+  let count = 0;
+  let featured = false;
   let failed = false;
 
   if (reelBrowseConfigured) {
-    // Two independent reads. Sequential, they would add a whole upstream round
-    // trip to the first paint for no reason.
+    // Three independent reads, and only two of them ever run. Sequential, they
+    // would add a whole upstream round trip to the first paint for no reason.
     const [wall, factsResult] = await Promise.allSettled([
-      browseReels({ ranges, page, limit: LIBRARY_PAGE_SIZE }),
+      resting
+        ? featuredReels()
+        : browseReels({ ranges, page, limit: LIBRARY_PAGE_SIZE }),
       listReelFacts(),
     ]);
+    if (factsResult.status === "fulfilled") {
+      facts = factsResult.value.packed;
+      count = factsResult.value.count;
+    } else {
+      // Charts with no bars, sliders that still work. The filters are applied by
+      // the database either way, so losing this costs the preview, not the
+      // filtering.
+      console.error("reel facts ssr failed", factsResult.reason);
+    }
+
     if (wall.status === "fulfilled") {
-      rows = wall.value.rows;
-      total = wall.value.total;
+      if (resting) {
+        rows = wall.value as ReelTileRow[];
+        // How many reels there are, so the "see all" link can say so. The wall
+        // itself is 24 rows and carries no count of its own.
+        total = count;
+        featured = rows.length > 0;
+      } else {
+        const browsed = wall.value as { rows: ReelTileRow[]; total: number };
+        rows = browsed.rows;
+        total = browsed.total;
+      }
     } else {
       // A dead upstream must not 500 the page: the client can retry by moving a
       // filter, and an empty wall with an explanation beats an error screen.
       console.error("library ssr failed", wall.reason);
       failed = true;
     }
-    // Charts with no bars, sliders that still work. The filters are applied by
-    // the database either way, so losing this costs the preview, not the
-    // filtering.
-    if (factsResult.status === "fulfilled") facts = factsResult.value.packed;
-    else console.error("reel facts ssr failed", factsResult.reason);
+
+    // A featured read that came back empty is not an error and must not be one
+    // on screen. Fall back to the library the page has always shown rather than
+    // to nothing, because an empty front page is worse than an ugly one.
+    if (resting && !featured && !failed) {
+      try {
+        const fallback = await browseReels({ ranges, page, limit: LIBRARY_PAGE_SIZE });
+        rows = fallback.rows;
+        total = fallback.total;
+      } catch (err) {
+        console.error("library fallback ssr failed", err);
+        failed = true;
+      }
+    }
   }
 
   return (
@@ -111,6 +155,8 @@ export default async function LibraryPage({
         page={page}
         configured={reelBrowseConfigured}
         initialFailed={failed}
+        initialFeatured={featured}
+        libraryTotal={count}
       />
     </main>
   );

@@ -34,6 +34,15 @@ function pageHref(page: number, filters: CreatorFilters): string {
   return query ? `/creators?${query}` : "/creators";
 }
 
+/**
+ * The URL of the page at rest: no query, no filters, page one.
+ *
+ * This is the one address that shows the hand-picked screen, so it is also the
+ * one loadRoster must answer from memory rather than from the network. Derived
+ * from pageHref rather than written out, so the two cannot drift.
+ */
+const RESTING_KEY = pageHref(1, NO_FILTERS);
+
 function PageLink({
   href,
   disabled,
@@ -99,10 +108,11 @@ function Skeletons() {
 /**
  * The creator search, the five range filters, and the roster underneath them.
  *
- * Unlike /viral-reels, this page shows something before a visitor types: the
- * creators the database has read the most of, server-rendered. A search box over
- * an empty page asks the visitor to guess what is in here; a roster answers that
- * before they ask, and a search then replaces it.
+ * This page shows something before a visitor types: a search box over an empty
+ * page asks the visitor to guess what is in here, and a list answers that before
+ * they ask. At rest that list is sixteen hand-picked accounts (see
+ * featuredCreators in src/lib/creators/roster.ts); under a filter it is the
+ * roster itself; with words in the box it is the search.
  *
  * The filters drive both halves. With words in the box they narrow the search;
  * with an empty box they narrow the roster, which is re-fetched rather than
@@ -116,6 +126,8 @@ export function CreatorSearch({
   roster,
   rosterTotal,
   rosterPage,
+  initialFeatured,
+  rosterAll,
 }: {
   initialQuery: string;
   initialFilters: CreatorFilters;
@@ -125,6 +137,11 @@ export function CreatorSearch({
   roster: CreatorRow[];
   rosterTotal: number;
   rosterPage: number;
+  /** Whether `roster` is the hand-picked screen rather than a page of the list. */
+  initialFeatured: boolean;
+  /** How many creators the index holds, for the "see all" link. 0 when the facts
+   *  read failed, in which case the link drops the number and still works. */
+  rosterAll: number;
 }) {
   const [input, setInput] = useState(initialQuery);
   const [filters, setFilters] = useState<CreatorFilters>(initialFilters);
@@ -133,6 +150,10 @@ export function CreatorSearch({
   const [total, setTotal] = useState(rosterTotal);
   const [page, setPage] = useState(rosterPage);
   const [rosterBusy, setRosterBusy] = useState(false);
+  // Whether what is on screen is the hand-picked screen. It survives a filter
+  // being set and cleared, because clearing every filter is a request to be back
+  // where the page started.
+  const [featured, setFeatured] = useState(initialFeatured);
   // How much of a search answer is on screen. The whole answer is already in
   // memory; this is the part of it the list has drawn.
   const [shown, setShown] = useState(CREATOR_RESULT_COUNT);
@@ -142,6 +163,13 @@ export function CreatorSearch({
   // The empty div under the list whose arrival on screen reveals the next ten.
   const moreRef = useRef<HTMLDivElement | null>(null);
   const rosterInflight = useRef<AbortController | null>(null);
+  // The hand-picked screen, kept so that clearing a filter restores it without a
+  // round trip. Empty when the page did not open on one.
+  const featuredRows = useRef<CreatorRow[]>(initialFeatured ? roster : []);
+  // Whether the visitor has explicitly asked for the whole roster. Once they
+  // have, the resting state of the page is the whole roster and not the
+  // hand-picked screen, for as long as they stay.
+  const wantsAll = useRef(false);
   const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // What is actually on screen. A commit that matches it changes nothing, and
   // three things fire commits that often will: a pointerup on a thumb that
@@ -169,9 +197,30 @@ export function CreatorSearch({
   }, []);
 
   const loadRoster = useCallback(
-    async (nextPage: number, active: CreatorFilters) => {
+    async (nextPage: number, active: CreatorFilters, force = false) => {
       const key = pageHref(nextPage, active);
-      if (key === rosterKey.current) return;
+      if (key === rosterKey.current && !force) return;
+
+      // Back at rest with the hand-picked screen still in memory. Clearing the
+      // last filter is a request to be where the page started, and answering it
+      // from a ref rather than from the network is both instant and the only way
+      // to be sure the answer is the same one they saw.
+      if (
+        !force &&
+        key === RESTING_KEY &&
+        !wantsAll.current &&
+        featuredRows.current.length
+      ) {
+        rosterKey.current = key;
+        rosterInflight.current?.abort();
+        setRows(featuredRows.current);
+        setTotal(rosterAll);
+        setPage(1);
+        setFeatured(true);
+        setRosterBusy(false);
+        setRosterError("");
+        return;
+      }
       rosterKey.current = key;
 
       rosterInflight.current?.abort();
@@ -201,6 +250,8 @@ export function CreatorSearch({
         setRows(json.results ?? []);
         setTotal(json.total ?? 0);
         setPage(nextPage);
+        // Whatever came back is a page of the roster, never the picked screen.
+        setFeatured(false);
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
         setRosterError("the roster did not come back. try again in a moment.");
@@ -208,7 +259,7 @@ export function CreatorSearch({
         if (!controller.signal.aborted) setRosterBusy(false);
       }
     },
-    [],
+    [rosterAll],
   );
 
   const run = useCallback(async (raw: string, active: CreatorFilters) => {
@@ -281,6 +332,10 @@ export function CreatorSearch({
       const urlFilters = readCreatorFilters(Object.fromEntries(params.entries()));
       const urlQuery = normalizeCreatorQuery(params.get("q") ?? "");
       const urlPage = normalizePage(params.get("page"));
+      // A shared "see all" link, or a back onto one. Read before loadRoster,
+      // which consults it to decide whether the resting address means the
+      // hand-picked screen or the whole roster.
+      wantsAll.current = params.get("all") === "1";
 
       const changed =
         urlQuery !== applied.current.query ||
@@ -315,6 +370,8 @@ export function CreatorSearch({
     else url.searchParams.delete("q");
     if (nextPage > 1) url.searchParams.set("page", String(nextPage));
     else url.searchParams.delete("page");
+    if (wantsAll.current) url.searchParams.set("all", "1");
+    else url.searchParams.delete("all");
     writeCreatorFilters(url.searchParams, next);
     // replaceState rather than a router push, so the back button still leaves
     // the page rather than walking back through every slider position.
@@ -372,6 +429,22 @@ export function CreatorSearch({
       if (query) void run(query, next);
       void loadRoster(1, next);
     }, 250);
+  };
+
+  /**
+   * "Show me everyone", the one thing the hand-picked default takes away.
+   *
+   * Forced past loadRoster's own guard, because the address it is asking for is
+   * the address already on screen: the resting URL is what shows the picked
+   * screen, and this is a request for the other answer to the same question. The
+   * `all=1` it writes is what makes a reload, a share and a back button agree
+   * with what is on the page.
+   */
+  const showEveryone = () => {
+    wantsAll.current = true;
+    setFeatured(false);
+    syncUrl(live.current, 1, "");
+    void loadRoster(1, live.current, true);
   };
 
   const goToPage = (nextPage: number) => {
@@ -515,7 +588,9 @@ export function CreatorSearch({
                 ? rosterError
                 : total === 0
                   ? "nobody matches those filters. try widening one."
-                  : "the ones most worth studying first"}
+                  : featured
+                    ? "worth studying, under a million followers, winning right now"
+                    : "the ones most worth studying first"}
             </p>
             <div className="space-y-4">
               {rows.map((creator) => (
@@ -523,7 +598,23 @@ export function CreatorSearch({
               ))}
             </div>
 
-            {pages > 1 && (
+            {featured && !rosterError && (
+              // The way out of the picked screen, and the only one that does not
+              // require knowing what to search for or which slider to move.
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={showEveryone}
+                  className="inline-flex min-h-11 items-center rounded-full border border-hairline px-5 font-body text-xs text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
+                >
+                  {total > 0
+                    ? `see all ${total.toLocaleString("en-GB")} creators`
+                    : "see every creator"}
+                </button>
+              </div>
+            )}
+
+            {!featured && pages > 1 && (
               <nav
                 aria-label="roster pages"
                 className="mt-6 flex items-center justify-between gap-3"

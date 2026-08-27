@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import {
   creatorRosterConfigured,
+  featuredCreators,
   listCreatorFacts,
   listCreators,
 } from "@/lib/creators/roster";
 import {
+  filtersAreEmpty,
   normalizeCreatorQuery,
   readCreatorFilters,
   type CreatorFact,
@@ -78,8 +80,20 @@ export default async function CreatorsPage({
     insp: first(params.insp),
   });
 
+  // "Show me everyone", the one thing the hand-picked default takes away. It is
+  // a URL rather than client state so that it survives a reload and a shared
+  // link, exactly like every filter on this page.
+  const showAll = first(params.all) === "1";
+
+  // The resting state of the page: nothing typed, nothing filtered, page one,
+  // and no request for the whole roster. That, and only that, gets the
+  // hand-picked screen.
+  const resting =
+    !initialQuery && page === 1 && !showAll && filtersAreEmpty(filters);
+
   let roster: CreatorRow[] = [];
   let total = 0;
+  let featured = false;
   // Every creator as five numbers, for the histograms. Small enough to ship
   // with the page, which is what lets the charts redraw mid-drag instead of
   // once a round trip.
@@ -88,22 +102,45 @@ export default async function CreatorsPage({
     // Two independent reads. Sequential, they would add a whole upstream
     // round trip to the first paint for no reason.
     const [rosterResult, factsResult] = await Promise.allSettled([
-      listCreators({ page, filters }),
+      resting ? featuredCreators() : listCreators({ page, filters }),
       listCreatorFacts(),
     ]);
-    if (rosterResult.status === "fulfilled") {
-      roster = rosterResult.value.rows;
-      total = rosterResult.value.total;
-    } else {
-      // A dead upstream must not 500 the page: the search box still works from
-      // the client, and an empty roster beats an error screen.
-      console.error("creator roster ssr failed", rosterResult.reason);
-    }
     if (factsResult.status === "fulfilled") facts = factsResult.value;
     // Charts with no bars, sliders that still work. The filters are applied by
     // the database either way, so losing this costs the preview, not the
     // filtering.
     else console.error("creator facts ssr failed", factsResult.reason);
+
+    if (rosterResult.status === "fulfilled") {
+      if (resting) {
+        roster = rosterResult.value as CreatorRow[];
+        // How many creators there are, so the "see all" link can say so. The
+        // picked screen is 16 rows and carries no count of its own.
+        total = facts.length;
+        featured = roster.length > 0;
+      } else {
+        const listed = rosterResult.value as { rows: CreatorRow[]; total: number };
+        roster = listed.rows;
+        total = listed.total;
+      }
+    } else {
+      // A dead upstream must not 500 the page: the search box still works from
+      // the client, and an empty roster beats an error screen.
+      console.error("creator roster ssr failed", rosterResult.reason);
+    }
+
+    // A featured read that came back empty is not an error and must not be one
+    // on screen. Fall back to the roster the page has always shown rather than
+    // to nothing, because an empty front page is worse than an ugly one.
+    if (resting && !featured) {
+      try {
+        const fallback = await listCreators({ page, filters });
+        roster = fallback.rows;
+        total = fallback.total;
+      } catch (err) {
+        console.error("creator roster fallback ssr failed", err);
+      }
+    }
   }
 
   return (
@@ -117,6 +154,8 @@ export default async function CreatorsPage({
         roster={roster}
         rosterTotal={total}
         rosterPage={page}
+        initialFeatured={featured}
+        rosterAll={facts.length}
       />
     </main>
   );

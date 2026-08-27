@@ -24,7 +24,6 @@ import {
   QUERY_MAX,
   type ReelTileHit,
   type ReelTileRow,
-  type ReelRow,
 } from "@/lib/reels/types";
 import { FilterBar } from "@/components/filter-bar";
 import { LibraryReelTile } from "@/components/library-reel-tile";
@@ -38,6 +37,15 @@ function pageHref(page: number, ranges: ReelFilters, query: string): string {
   const search = params.toString();
   return search ? `/reels?${search}` : "/reels";
 }
+
+/**
+ * The URL of the page at rest: no query, no filters, page one.
+ *
+ * This is the one address that shows the hand-picked screen, so it is also the
+ * one loadWall must answer from memory rather than from the network. Derived
+ * from pageHref rather than written out, so the two cannot drift.
+ */
+const RESTING_KEY = pageHref(1, NO_REEL_FILTERS, "");
 
 function PageLink({
   href,
@@ -123,10 +131,11 @@ function Wall({ reels }: { reels: readonly ReelTileRow[] }) {
  * narrows the same wall the filters narrow, under the same five controls.
  *
  * With words in the box the wall is the search's answer, ranked by how close
- * each reel is. With an empty box it is the whole library ranked by outlier
- * score, paged, and re-fetched rather than reloaded: five sliders that each cost
- * a full page load would be unusable, and the histograms have to keep redrawing
- * while a thumb is moving.
+ * each reel is. With an empty box and no filter it is a hand-picked screenful
+ * (see src/lib/reels/featured.ts). With a filter it is the whole library ranked
+ * by outlier score, paged, and re-fetched rather than reloaded: five sliders
+ * that each cost a full page load would be unusable, and the histograms have to
+ * keep redrawing while a thumb is moving.
  */
 export function Library({
   initialQuery,
@@ -137,17 +146,24 @@ export function Library({
   page: initialPage,
   configured,
   initialFailed,
+  initialFeatured,
+  libraryTotal,
 }: {
   initialQuery: string;
   initialRanges: ReelFilters;
   /** Every reel as five bin indices, five characters a reel. Empty when the
    *  index is unreachable, which leaves the sliders working over empty charts. */
   facts: string;
-  rows: ReelRow[];
+  rows: ReelTileRow[];
   total: number;
   page: number;
   configured: boolean;
   initialFailed: boolean;
+  /** Whether `rows` is the hand-picked screen rather than a page of the wall. */
+  initialFeatured: boolean;
+  /** How many reels the library holds, for the "see all" link. 0 when the facts
+   *  read failed, in which case the link drops the number and still works. */
+  libraryTotal: number;
 }) {
   const [input, setInput] = useState(initialQuery);
   const [ranges, setRanges] = useState<ReelFilters>(initialRanges);
@@ -156,6 +172,10 @@ export function Library({
   const [count, setCount] = useState(total);
   const [page, setPage] = useState(initialPage);
   const [wallBusy, setWallBusy] = useState(false);
+  // Whether what is on screen is the hand-picked screen. It survives a filter
+  // being set and cleared, because clearing every filter is a request to be back
+  // where the page started.
+  const [featured, setFeatured] = useState(initialFeatured);
   // How much of a search answer is on screen. The whole answer is already in
   // memory; this is the part of it the wall has drawn.
   const [shown, setShown] = useState(LIBRARY_RESULT_COUNT);
@@ -165,6 +185,13 @@ export function Library({
   // The empty div under the wall whose arrival on screen reveals the next 24.
   const moreRef = useRef<HTMLDivElement | null>(null);
   const wallInflight = useRef<AbortController | null>(null);
+  // The hand-picked screen, kept so that clearing a filter restores it without a
+  // round trip. Empty when the page did not open on one.
+  const featuredRows = useRef<ReelTileRow[]>(initialFeatured ? rows : []);
+  // Whether the visitor has explicitly asked for the whole library. Once they
+  // have, the resting state of the page is the whole library and not the
+  // hand-picked screen, for as long as they stay.
+  const wantsAll = useRef(false);
   const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // What is actually on screen. A commit that matches it changes nothing, and
   // three things fire commits that often will: a pointerup on a thumb that never
@@ -191,9 +218,30 @@ export function Library({
   }, []);
 
   const loadWall = useCallback(
-    async (nextPage: number, active: ReelFilters) => {
+    async (nextPage: number, active: ReelFilters, force = false) => {
       const key = pageHref(nextPage, active, "");
-      if (key === wallKey.current) return;
+      if (key === wallKey.current && !force) return;
+
+      // Back at rest with the hand-picked screen still in memory. Clearing the
+      // last filter is a request to be where the page started, and answering it
+      // from a ref rather than from the network is both instant and the only way
+      // to be sure the answer is the same one they saw.
+      if (
+        !force &&
+        key === RESTING_KEY &&
+        !wantsAll.current &&
+        featuredRows.current.length
+      ) {
+        wallKey.current = key;
+        wallInflight.current?.abort();
+        setWall(featuredRows.current);
+        setCount(libraryTotal);
+        setPage(1);
+        setFeatured(true);
+        setWallBusy(false);
+        setWallError("");
+        return;
+      }
       wallKey.current = key;
 
       wallInflight.current?.abort();
@@ -210,8 +258,10 @@ export function Library({
         const res = await fetch(`/api/viral-reels/browse?${params}`, {
           signal: controller.signal,
         });
+        // Full rows arrive; the wall reads the ten fields of a tile. Typed as
+        // the tile so the state stays one shape whichever half filled it.
         const json = (await res.json().catch(() => ({}))) as {
-          results?: ReelRow[];
+          results?: ReelTileRow[];
           total?: number;
         };
         if (controller.signal.aborted) return;
@@ -222,6 +272,8 @@ export function Library({
         setWall(json.results ?? []);
         setCount(json.total ?? 0);
         setPage(nextPage);
+        // Whatever came back is a page of the library, never the picked screen.
+        setFeatured(false);
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
         setWallError("the library did not come back. try again in a moment.");
@@ -229,7 +281,7 @@ export function Library({
         if (!controller.signal.aborted) setWallBusy(false);
       }
     },
-    [],
+    [libraryTotal],
   );
 
   const run = useCallback(async (raw: string, active: ReelFilters) => {
@@ -295,6 +347,10 @@ export function Library({
       const urlRanges = readRanges(REEL_FILTERS, Object.fromEntries(params.entries()));
       const urlQuery = normalizeQuery(params.get("q") ?? "");
       const urlPage = normalizePage(params.get("page"));
+      // A shared "see all" link, or a back onto one. Read before loadWall, which
+      // consults it to decide whether the resting address means the hand-picked
+      // screen or the whole library.
+      wantsAll.current = params.get("all") === "1";
 
       const changed =
         urlQuery !== applied.current.query ||
@@ -330,6 +386,8 @@ export function Library({
     else url.searchParams.delete("q");
     if (nextPage > 1) url.searchParams.set("page", String(nextPage));
     else url.searchParams.delete("page");
+    if (wantsAll.current) url.searchParams.set("all", "1");
+    else url.searchParams.delete("all");
     writeRanges(REEL_FILTERS, url.searchParams, next);
     // replaceState rather than a router push, so the back button still leaves
     // the page rather than walking back through every slider position.
@@ -387,6 +445,22 @@ export function Library({
       if (query) void run(query, next);
       void loadWall(1, next);
     }, 250);
+  };
+
+  /**
+   * "Show me everything", the one thing the hand-picked default takes away.
+   *
+   * Forced past loadWall's own guard, because the address it is asking for is
+   * the address already on screen: the resting URL is what shows the picked
+   * screen, and this is a request for the other answer to the same question. The
+   * `all=1` it writes is what makes a reload, a share and a back button agree
+   * with what is on the page.
+   */
+  const showEverything = () => {
+    wantsAll.current = true;
+    setFeatured(false);
+    syncUrl(live.current, 1, "");
+    void loadWall(1, live.current, true);
   };
 
   const goToPage = (nextPage: number) => {
@@ -529,9 +603,11 @@ export function Library({
                   ? wallError
                   : count === 0
                     ? "no reels match those filters. try widening one."
-                    : "the biggest outliers first"}
+                    : featured
+                      ? "a few worth watching, from the creators worth studying"
+                      : "the biggest outliers first"}
               </p>
-              {pages > 1 && (
+              {!featured && pages > 1 && (
                 <p className="font-display text-xs tabular-nums text-silver-muted">
                   page {page} of {pages}
                 </p>
@@ -540,7 +616,23 @@ export function Library({
 
             <Wall reels={wall} />
 
-            {pages > 1 && (
+            {featured && !wallError && (
+              // The way out of the picked screen, and the only one that does not
+              // require knowing what to search for or which slider to move.
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={showEverything}
+                  className="inline-flex min-h-11 items-center rounded-full border border-hairline px-5 font-body text-xs text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
+                >
+                  {count > 0
+                    ? `see all ${count.toLocaleString("en-GB")} reels`
+                    : "see every reel"}
+                </button>
+              </div>
+            )}
+
+            {!featured && pages > 1 && (
               <nav
                 aria-label="library pages"
                 className="mt-6 flex items-center justify-between gap-3"
