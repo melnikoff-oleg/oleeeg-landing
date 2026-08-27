@@ -6,11 +6,11 @@
 // below are a measured snapshot and go stale as reels are added.
 //
 // The reels carry a free-form `tags` text[] written one reel at a time, and it
-// cannot be shown as chips. 43,857 distinct strings over 7,675 reels, and most
+// cannot be shown as chips. 44,508 distinct strings over 7,802 reels, and most
 // of them are either identity ("noel deyzel", "khabane lame", "mrbeast" name the
 // creator, not the subject, so a chip made from one filters the library down to
 // a single account), format noise true of everything here ("viral video" alone
-// is on 413 reels), or the same idea spelled eight ways ("comedy", "comedy skit",
+// is on 415 reels), or the same idea spelled eight ways ("comedy", "comedy skit",
 // "comedy video", "comedy short", "comedy sketch", "funny video", "funny skit",
 // "relatable comedy"). So the chips are curated topics instead, each backed by
 // the real tag strings that belong to it, ORed together by browseReels' existing
@@ -30,7 +30,7 @@ export const TOPICS: Topic[] = [
   {
     id: "comedy",
     label: "comedy",
-    reels: 1661,
+    reels: 1674,
     tags: [
       "funny video",
       "comedy skit",
@@ -49,7 +49,7 @@ export const TOPICS: Topic[] = [
   {
     id: "mindset",
     label: "mindset",
-    reels: 579,
+    reels: 585,
     tags: [
       "self improvement",
       "motivation",
@@ -68,7 +68,7 @@ export const TOPICS: Topic[] = [
   {
     id: "visual-effects",
     label: "visual effects",
-    reels: 566,
+    reels: 571,
     tags: [
       "visual effects",
       "video editing",
@@ -87,7 +87,7 @@ export const TOPICS: Topic[] = [
   {
     id: "travel",
     label: "travel",
-    reels: 518,
+    reels: 534,
     tags: [
       "travel vlog",
       "travel",
@@ -95,8 +95,8 @@ export const TOPICS: Topic[] = [
       "outdoor adventure",
       "travel video",
       "travel tips",
-      "summer vibes",
       "luxury travel",
+      "summer vibes",
       "mountain view",
       "ocean view",
       "outdoor fun",
@@ -106,13 +106,13 @@ export const TOPICS: Topic[] = [
   {
     id: "fitness",
     label: "fitness",
-    reels: 471,
+    reels: 473,
     tags: [
       "gym motivation",
       "bodybuilder",
       "fitness motivation",
-      "gym humor",
       "fitness",
+      "gym humor",
       "workout motivation",
       "workout",
       "fitness humor",
@@ -125,7 +125,7 @@ export const TOPICS: Topic[] = [
   {
     id: "relationships",
     label: "relationships",
-    reels: 419,
+    reels: 427,
     tags: [
       "relationship advice",
       "relationship humor",
@@ -144,7 +144,7 @@ export const TOPICS: Topic[] = [
   {
     id: "tech",
     label: "tech",
-    reels: 400,
+    reels: 402,
     tags: [
       "tech humor",
       "tech review",
@@ -163,7 +163,7 @@ export const TOPICS: Topic[] = [
   {
     id: "money",
     label: "money",
-    reels: 380,
+    reels: 393,
     tags: [
       "luxury lifestyle",
       "career advice",
@@ -174,15 +174,15 @@ export const TOPICS: Topic[] = [
       "success story",
       "rich lifestyle",
       "personal finance",
-      "luxury cars",
       "money",
+      "luxury cars",
       "sales call",
     ],
   },
   {
     id: "ai",
     label: "ai video",
-    reels: 374,
+    reels: 376,
     tags: [
       "artificial intelligence",
       "ai video",
@@ -201,15 +201,15 @@ export const TOPICS: Topic[] = [
   {
     id: "satisfying",
     label: "satisfying",
-    reels: 311,
+    reels: 312,
     tags: [
       "deep clean",
       "satisfying video",
       "satisfying cleaning",
       "dirty to clean",
+      "asmr",
       "before and after",
       "satisfying",
-      "asmr",
       "relaxing video",
       "epoxy floor",
       "satisfaction",
@@ -239,7 +239,7 @@ export const TOPICS: Topic[] = [
   {
     id: "home",
     label: "home & diy",
-    reels: 296,
+    reels: 300,
     tags: [
       "interior design",
       "home decor",
@@ -247,8 +247,8 @@ export const TOPICS: Topic[] = [
       "creative process",
       "woodworking",
       "cozy home",
-      "jewelry making",
       "cozy vibes",
+      "jewelry making",
       "custom jewelry",
       "home video",
       "living room",
@@ -258,7 +258,7 @@ export const TOPICS: Topic[] = [
   {
     id: "food",
     label: "food",
-    reels: 270,
+    reels: 272,
     tags: [
       "baking tutorial",
       "food video",
@@ -268,8 +268,8 @@ export const TOPICS: Topic[] = [
       "street food",
       "meal prep",
       "home cooking",
-      "funny cooking",
       "fast food",
+      "funny cooking",
       "let him cook",
       "fast recipe",
     ],
@@ -296,7 +296,7 @@ export const TOPICS: Topic[] = [
   {
     id: "family",
     label: "family",
-    reels: 179,
+    reels: 181,
     tags: [
       "parenting humor",
       "mom life",
