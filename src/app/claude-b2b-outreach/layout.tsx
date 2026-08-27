@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "AI B2B Outreach with Claude Code (35% Reply Rate): Free Setup Guide",
+    "B2B Outreach With Claude Code: 35% Replies",
   description:
-    "Build a deeply personalized B2B outreach system with Claude Code. Find leads on LinkedIn, score them with AI, and write value-driven messages with custom visuals that earn a 35% reply rate.",
+    "Find leads in Sales Navigator, score them against your own criteria, and send a free asset built for each one. The full system, and the LinkedIn caveat.",
   keywords: [
     "Claude Code",
     "Claude AI",

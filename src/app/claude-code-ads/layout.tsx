@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Make Video Ads With Claude Code: Free Setup Guide (2026)",
+  title: "Make Video Ads With Claude Code",
   description:
-    "Ads Studio turns Claude Code into a video ad maker that runs on your own laptop. Paste a company's website, say what kind of ad you want, get a finished MP4 with their real colours, fonts and logo. Seven steps from zero, no editing skills, nothing to pay per ad.",
+    "Go from ad concept to finished cut inside one Claude Code workspace. Free setup guide, the prompts, and what the whole thing costs to run.",
   keywords: [
     "Claude Code",
     "Claude Code video ads",

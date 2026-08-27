@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Claude Cowork for Cold Outreach: AI LinkedIn Automation Guide",
+  title: "Claude Cowork for LinkedIn Cold Outreach",
   description:
-    "Use Claude Cowork to run LinkedIn cold outreach. It browses LinkedIn, researches each prospect, writes personalized messages, and sends connection requests for you. Free step-by-step setup guide.",
+    "Cowork reads a prospect's last ten posts and writes a message about what they said. The whole system: the Apify setup, the prompt, and what it costs.",
   keywords: [
     "Claude Cowork",
     "Claude AI",

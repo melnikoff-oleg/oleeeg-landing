@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-const SAMPLE_RESOURCE = "/claude-outreach";
+const SAMPLE_RESOURCE = "/claude-b2b-outreach";
 
 // Tests 19-20: accessibility + content rules.
 

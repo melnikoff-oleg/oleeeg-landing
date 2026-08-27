@@ -6,11 +6,9 @@ import { Accordion } from "@/components/accordion";
 import { CopyButton } from "@/components/copy-button";
 import { ResourceFooter } from "@/components/resource-footer";
 import { Troubleshooting } from "@/components/troubleshooting";
-import { YouTubeEmbed } from "@/components/youtube-embed";
 import { RepoCta } from "@/components/repo-cta";
 import { ArticleJsonLd } from "@/components/json-ld";
 
-const VIDEO_ID = "5_QP6_EmReQ";
 
 const START_PROMPT = "install the app dependencies and start the dev server";
 
@@ -559,9 +557,7 @@ export default function AdsAiPage() {
         description="Study the Meta ads your competitors are actually running, understand why they convert, and generate new ad concepts for your brand: copy, visuals, and video scripts."
         url="https://oleg.ae/ads-ai"
         datePublished="2026-05-31"
-        dateModified="2026-06-02"
-        videoId={VIDEO_ID}
-        videoTitle="AI Ads Creator: Free Open Source Tool"
+        dateModified="2026-08-27"
       />
 
       {/* Minimal header */}
@@ -680,17 +676,6 @@ export default function AdsAiPage() {
         />
 
         {/* YouTube video */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeUp}
-          className="pb-24 md:pb-32"
-        >
-          <div className="mx-auto max-w-3xl px-6">
-            <YouTubeEmbed videoId={VIDEO_ID} title="AI Ads Creator" />
-          </div>
-        </motion.section>
       </main>
 
       <ResourceFooter currentSlug="ads-ai" boldaneCredit />

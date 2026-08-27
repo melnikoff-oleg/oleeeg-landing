@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Second Brain with Claude Code & Obsidian: Free Setup Guide (2026)",
+  title: "An AI Second Brain With Claude Code and Obsidian",
   description:
-    "An Obsidian vault that Claude Code operates: dump thoughts and documents in plain English, it does the filing, linking and remembering. Six steps and one paste-able prompt, about 10 minutes, no technical experience.",
+    "Turn your Obsidian vault into notes that answer back, with Claude Code reading and writing them directly. Free step-by-step setup guide.",
   keywords: [
     "AI second brain",
     "Claude Code second brain",

@@ -13,7 +13,13 @@
 
 export const ROUTES = [
   "/",
-  "/claude-outreach",
+  // The search cluster: pages built for keywords that exist, rather than for
+  // the video titles. See seo/2026-08-27-strategy.md.
+  "/claude-code-tutorial",
+  "/claude-code-pricing",
+  "/claude-code-vs-cursor",
+  "/claude-cowork",
+  "/claude-cowork-pricing",
   "/claude-b2b-outreach",
   "/claude-cowork-outreach",
   "/claude-twitter",
@@ -21,11 +27,7 @@ export const ROUTES = [
   "/claude-reels",
   "/claude-tiktok",
   "/claude-social-growth",
-  "/claude-trend-scanner",
   "/claude-marketing",
-  "/claude-seo",
-  "/claude-website",
-  "/claude-interviewer",
   "/ads-ai",
   "/high-converting-website",
   "/60k-linkedin-post",
@@ -59,3 +61,36 @@ export const SHELL_ROUTES = ROUTES.filter((r) => !BARE_ROUTES.includes(r));
 export const FOOTER_ROUTES = SHELL_ROUTES.filter(
   (r) => r !== "/" && r !== "/marketing-brain",
 );
+
+// The routes that carry a full written guide: the video's content as a readable
+// article, so the page answers the query without the video. guide.spec.ts holds
+// the contract they all have to satisfy.
+export const GUIDE_ROUTES = [
+  "/claude-code-tutorial",
+  "/claude-code-pricing",
+  "/claude-code-vs-cursor",
+  "/claude-cowork",
+  "/claude-cowork-pricing",
+  "/claude-cowork-outreach",
+  "/claude-b2b-outreach",
+  "/claude-reels",
+  "/claude-code-instagram",
+  "/claude-content",
+  "/claude-marketing",
+  "/claude-social-growth",
+  "/claude-tiktok",
+  "/claude-twitter",
+] as const;
+
+// Slugs consolidated into a stronger sibling on 2026-08-27. Each one had a
+// private or removed source video and a target keyword under 20 searches a
+// month, so it was splitting equity rather than earning any. They must answer
+// with a permanent redirect, never a 404: they are still linked from old video
+// descriptions and from recommendations.json.
+export const REDIRECTED_ROUTES: Record<string, string> = {
+  "/claude-outreach": "/claude-b2b-outreach",
+  "/claude-trend-scanner": "/claude-social-growth",
+  "/claude-interviewer": "/claude-content",
+  "/claude-website": "/high-converting-website",
+  "/claude-seo": "/claude-code-tutorial",
+};

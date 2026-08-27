@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Ads Creator: Free Open Source Tool",
+  title: "AI Ads Creator: Study Competitors' Meta Ads",
   description:
-    "Study the Meta ads your competitors are actually running, understand why they convert, and generate new ad concepts for your brand: copy, visuals, and video scripts. Free and open source.",
+    "A free open-source tool that reads the Meta ads your competitors are really running and generates new concepts: copy, visuals and video scripts.",
   keywords: [
     "AI ad creator",
     "AI ad generator",

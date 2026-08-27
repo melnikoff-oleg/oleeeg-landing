@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { ROUTES } from "./routes";
 
-const SAMPLE_RESOURCE = "/claude-outreach";
+const SAMPLE_RESOURCE = "/claude-b2b-outreach";
 
 // Tests 7-11: brand fidelity to the Boldane design system.
 

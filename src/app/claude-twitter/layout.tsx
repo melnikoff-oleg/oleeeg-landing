@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "X/Twitter Content System with Claude Code: Free Setup Guide",
+  title: "An X Content Machine Built With Claude Code",
   description:
-    "Build an X/Twitter content system with Claude Code. Study what works in your competitors' tweets and generate ready-to-publish posts in your own voice.",
+    "Analyse what made competitors' posts work, then reuse the structure on your own subject. Free setup guide, the two configs, and where it goes wrong.",
   keywords: [
     "Claude Code",
     "Claude AI",

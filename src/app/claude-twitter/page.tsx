@@ -1,5 +1,17 @@
 import type { ReactNode } from "react";
 import { ResourcePageShell } from "@/components/resource-page-shell";
+import {
+  Block,
+  Callout,
+  Code,
+  Guide,
+  GuideSection,
+  GuideSteps,
+  GuideToc,
+  KeyFacts,
+  Out,
+} from "@/components/guide";
+import { PLANS, usd } from "@/lib/pricing";
 import { BoldaneLink } from "@/components/boldane-cta";
 
 const VIDEO_ID = "JQQhT0edXXw";
@@ -318,6 +330,156 @@ const steps = [
   },
 ];
 
+
+const SECTIONS = [
+  "what the output looks like",
+  "why x is the platform where this pays",
+  "the transfer, which is the whole trick",
+  "building it",
+  "the image mix, and why some posts have none",
+  "what it costs",
+  "what it gets wrong",
+];
+
+const guideSteps = [
+  {
+    title: "pick creators by niche, not by size",
+    schema:
+      "Add X accounts in your niche by username. The app records followers and post counts so you can judge each one.",
+    body: (
+      <>
+        <p>
+          i track nine, all in and around one niche. paste a username, tag the
+          category, and it scrapes the profile and records followers and post
+          count.
+        </p>
+        <p>
+          pick people selling something like what you sell to people like your
+          buyers. a huge general account teaches you what works for huge general
+          accounts, which is not a lesson you can use.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "write the analysis config",
+    schema:
+      "Write the instruction that extracts the hook, the post structure and the engagement driver from each post.",
+    body: (
+      <>
+        <p>three things from every post:</p>
+        <ul>
+          <li>
+            <strong>the hook.</strong> on X this is the first line, because the
+            first line is all anyone sees before deciding.
+          </li>
+          <li>
+            <strong>the structure.</strong> one-liner, list, story, contrarian
+            claim then proof.
+          </li>
+          <li>
+            <strong>the engagement driver.</strong> what specifically made this
+            post beat that account&apos;s own average.
+          </li>
+        </ul>
+        <p>
+          that last one is the important one, and it needs the account&apos;s
+          baseline to mean anything.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "write the generation config, which is the actual work",
+    schema:
+      "Write the instruction that converts a competitor's post into one for your own audience, keeping the structure and changing the subject.",
+    body: (
+      <>
+        <p>
+          this is the config that decides whether the system produces content or
+          plagiarism. it has to describe your brand, your buyer, your content
+          pillars, and specifically <strong>that the structure transfers and
+          the subject does not</strong>.
+        </p>
+        <p>
+          a worked example, from a real run. the original post said:
+          &quot;entrepreneurship is about self-belief first and business skills
+          second.&quot; the generated one said: &quot;conversion rate
+          optimization is about user psychology first and design tweaks
+          second.&quot;
+        </p>
+        <p>
+          same skeleton, entirely different claim, and the second one is a claim
+          its author can actually defend. that is the target.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "run the pipeline on a tight window",
+    schema:
+      "Take the top three of each creator's last twenty posts, from the past thirty days, and run it.",
+    body: (
+      <>
+        <p>
+          top 3 of each creator&apos;s last 20 posts, past 30 days. about
+          fifteen minutes to run.
+        </p>
+        <p>
+          the recency filter matters on X because the platform is
+          conversational. a post that worked during a news cycle worked because
+          of the news cycle.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "run it weekly",
+    schema:
+      "Re-run the pipeline every week so the content pipeline refills without a blank page.",
+    body: (
+      <>
+        <p>
+          this is the setting people skip. once a week, on a schedule. the value
+          is not the first run, it is never facing a blank page again, and never
+          publishing filler because it was tuesday.
+        </p>
+      </>
+    ),
+  },
+];
+
+const faq = [
+  {
+    q: "is this just copying other people's tweets",
+    a: "No, and the difference is the part worth understanding. What transfers is the structure: the hook shape, the rhythm, the way a claim is set up and paid off. What does not transfer is the subject. In one real run, a post about entrepreneurship and self-belief became a post about conversion rate optimization and user psychology. Same skeleton, entirely different claim, and one its author can defend.",
+  },
+  {
+    q: "how many competitors should i track on x",
+    a: "Around nine works well. Enough that you see a structure repeat across accounts, which is what tells you it is a pattern rather than one person's habit, and few enough that a weekly run stays cheap. All of them should be in or next to your niche and selling to people like your buyers.",
+  },
+  {
+    q: "does every post need an image",
+    a: "No, and that is one of the useful things about X. It is the one major platform where a text-only post competes fine, so a mixed feed of infographics, personal photos and plain text reads more human than one where every post is packaged. I aim for a mix rather than a rule.",
+  },
+  {
+    q: "what api keys do i need for the x system",
+    a: "Three: Apify to scrape the posts, an image generation key for the infographics, and your Claude plan for the writing. The image one is easy to overlook and most of what the system produces is visual, so without it you get text and empty slots where the graphics should be.",
+  },
+  {
+    q: "can it post to x automatically",
+    a: "It can be connected to a publishing tool through an API, and I would not do it on day one. Run it for a few weeks reading everything before it goes out. Automated publishing turns a small config mistake into thirty bad posts under your name, and on X that is the account, not just a bad week.",
+  },
+  {
+    q: "why is x good for b2b specifically",
+    a: "Because in some niches the buyers are there and reachable, and a personal account can generate inbound without any ad spend. The example I built this around is an agency owner getting clients from a personal profile. That is why the generation config carries the offer and the buyer: the goal is a feed that sells, not a feed that performs.",
+  },
+  {
+    q: "how often should i run the pipeline",
+    a: "Weekly. Trends on X move fast enough that a monthly run is stale, and daily is more content than one person can post well. Weekly refills the pipeline just faster than you can empty it, which is the point at which you stop publishing filler.",
+  },
+];
+
 export default function ClaudeTwitterPage() {
   return (
     <ResourcePageShell
@@ -329,13 +491,194 @@ export default function ClaudeTwitterPage() {
       subhead="study what actually works in your competitors' tweets, then generate ready-to-publish content written in your own voice and for your own niche."
       steps={steps}
       troubleshooting={["noEnvFile", "claudeNotFound", "crAlias", "geminiQuota", "creditBalance", "costs", "costsScraping", "scrapingSafety"]}
+      breadcrumb={[
+        { name: "Claude Code", path: "/claude-code-tutorial" },
+        { name: "X and Twitter", path: "/claude-twitter" },
+      ]}
+      howTo={{
+        name: "Build an X content machine with Claude Code",
+        description:
+          "Track competitors on X, analyse what made their best posts work, and generate posts that reuse the structure for your own niche, with infographics and personal images.",
+        totalTime: "PT10M",
+        steps: guideSteps.map((s) => ({ name: s.title, text: s.schema })),
+      }}
+      faq={faq}
+      guide={
+        <Guide>
+          <GuideSection title="what the output looks like">
+            <p>
+              the dashboard is two columns.{" "}
+              <strong>left: a competitor post that went viral. right: your
+              post, using the same structure on your own subject.</strong> side
+              by side, so you can see exactly what was borrowed and what was
+              written.
+            </p>
+            <p>
+              some of yours come with a generated infographic, some with a
+              personal photo, some with nothing, because on X a plain text post
+              is competitive and a feed where everything is packaged looks like
+              a brand account.
+            </p>
+            <GuideToc sections={SECTIONS} />
+          </GuideSection>
+
+          <GuideSection title="why x is the platform where this pays">
+            <p>
+              i built this around a specific person: an agency owner selling
+              conversion rate optimisation to e-commerce brands, who gets most of
+              his clients from his personal profile.
+            </p>
+            <p>
+              that is the case where X is unreasonably good. in certain B2B
+              niches the buyers are on the platform, they are reachable without
+              ad spend, and a personal account outperforms a company one. so the
+              system is not built to make a feed that performs. it is built to
+              make a feed that sells, which is why the generation config carries
+              your offer and your buyer, not just your topics.
+            </p>
+          </GuideSection>
+
+          <GuideSection title="the transfer, which is the whole trick">
+            <p>
+              the honest question about any system like this is whether it is
+              just copying. here is the distinction, with a real example from a
+              run.
+            </p>
+            <KeyFacts
+              rows={[
+                {
+                  label: "the original",
+                  value: "“entrepreneurship is about self-belief first and business skills second”",
+                },
+                {
+                  label: "what transferred",
+                  value: "the structure: X is about A first and B second, where A is the unexpected half",
+                },
+                {
+                  label: "what did not",
+                  value: "the subject, the claim, the evidence, the author's credibility",
+                },
+                {
+                  label: "the result",
+                  value: "“conversion rate optimization is about user psychology first and design tweaks second”",
+                },
+              ]}
+            />
+            <p>
+              the second post is a real claim about a real field, made by
+              someone who can defend it. it borrowed a sentence shape. that is
+              the same thing every songwriter does with a chorus, and it is not
+              the same thing as copying a song.
+            </p>
+            <Callout tone="warn" title="the line, and how to tell you crossed it">
+              <p>
+                if you read your generated post and it is really about the same
+                subject as the original, the generation config is too thin. it
+                should be impossible to guess which competitor post yours came
+                from without the left-hand column.
+              </p>
+            </Callout>
+          </GuideSection>
+
+          <GuideSection title="building it">
+            <GuideSteps steps={guideSteps} />
+            <p>
+              three keys go in <Code>.env</Code>: apify to scrape,{" "}
+              <Out href="https://kie.ai">an image model</Out> for the
+              infographics, and your claude plan for the writing.
+            </p>
+            <Block>{`APIFY_API_TOKEN=...
+KIE_AI_API_KEY=...
+ANTHROPIC_API_KEY=...`}</Block>
+            <p>
+              the image key is the one people skip, and most of what this system
+              produces is visual. without it you get text and empty slots.
+            </p>
+          </GuideSection>
+
+          <GuideSection title="the image mix, and why some posts have none">
+            <p>
+              three kinds of post come out, and the ratio is deliberate:
+            </p>
+            <ul>
+              <li>
+                <strong>infographics</strong>, generated in your style, carrying
+                the same idea as the text rather than decorating it.
+              </li>
+              <li>
+                <strong>personal photos</strong>, from your own library, so the
+                feed has a face in it.
+              </li>
+              <li>
+                <strong>plain text</strong>, no image at all.
+              </li>
+            </ul>
+            <p>
+              X is the one big platform where a text-only post competes fine. a
+              feed where every single post is packaged reads as a brand account,
+              and brand accounts are exactly what people scroll past. the mix is
+              the point.
+            </p>
+          </GuideSection>
+
+          <GuideSection title="what it costs">
+            <KeyFacts
+              rows={[
+                { label: "claude plan", value: `Pro, ${usd(PLANS.pro.monthly)} a month` },
+                { label: "apify", value: "$5 of free credit a month, which covers a weekly run" },
+                { label: "infographics", value: "cents per image" },
+                { label: "time per run", value: "about 15 minutes" },
+                { label: "cadence i would use", value: "weekly" },
+              ]}
+            />
+          </GuideSection>
+
+          <GuideSection title="what it gets wrong">
+            <ul>
+              <li>
+                <strong>a thin generation config makes it a copier.</strong> the
+                single biggest failure, and the one with a cost beyond bad
+                content.
+              </li>
+              <li>
+                <strong>it cannot see the thread.</strong> a post that worked
+                because of what it was replying to looks like a standalone
+                banger and is not.
+              </li>
+              <li>
+                <strong>contrarian claims need backing.</strong> the structure
+                that performs on X is often a strong statement, and the
+                generated version will make one you may not actually be able to
+                defend. read them.
+              </li>
+              <li>
+                <strong>automated publishing too early.</strong> one config
+                mistake becomes thirty bad posts under your name. read
+                everything for the first few weeks.
+              </li>
+              <li>
+                <strong>tracking accounts that are too big.</strong> a post that
+                worked because 400,000 people follow that person is not a
+                pattern you can borrow.
+              </li>
+            </ul>
+            <p>
+              the same architecture for short video is on{" "}
+              <a href="/claude-reels">reels</a> and{" "}
+              <a href="/claude-tiktok">tiktok</a>; the multi-format version is on{" "}
+              <a href="/claude-content">the content guide</a>. new to claude
+              code? <a href="/claude-code-tutorial">start here</a>.
+            </p>
+          </GuideSection>
+        </Guide>
+      }
       jsonLd={{
         title: "X/Twitter Content System with Claude Code",
         description:
           "Build an X/Twitter content system with Claude Code. Study what works in your competitors' tweets and generate ready-to-publish posts in your own voice.",
         url: "https://oleg.ae/claude-twitter",
         datePublished: "2026-05-12",
-        dateModified: "2026-05-13",
+        dateModified: "2026-08-27",
       }}
       boldaneCta={
         <>

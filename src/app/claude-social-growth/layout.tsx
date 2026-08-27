@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "AI Social Media Growth with Claude Code: Free Setup Guide (2026)",
+    "Social Media Growth With Claude Code",
   description:
-    "Use Claude Code to analyze thousands of competitor videos, find the standout performers, and build a data-driven content strategy for YouTube, Instagram, and TikTok growth.",
+    "A growth report built from 2,000 competitor videos, ICE-scored so you know what to do first. Free setup guide, plus the iteration that made it 5x better.",
   keywords: [
     "Claude Code",
     "Claude AI",

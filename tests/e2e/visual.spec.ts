@@ -1,6 +1,6 @@
 import { test, expect, type Page, type Locator } from "@playwright/test";
 
-const SAMPLE_RESOURCE = "/claude-outreach";
+const SAMPLE_RESOURCE = "/claude-b2b-outreach";
 
 // Tests 12-15: visual regression snapshots. The first run establishes the
 // baselines (committed); later runs diff against them.

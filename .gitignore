@@ -60,3 +60,4 @@ reference/5sec.mov
 # .env is already listed above, this catches anything new)
 .env*
 public/reels/stickers/raw/
+seo_goal.md

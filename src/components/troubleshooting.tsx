@@ -18,6 +18,7 @@
 
 import type { ReactNode } from "react";
 import { Reveal } from "@/components/motion/reveal";
+import { FIXES as FIX_META, type FixKey } from "@/components/troubleshooting-data";
 
 /** Inline code, matching the resource pages. */
 function C({ children }: { children: ReactNode }) {
@@ -56,17 +57,16 @@ function A({ href, children }: { href: string; children: ReactNode }) {
   );
 }
 
-export type TroubleshootingItem = { q: string; a: ReactNode };
+export type TroubleshootingItem = { a: ReactNode };
 
 /**
  * All the answers, keyed so each page can take only the ones that apply to it.
  * A page about competitor research should not carry a LinkedIn ban warning, and
  * a page with no API keys should not carry the .env answer.
  */
-export const FIXES: Record<string, TroubleshootingItem> = {
+export const FIXES: Record<FixKey, TroubleshootingItem> = {
   /* ---- by far the most repeated, across every video ---- */
   claudeNotFound: {
-    q: 'the terminal says “command not found: claude”',
     a: (
       <>
         <p>
@@ -113,7 +113,6 @@ source ~/.zshrc`}
   },
 
   crAlias: {
-    q: 'i typed “cr” and nothing happened, or it says command not found',
     a: (
       <>
         <p>
@@ -157,7 +156,6 @@ function cr { claude --dangerously-skip-permissions "/prime" }`}
   },
 
   noEnvFile: {
-    q: "there is no .env file in the folder i downloaded",
     a: (
       <>
         <p>
@@ -195,13 +193,13 @@ Copy-Item .env.example .env`}
   },
 
   costs: {
-    q: "what does this actually cost to run?",
     a: (
       <>
         <p>
           <strong>Claude Code</strong> comes with a Claude subscription: Pro at
-          $20/month, Max at $100 or $200/month. usage is included, there is no
-          per-run charge. the free plan does not include Claude Code at all.
+          $20/month, or Max from $100/month for five or twenty times the usage.
+          usage is included, there is no per-run charge. the free plan does not
+          include Claude Code at all.
         </p>
         <p>
           inside Claude Code, <C>/status</C> tells you whether you are on a
@@ -219,7 +217,6 @@ Copy-Item .env.example .env`}
      pipeline (Apify, Google AI Studio). The pure-Claude pages must not carry
      this answer: it describes bills they do not have. */
   costsScraping: {
-    q: "do i also need to pay for the api keys?",
     a: (
       <>
         <p>
@@ -244,7 +241,6 @@ Copy-Item .env.example .env`}
   },
 
   creditBalance: {
-    q: 'it says “credit balance too low, add funds”',
     a: (
       <>
         <p>
@@ -270,7 +266,6 @@ Copy-Item .env.example .env`}
   },
 
   geminiQuota: {
-    q: 'the pipeline fails with "429" or a quota error from Gemini',
     a: (
       <>
         <p>
@@ -314,7 +309,6 @@ Copy-Item .env.example .env`}
   },
 
   skipPermissions: {
-    q: 'is "--dangerously-skip-permissions" safe?',
     a: (
       <>
         <p>
@@ -347,7 +341,6 @@ Copy-Item .env.example .env`}
    * the public ones that do exist.
    */
   cantFindCode: {
-    q: "i cannot find the source code anywhere",
     a: (
       <>
         <p>
@@ -397,7 +390,6 @@ Copy-Item .env.example .env`}
 
   /* ---- outreach pages only ---- */
   linkedinBan: {
-    q: "will this get my LinkedIn account restricted?",
     a: (
       <>
         <p>
@@ -445,7 +437,6 @@ Copy-Item .env.example .env`}
   },
 
   scrapingSafety: {
-    q: "is scraping competitors going to get my account banned?",
     a: (
       <>
         <p>
@@ -471,8 +462,12 @@ Copy-Item .env.example .env`}
  * after the setup guide, which is where people are standing when they get
  * stuck, rather than at the very bottom where nobody scrolls.
  */
-export function Troubleshooting({ items }: { items: (keyof typeof FIXES)[] }) {
-  const picked = items.map((k) => FIXES[k]).filter(Boolean);
+export function Troubleshooting({ items }: { items: FixKey[] }) {
+  // Question text comes from troubleshooting-data.ts, which is also what the
+  // FAQPage schema is built from, so the two can never disagree.
+  const picked = items
+    .map((k) => (FIXES[k] && FIX_META[k] ? { q: FIX_META[k].q, a: FIXES[k].a } : null))
+    .filter((x): x is { q: string; a: ReactNode } => x !== null);
   if (picked.length === 0) return null;
 
   return (

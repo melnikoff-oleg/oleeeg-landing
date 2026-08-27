@@ -6,6 +6,103 @@ Format: `### YYYY-MM-DD  Title` then what changed, why, and the commit if there 
 
 ---
 
+### 2026-08-27  The standalone-guide rewrite, and a keyword map that matches reality
+
+The big one. Full write-up in `2026-08-27-strategy.md`; the short version:
+
+**The diagnosis.** `domain_overview("oleg.ae")` in Ubersuggest returns **0 organic keywords, 0
+organic traffic, DA 3, 7 backlinks**, and twelve consecutive months of zero. The cause turned out
+not to be thin content alone. Every resource page targeted a keyword with no search volume:
+"claude code instagram", "claude code cold outreach", "claude code content creation" and
+"claude code b2b outreach" all return **zero** monthly searches, and the whole cluster together is
+under 300. Ranking first for all of them would still be roughly no traffic. YouTube demand is not
+Google demand.
+
+**Move 1: every page now answers its query without the video.** New `Guide` primitives
+(`src/components/guide.tsx`, zero client JS) render the video's actual content as a readable
+article under the existing setup accordion. 14 pages rewritten from the transcripts of the live
+videos, pulled with `yt-dlp`: 2,400 to 4,000 visible words each, 9 to 12 h2s, 6 to 8 FAQ entries.
+The above-the-fold `RepoCta` did not move, because 84% of traffic still arrives having watched the
+video and wants the asset. Guarded by `tests/e2e/guide.spec.ts` (73-80).
+
+**Move 2: five new pages, aimed at keywords that exist.** `/claude-cowork` (74,000/mo head term,
+about 85,000 across the cluster), `/claude-cowork-pricing` (SD 15-23), `/claude-code-pricing`
+(27,100/mo at SD 26), `/claude-code-tutorial` (the hub `U-01` asked for, and the parent every
+guide now breadcrumbs to), `/claude-code-vs-cursor` (about 25,000/mo, most of it under SD 30).
+
+**Move 3: five thin pages consolidated.** `/claude-outreach`, `/claude-trend-scanner`,
+`/claude-interviewer`, `/claude-website` and `/claude-seo` are 308s into stronger siblings. Each
+had a private or removed source video and a target keyword under 20 searches a month.
+
+**Corrections found while writing.** The Cowork page was repeating a figure Oleg corrects on
+camera (3,000 free Apify leads, not 5,000); Cowork shipped a built-in browser on 2026-08-26 which
+makes the Chrome-extension setup in every existing tutorial obsolete; and three pages were still
+embedding videos that have since gone private (`/ads-ai`, `/claude-code-second-brain`, and the
+`FilmedPageOutro` on `/elon-musk-ai`), rendering YouTube's grey unavailable panel and claiming a
+`VideoObject` that Google can check. All fixed.
+
+**Structured data.** Schema moved to pure functions in `src/lib/seo/schema.ts` with unit tests.
+Every guide page now emits Article, BreadcrumbList, one FAQPage and (where it is a how-to) HowTo.
+The FAQPage merges the page's own questions with the exact troubleshooting entries it renders, so
+those ten real long-tail queries are finally machine-readable, and `guide.spec.ts` test 76 fails if
+the markup ever claims a question the page does not show. Homepage gained Person and WebSite
+(`S-04`).
+
+**Open Graph (`S-01`), closed.** Zero existed while every page declared `summary_large_image`. One
+generator (`src/lib/seo/og.tsx`) plus 31 three-line route files, rendered at build time, so the
+crawler gets a static PNG and no function ever runs.
+
+**Sitemap (`S-02`), closed.** `lastModified: new Date()` on all 35 entries told Google every page
+changed within the hour, every hour, so it discounted the field entirely. Now real per-page dates
+from `src/lib/seo/sitemap-routes.ts`, with unit tests that diff the list against `src/app` in both
+directions, which is the check that would have caught the `/sam-altman-ai` gap.
+
+**Performance.** `Inter` was the largest font on the site (47 kB every cold visit) and rendered
+almost nothing: `font-sans` appeared twice in the whole codebase, once being the `<body>` tag,
+because every element specifies `font-display` or `font-body`. Removed. Fonts went 106 kB to 58 kB
+and the homepage's cold weight 299 kB to 252 kB, with the visual snapshots unchanged. Budgets are
+now enforced by `tests/e2e/perf-budget.spec.ts` (81-84) so this is measurable from here on.
+
+**`/llms.txt`** added, and `robots.ts` documented as deliberately open to assistant crawlers, since
+being useful inside ChatGPT is half the point of writing the guides out in full.
+
+
+**Metadata lengths, site-wide.** 24 titles and 27 descriptions were long enough that Google
+truncates them, which does not make a longer snippet, it makes one missing its tail. All rewritten
+to fit (titles under 65 characters including the brand suffix, descriptions 70 to 165), and
+enforced by `tests/e2e/metadata.spec.ts` (85-87), which also checks every canonical is
+self-referential. `/reels` and `/creators` are excluded by name: they are Oleg's own tools and out
+of scope by his instruction.
+
+**Found by the code review, and fixed:**
+
+- **`sameAs` named handles the site contradicted.** The schema listed `instagram.com/oleg_tech`
+  while `connect-section.tsx` linked `instagram.com/melnikoff_oleg`. `sameAs` is precisely the
+  field that tells Google which accounts are one person, so a disagreement there merges the entity
+  with the wrong one. Resolved on evidence: `oleg_tech` appears in 20 of the 24 live video
+  descriptions and `melnikoff_oleg` only in the four oldest, so the **visible link was the stale
+  one** and is now updated, with Telegram added to `sameAs`.
+- **The Cowork page's structured data told readers to install the Chrome extension** while the
+  visible copy said the built-in browser makes that unnecessary. A rich result would have handed a
+  searcher the obsolete setup. This was the only place in the pass where schema and copy disagreed.
+- **A $200 Max price was on 16 pages and Anthropic does not publish it.** Their pricing page says
+  only "from $100" with 5x and 20x tiers. The site now says exactly that and stops there, and the
+  Cowork pricing FAQ no longer claims both tiers start at the same number.
+- **`.prose-guide strong` asked for weight 600 from a face loaded at 400 and 500**, so every bold
+  word in the new article body was a browser-synthesised fake bold. Space Grotesk now loads 700,
+  which still fits inside the font budget because next/font ships one variable file per family.
+- Two pages had reopened the price-drift `pricing.ts` exists to close (a dead import on one, six
+  hardcoded figures on the other); both now read from the module. Plus a dead constant and a dead
+  `GuideHeading` export removed, and `FixKey` narrowed from `string` to the literal key union, so a
+  typo in a troubleshooting key is a compile error instead of a section that silently renders
+  nothing.
+
+**Not done, and why.** Real screenshots on the guide pages (backlog `S-16`). YouTube now refuses
+video downloads to the installed `yt-dlp`, and generated illustrations would have been worse than
+no image on a site whose whole argument is that the systems are real.
+
+Suite: 455 passing, 0 failing. Unit: 87 passing.
+
 ### 2026-08-24  Ubersuggest opportunities p1 triaged
 
 10 of 24 rows reviewed. 1 accepted (`U-01`), 7 folded into one existing-page upgrade (`U-02`), 2 rejected on intent (`U-03`). Full reasoning in `ubersuggest/2026-08-24-opportunities.md`. Chasing the accepted row surfaced a larger finding: 17 pages declare "Claude Code tutorial" as a keyword and no page owns it, with no hub page anywhere in `src/app/`.

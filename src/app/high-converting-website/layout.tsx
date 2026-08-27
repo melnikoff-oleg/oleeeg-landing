@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Build a High-Converting Landing Page with Claude Code: Free Kit (2026)",
+    "Build a High-Converting Landing Page With AI",
   description:
-    "A free, open-source kit that builds a landing page engineered to convert, not just look nice. Claude Code reads a distilled conversion playbook from Alex Hormozi and the world's best marketers, then builds and deploys your page on your own domain. No coding required.",
+    "A free Claude Code kit that builds a landing page that sells, with the conversion playbook behind it. I built boldane.com with it and closed a deal.",
   keywords: [
     "Claude Code",
     "high-converting landing page",

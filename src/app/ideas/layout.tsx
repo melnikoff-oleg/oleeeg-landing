@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Video Ideas: Vote On What I Build Next",
+  title: "Suggest the Next Video",
   description:
-    "Suggest a video about Claude Code, AI agents or AI for marketing, and vote on the ideas already on the board. The ideas with the most votes are the ones I make next.",
+    "A public board for the next YouTube video. Suggest an idea, vote on the ones already there, and watch them move from suggested to filmed to published.",
   keywords: [
     "video ideas",
     "Claude Code tutorials",

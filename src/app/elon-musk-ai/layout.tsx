@@ -26,9 +26,13 @@ const DESCRIPTION =
 const SHORT =
   "Seven things he actually does with AI, each linked to the exact second he says it. Read from 31 interviews and 997 of his posts.";
 
+// SERP note (2026-08-27): `description` is SHORT, not DESCRIPTION. DESCRIPTION runs
+// 200 to 320 characters, and Google cuts a description at about 160, so the tail
+// (which is where the specific words are) never showed. SHORT was already written
+// to be the one-line version. Enforced by tests/e2e/metadata.spec.ts (86).
 export const metadata: Metadata = {
   title: TITLE,
-  description: DESCRIPTION,
+  description: SHORT,
   keywords: [
     "how Elon Musk uses AI",
     "Elon Musk AI",
@@ -43,7 +47,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: TITLE,
-    description: SHORT,
+    description: DESCRIPTION,
     type: "article",
     url: "https://oleg.ae/elon-musk-ai",
     publishedTime: "2026-08-05T00:00:00Z",
@@ -76,10 +80,12 @@ export default function ElonMuskAiLayout({
       <div className={`elon-page ${newsreader.variable} ${roboto.variable}`}>
         {children}
       </div>
-      <FilmedPageOutro
-        videoId="ieTgCMWYsoQ"
-        videoTitle="How Does Elon Musk REALLY Use AI? (7 Insane Habits)"
-      />
+      {/* The companion video (ieTgCMWYsoQ) went private some time before
+          2026-08-27: the oembed endpoint 403s and it is no longer on the
+          channel. Without videoId the outro renders its "more from oleg"
+          variant (channel + free guides) instead of a thumbnail that links to a
+          dead watch page. Put the id back if the video is republished. */}
+      <FilmedPageOutro />
     </>
   );
 }

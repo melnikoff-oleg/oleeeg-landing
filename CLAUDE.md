@@ -151,7 +151,15 @@ Two facts that constrain every SEO decision here, kept in this file because they
 - **Plausible's Stats API is NOT queryable as of 2026-08-12.** Both the key in this repo's `.env` and the one in boldane-site's return `"The account that owns this API key does not have access to Stats API"`. Any analytics-driven work has to fall back to YouTube view counts, which is arguably the truer signal anyway since 84% of traffic is YouTube-fed. `scripts/build-recommendations.mjs` calls the Stats API and will need its popularity source swapped, or the plan upgraded, before it can be regenerated. Plausible itself still tracks (`src/components/plausible.tsx`, domain oleg.ae, `outboundLinks: true` since 2026-07-06; the event is "Outbound Link: Click" and needs adding as a goal in the dashboard to be visible there).
 - **The homepage deliberately links to NO resource pages** since 2026-07-09. Oleg wants it to end on the connect section's "cheers, oleg". Any homepage to resource linking, however good for SEO, would need a different and subtle form, and his sign-off.
 
-The audit baseline as of 2026-08-24 is in `seo/audits/2026-08-24-baseline.md`: sitemap, robots, per-page canonicals (all 32 layouts, no gaps), `ArticleJsonLd` on 23 pages and the `NextUp` internal-linking surface are in place; Open Graph images, homepage Person schema, FAQPage schema on the troubleshooting blocks, and Search Console verification are the open gaps.
+The audit baseline as of 2026-08-24 is in `seo/audits/2026-08-24-baseline.md`. **The 2026-08-27 pass closed most of it**: Open Graph images, homepage Person/WebSite schema, FAQPage schema, an honest sitemap `lastModified`, the Claude Code hub, and a measured performance baseline all shipped. See `seo/2026-08-27-strategy.md` and the `LOG.md` entry for the same date. **Search Console verification (`S-06`) and backlinks (`S-10`) are what is left, and both need Oleg.**
+
+Three findings from that pass that constrain future work:
+
+- **The site ranked for literally nothing.** `domain_overview("oleg.ae")` on 2026-08-27: 0 organic keywords, 0 organic traffic, DA 3, 7 backlinks from 3 domains, twelve straight months of zero. That is the baseline any future claim of improvement is measured against.
+- **The old keyword map targeted terms that do not exist.** "claude code instagram", "claude code cold outreach", "claude code content creation", "claude code tiktok" and "claude code b2b outreach" all measure **zero** monthly US searches. YouTube demand is not Google demand, and the video title is almost never the query. Check volume before writing a page for a term.
+- **DA 3 is now the binding constraint, not content.** The winnable terms are the SD 15-30 ones in `seo/keywords.md`. Anything above SD 50 is not realistic yet no matter how good the page is.
+
+**Ubersuggest is reachable over MCP** (`ubersuggest` server, `https://ubersuggest-mcp.neilpatelapi.com/mcp`, OAuth as `oleg@boldane.com`, custom tier). It is configured in the `dantane` project rather than this one. It has `keyword_overview`, `match_keywords`, `serp_analysis`, `domain_overview`, `pagespeed_audit` and a site-audit flow. Always pass `locId: 2840` for US data; the field on `keyword_overview` is `search_volume`, not `volume`.
 
 ---
 
@@ -214,6 +222,8 @@ npm run test:update  # Regenerate visual-regression baselines
 - Site-wide mobile refinement (`mobile-audit.spec.ts`, 29-39): ≥44px tap targets, ≥16px primary copy, no eager YouTube iframe (`YouTubeEmbed` facade present + click-to-load), no-horizontal-overflow on every route.
 - Hero CTA (`hero-cta.spec.ts`, 40-44): the three repo pages + two non-repo download pages render an above-the-fold primary CTA that sits before the video facade.
 - `/opus-5` (`opus-5.spec.ts`, 52-58): all five rule sections and their anchors, a sample of the sourced numbers, every source link external + `rel=noopener` (scoped by `data-testid="source-link"`), the rail's five anchors, the no-em-dash copy rule, plus mobile-only checks that the benchmark table is swapped for the 9-card stack and that the hero toy stays inside the 390px viewport with rule prose at ≥16px.
+- **The standalone-guide contract (`guide.spec.ts`, 73-80)**: every guide route carries over 900 visible words and at least four `h2`s, its guide body is visible without interaction, its FAQ schema names only questions the page really renders, its HowTo step anchors resolve to real ids, it emits breadcrumbs, the five consolidated slugs answer 308, and the hero CTA still sits above the written guide.
+- **Performance budgets (`perf-budget.spec.ts`, 81-84)**: homepage font/JS/total weight, at most two font files, a guide page's own JS, and first contentful paint. Set just above where the site sits, so ordinary work does not trip them.
 - NextUp "up next" recommendations (`next-up.spec.ts`, 45-51): one hero + 1-2 ranked secondary picks, all internal and never self-recommending, hero visually dominant and first, the full library collapsed behind the `see all free resources` disclosure, plus mobile ≥44px tap targets / ≥16px hero copy / no 390px overflow. Robust to `recommendations.json` regeneration (scoped to the grid container, not specific pick names).
 - **Backend + coverage (code-review-hardening):** `mobile-overflow.spec.ts` (390px no-horizontal-scroll on EVERY route, skipping intentional `overflow-x` scrollers); `api-chat.spec.ts` / `api-memory.spec.ts` (deterministic, key-free validation branches — bad body, empty, missing/invalid/private-host url, size cap — use a raw `Buffer` for malformed-JSON bodies since Playwright re-serializes string `data` under a JSON content-type); `retriever.spec.ts` (pure unit test of the BM25 invariants: PER_SOURCE cap, RESERVE_VIDEOS floor, identity folding — runs from repo root, retriever reads `chunks.json` via `process.cwd()`); `brain-chat.spec.ts` (drives the chat with a **stubbed** NDJSON stream via `page.route`: source cards, streamed text, `max_tokens`→continue / dropped-stream→try-again banners, fully offline).
 
@@ -229,20 +239,22 @@ Route list is a single source of truth: `tests/e2e/routes.ts` (`ROUTES` / `FOOTE
 5. **Connect** — Social links + footer (`src/components/connect-section.tsx`)
 6. **Header** — Floating nav, blurs on scroll (`src/components/header.tsx`)
 
-**Resource pages** — YouTube video companion pages with setup guides:
-- `/claude-outreach` — Claude Code for cold outreach
+**Cluster pages** — built 2026-08-27 for keywords that measurably exist, rather than for a video title. These are the traffic engine; see `seo/keywords.md` for the volume and difficulty behind each:
+- `/claude-code-tutorial` — the hub. What Claude Code is, for non-developers. Breadcrumb parent of every guide below, and the answer to the old "17 pages fighting over one term" problem.
+- `/claude-code-pricing` — every plan, the API route, Anthropic's own spend figures
+- `/claude-code-vs-cursor` — Cursor, Codex, Gemini CLI, OpenCode. Editor versus agent.
+- `/claude-cowork` — the Cowork pillar. 74,000/mo head term, the biggest single opening on the site.
+- `/claude-cowork-pricing` — the lowest-difficulty cluster anywhere on the site (SD 15-23)
+
+**Resource pages** — YouTube video companion pages. Each is a setup guide **and** a full written tutorial, so it answers the query without the video (see the standalone-guide section below):
 - `/claude-twitter` — X/Twitter content machine
 - `/claude-tiktok` — Viral TikTok videos
-- `/claude-website` — Build personal website
 - `/claude-social-growth` — Viral social media growth
-- `/claude-trend-scanner` — Trend scanner for 10x more views
 - `/claude-b2b-outreach` — B2B outreach (35% reply rate)
-- `/claude-seo` — SEO optimization
 - `/claude-cowork-outreach` — Claude Cowork for cold outreach
 - `/claude-marketing` — Marketing (SMM, ads, outreach)
 - `/claude-reels` — Viral Instagram Reels
 - `/claude-content` — Content creation in 10 minutes
-- `/claude-interviewer` — AI voice interviewer for content creation
 - `/claude-code-instagram` — Claude Code as an Instagram video *editor* (added 2026-08-01). Companion to **Reel Studio** (`melnikoff-oleg/reel-studio`), a local app that drives Claude Code + the HyperFrames skills. Distinct from `/claude-reels`, which is about *writing* Reels scripts from competitor analysis; this one is about *cutting the video*. **Five** accordion steps, rewritten down from nine on 2026-08-01: VS Code → a Claude plan (Pro minimum; the free plan has no Claude Code) → Claude Code (install + sign-in) → **one pasted prompt that installs everything else** → first video. The collapse is the point: once `claude` exists it can install Node/ffmpeg/Python, clone the repo, `npm install` and start the server itself, so steps 2/6/7/8 of the old version became `SETUP_PROMPT` in `page.tsx`. Two format rules a rewrite must keep: **each step is a list of short imperative actions** ("open this link", "press the blue button"), never a paragraph; and every explanation, caveat and troubleshooting note lives in a **`Why` disclosure, shut by default** (local `<details>` component matching `ResourceFooter`'s pattern). Oleg's words: a wall of reassurance next to every instruction "looks monstrous for people who are non-technical". The subhead is deliberately about half the length of a normal one. No `videoId` yet (the YouTube video is unpublished — add it to `page.tsx` + `layout.tsx` when it goes live, and only then add the route to `YT_FACADE_ROUTES` in `mobile-audit.spec.ts` and `SPECS` in `hero-cta.spec.ts`). Every install fact was verified against primary docs on 2026-08-01; the version numbers and winget package IDs will rot, so re-check before re-promoting the page.
 
 **Tool pages** — free open-source tool lead magnets (GitHub download + setup guide):
@@ -323,7 +335,7 @@ A sweep to bring the site back in line with the channel, driven by scraping the 
 
 **Videos embedded** (they existed on the channel but no page showed them): `/claude-code-instagram` (`SUZYKyIujQY`, the video CLAUDE.md said was unpublished, live since 2026-08-04), `/claude-code-second-brain` (`TdYYRm_Ph5E`), `/5-levels-ai` (`mFYKAsGcnso`, hand-wired since the page is bespoke), and the three filmed pages via `FilmedPageOutro`. `/claude-code-ads` still has no video: the Ads Studio video is unpublished. `/marketing-brain` deliberately stays bare (the Jobs-style hero rule).
 
-**Five pages have a private source video** (`LOGIN_REQUIRED`, so gone for the public): `/claude-website` (`Iew4mx03C3s`), `/claude-outreach` (`aUO7kUc8aJU`), `/claude-seo` (`KOK8-0v4mUc`), `/claude-interviewer` (`Na1ET0-s4CA`), `/claude-trend-scanner` (`gVpAjLUnD2c`). Four had already been stripped in commit `63157cf`; `/claude-website` was still rendering a dead embed and dead video schema and is now stripped too. **All five pages are still live and were kept on purpose**: they work as standalone guides and carry inbound `NextUp` links. `/claude-website` is the one worth retiring (fully superseded by `/high-converting-website`, which has a public repo and real proof) but that is Oleg's call, pending.
+**Five pages had a private source video** (`LOGIN_REQUIRED`): `/claude-website` (`Iew4mx03C3s`), `/claude-outreach` (`aUO7kUc8aJU`), `/claude-seo` (`KOK8-0v4mUc`), `/claude-interviewer` (`Na1ET0-s4CA`), `/claude-trend-scanner` (`gVpAjLUnD2c`). They were kept at the time. **On 2026-08-27 all five were consolidated into stronger siblings as permanent redirects** once their target keywords measured under 20 searches a month; see the standalone-guide section below.
 
 **Bugs the comments exposed, all fixed:**
 - **`APIFY_API_KEY` vs `APIFY_API_TOKEN`.** Every repo reads `process.env.APIFY_API_TOKEN`; `/claude-reels`, `/claude-tiktok` and `/claude-twitter` all told people to write `APIFY_API_KEY`. Wrong name, silent failure. Fixed on those three. **The four pages that still say `APIFY_API_KEY` are correct and must NOT be "fixed"** (`claude-b2b-outreach`, `claude-marketing`, `claude-outreach`, `claude-trend-scanner`). Those downloads are not Next.js apps: they are **Claude Code workspaces** (`~/Desktop/Software Projects/old/{outbound-ai,claude-code-marketing,content-creation}`) where nothing compiles the key, Claude reads it out of `.env` on demand, and the name is set by convention in each workspace's own `CLAUDE.md`, which says `APIFY_API_KEY`. So the rule is: **`APIFY_API_TOKEN` for the Next.js app repos** (`social-media`, `tiktok-ai`, `x-ai`, `ads-ai`), **`APIFY_API_KEY` for the workspace-style projects**. Check the project's own `CLAUDE.md` before changing either.
@@ -356,7 +368,7 @@ A full 30-route mobile audit at 390px (multi-agent, real-screenshot-driven, judg
 - **Fold rule extended: every resource page hands its promised asset over above the fold.** New hero CTAs: `/claude-content` (Drive, "get the project files"), `/claude-b2b-outreach` + `/claude-trend-scanner` ("get the source code") and `/claude-website` ("get the starter template"), the last three pointing at the Skool about page with step copy naming the **Classroom** section (a public repo replacing Skool remains the biggest win, unchanged). `/claude-social-growth`'s hero CTA now points at `claude.com/claude-code` (was `claude.ai/download`, which hands over the desktop app and contradicted the terminal guide; step 2 references the same destination). All registered in `hero-cta.spec.ts` (11 entries; `hasVideo: false` rows assert CTA-above-setup-guide since those pages ship no facade).
 - **Every paste-able prompt has one-tap copy.** New shared `src/components/copy-button.tsx` (`CopyButton`, extracted from the 60k pattern: 44px, never wraps, brief "copied" state). Wired on claude-outreach, claude-social-growth, claude-code-second-brain, claude-code-ads, ads-ai, high-converting-website; `/5-levels-ai` uses a local tap-to-copy CmdChip because its commands must wrap; 60k keeps its local button (now `shrink-0 whitespace-nowrap`). Prompts live in consts so the button and the display never drift.
 - **Command/code blocks wrap, never scroll or clip.** Every font-mono `.env`/`git clone`/install block on the resource pages carries `[overflow-wrap:anywhere]` (the `Cmd` pattern from troubleshooting.tsx); the shared `Accordion` content wrapper has a defensive `[overflow-wrap:anywhere]` too. `overflow-x-auto` on a command block is banned: on a phone it hides the end of the line and people copy half a command.
-- **Price standard: Claude Pro is $20/mo.** The stale $19 figure was corrected on 9 pages (claude-seo even said "through the Max plan"). Say it in the page's voice, never $19.
+- **Price standard: Claude Pro is $20/mo.** The stale $19 figure was corrected on 9 pages. Since 2026-08-27 every price comes from `src/lib/pricing.ts` rather than being written into the copy, so there is one number to change.
 - **`/60k-linkedin-post`**: the three prompts are no longer nested scrollers; collapsed `max-h-80 overflow-hidden` with a bottom fade + 44px "show full prompt" toggle; the hero gained a "jump to the prompts" anchor so the fold has an action.
 - **`/marketing-brain`**: every focusable input computes to 16px at 390px (under 16px, iOS Safari auto-zooms on focus; never "fix" that by capping user zoom); drawer close/scrape/save are 44px; Escape closes the drawer.
 - **`/marketing-brain-knowledge`**: each expert shows their top 3 talks, the rest behind a native `<details>` "see all N talks" (`data-testid="see-all-talks"`); the page dropped 32.4k → 15.3k px at 390px and initial thumbnail requests 76 → 27; every link stays in the server-rendered HTML for crawlers.
@@ -390,6 +402,108 @@ Two flat slugs over one Supabase table of viral Instagram reels: `/reels` is the
 - **`ReelRow` and `ReelHit` are split** so the card can paint a browse row that has no `similarity`. `ReelHit = ReelRow & { similarity: number }`; only the search produces one.
 - **The first browse page is server-rendered**, so the list is in the HTML for a crawler and for a visitor before any JavaScript arrives. Every later page and every filter change is the client component calling `GET /api/viral-reels/browse`. That route clamps rather than rejects: an out-of-range window, a negative page, a min dragged past the max all become the nearest legal request, because the slider can emit a crossed pair mid-drag and an empty page is a worse answer than a narrow one. `normalizePage` also caps at 10,000, since a page number is an offset Postgres has to count past.
 - **Thumbnails are plain `<img>`, not `next/image`**, on purpose: they are 360x640 JPEGs served immutable from Supabase storage and painted at 96-128px, so an optimizer pass would only spend Vercel transformation quota.
+
+
+## The standalone-guide rewrite (2026-08-27, branch `seo-standalone-tutorials`)
+
+The pass that turned the resource pages from a place to grab files into pages worth landing on
+from a search result. Strategy and the measured numbers behind it: `seo/2026-08-27-strategy.md`.
+
+**The rule this established, and it is the important part.** *Every resource page must answer its
+query for someone who has never seen the video.* Everything that made the video worth watching now
+lives on the page: the real numbers, the actual prompts, the costs, the failure modes. The
+transcripts are the source (pull them with `yt-dlp --write-auto-subs`, never Apify, it bills per
+comment). Guarded by `tests/e2e/guide.spec.ts` (73-80), which fails a page under 900 visible words,
+with fewer than four `h2`s, or whose FAQ schema names a question the page does not render.
+
+**The YouTube path is untouched and must stay that way.** 84% of traffic arrives from a video
+description having already watched it, and wants the asset. The above-the-fold `RepoCta` did not
+move; test 80 fails if the written guide ever renders above it.
+
+- **`src/components/guide.tsx`** is the reading surface: `Guide`, `GuideSection`, `GuideSteps`,
+  `KeyFacts`, `CompareTable`, `Callout`, `Code`, `Block`, `Out`, `GuideToc`. **All server
+  components, zero client JavaScript** (the prose styling is the `.prose-guide` block in
+  `globals.css`, not a component tree). Nothing in a guide is hidden behind a toggle: the setup
+  accordion above it is a checklist, the guide is the article, and content behind a toggle is
+  content a crawler discounts and a reader has to work for.
+  - `GuideSteps` takes a **`start` prop**. A page that splits one walkthrough across several
+    sections must pass an offset (`/claude-b2b-outreach` does): three blocks all starting at 1
+    render three elements with `id="step-1"`, which is invalid HTML and makes the HowTo anchors
+    point at whichever the browser finds first.
+  - `CompareTable` renders a real `<table>` at `lg`+ and **a card per column below it**, from one
+    data source. Never an `overflow-x` scroller: at 390px that hides the columns off the right
+    edge entirely.
+- **`ResourcePageShell` gained `guide`, `faq`, `howTo` and `breadcrumb` props.** It emits one
+  Article, one BreadcrumbList, one HowTo (where the page is one) and **exactly one FAQPage**,
+  built from the page's own `faq` plus the troubleshooting entries it actually renders.
+- **`src/lib/seo/schema.ts`** holds every JSON-LD builder as a pure function, unit-tested. The
+  components in `json-ld.tsx` only stringify. Rule: never assert something Google can go and check
+  (a `VideoObject` for a private video, an empty `FAQPage`, a `HowTo` on a page that is not one).
+- **`src/components/troubleshooting-data.ts`** holds each fix's question and a **plain-text
+  `aText`** twin for schema; `troubleshooting.tsx` keeps only the JSX answers and reads the
+  question from there, so the rendered copy and the markup cannot drift. That file is JSX-free on
+  purpose so a node unit test can read it.
+- **`src/lib/pricing.ts` is the single source of truth for every price on the site.** Nine pages
+  used to say $19 and the rest $20 because each had its own copy. Read off the vendors' own pages
+  on 2026-08-27 (`PRICING_CHECKED`). When a price changes, change it here.
+- **`src/lib/seo/sitemap-routes.ts`** replaces the hand-written sitemap and carries a **real
+  per-page `lastModified`**. The old one stamped `new Date()` on all 35 entries every fetch, which
+  told Google every page changed within the hour and got the field discounted. `tests/unit/sitemap.test.ts`
+  diffs the list against `src/app` **in both directions**, which is the check that would have
+  caught the `/sam-altman-ai` gap.
+- **Open Graph images**: `src/lib/seo/og.tsx` is one generator; each route has a three-line
+  `opengraph-image.tsx`. Rendered at **build** time, so a crawler gets a static PNG and no function
+  runs. Deliberately no external fonts: fetching one at build turns a network hiccup into a failed
+  build.
+- **`/llms.txt`** (`src/app/llms.txt/route.ts`) indexes the guides for assistant crawlers, from the
+  same route list as the sitemap. `robots.ts` is deliberately open to them.
+
+**Five slugs were consolidated into stronger siblings**, all permanent 308s in `next.config.ts`:
+`/claude-outreach` → `/claude-b2b-outreach`, `/claude-trend-scanner` → `/claude-social-growth`,
+`/claude-interviewer` → `/claude-content`, `/claude-website` → `/high-converting-website`,
+`/claude-seo` → `/claude-code-tutorial`. Each had a private or removed source video and a target
+keyword under 20 searches a month. `REDIRECTED_ROUTES` in `tests/e2e/routes.ts` asserts each one
+answers 308 and lands on the right page.
+
+**Five new cluster pages**, built for measured demand rather than for a video title:
+`/claude-code-tutorial` (the hub, and the breadcrumb parent of every guide),
+`/claude-code-pricing`, `/claude-code-vs-cursor`, `/claude-cowork`, `/claude-cowork-pricing`.
+
+**Three dead video embeds were still live and are now stripped**: `/ads-ai` (`5_QP6_EmReQ`),
+`/claude-code-second-brain` (`TdYYRm_Ph5E`) and the `FilmedPageOutro` on `/elon-musk-ai`
+(`ieTgCMWYsoQ`). All three 403 on oembed. **Re-check with oembed before adding any `videoId`**; a
+`VideoObject` pointing at a dead watch page is a claim Google can verify.
+
+**Facts corrected against primary sources on 2026-08-27**, worth knowing because they date fast:
+Claude Cowork shipped a **built-in browser on 2026-08-26**, which makes the "install the Claude for
+Chrome extension" step in every earlier tutorial (including Oleg's video) obsolete; Claude Pro is
+**$20/mo, or $17 paid annually**, and includes Claude Code, Cowork, Design and Science; Anthropic
+publishes that Claude Code costs about **$13 per developer per active day** on the API; and the
+Apify free tier is **3,000 leads a month, not 5,000**, which is the correction Oleg makes on camera
+and the page was still repeating.
+
+**Metadata is length-budgeted.** `tests/e2e/metadata.spec.ts` (85-87) fails a title over 65
+characters (including the ` | Oleg Melnikov` suffix) or a description outside 70-165, because
+Google truncates both and what it cuts is the tail, where the specific words are. It also checks
+every canonical is self-referential. `/reels` and `/creators` are excluded by name, being Oleg's
+own tools and out of scope. The filmed pages set `description: SHORT` rather than `DESCRIPTION`
+for the same reason, keeping the long-form `DESCRIPTION` for the OpenGraph block, where there is
+room. **Those layouts are generated by the vault port scripts**, so that change has to be made in
+the port template or the next port undoes it; each edited file carries a comment saying so.
+
+**Two facts corrected on evidence, worth not re-breaking.** `sameAs` and `connect-section.tsx`
+must agree: they now both use `instagram.com/oleg_tech` and `tiktok.com/@oleg_tech`, which appear
+in 20 of the 24 live video descriptions, while `melnikoff_oleg` appears only in the four oldest
+(the visible link was the stale one). And **Anthropic does not publish a price for Max 20x**: the
+pricing page says "from $100" with 5x and 20x tiers and stops. A $200 figure had been on 16 pages
+via the troubleshooting copy and has been removed; do not re-add it without a source.
+
+**Performance.** `Inter` was removed: it was the largest font on the site (~47 kB every cold visit)
+and rendered almost nothing, because `font-sans` appeared twice in the whole codebase and every
+element specifies `font-display` or `font-body`. Fonts went 106 kB → 58 kB and the homepage's cold
+weight 299 kB → 252 kB, with the visual snapshots unchanged. `--font-sans` now resolves to the body
+face. Budgets are enforced by `tests/e2e/perf-budget.spec.ts` (81-84): font bytes, font file count,
+route JS, total weight and FCP.
 
 ## Notes
 

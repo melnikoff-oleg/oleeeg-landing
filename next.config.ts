@@ -58,6 +58,45 @@ const nextConfig: NextConfig = {
         destination: "/reels",
         permanent: true,
       },
+      // ---- The 2026-08-27 SEO consolidation (seo/2026-08-27-strategy.md) ----
+      // Five pages whose source video is private or removed, each targeting a
+      // keyword with under 20 searches a month, each competing with a stronger
+      // sibling. Permanent, so whatever equity they hold lands on the page that
+      // can use it. They stay reachable because old video descriptions and
+      // recommendations.json still point at them.
+      {
+        // Same topic as /claude-b2b-outreach, which has the live video and the
+        // reply-rate proof. Two pages were splitting one weak signal.
+        source: "/claude-outreach",
+        destination: "/claude-b2b-outreach",
+        permanent: true,
+      },
+      {
+        // Trend scanning is step one of the growth system, not a separate one.
+        source: "/claude-trend-scanner",
+        destination: "/claude-social-growth",
+        permanent: true,
+      },
+      {
+        // Interviewing is an input to the content system.
+        source: "/claude-interviewer",
+        destination: "/claude-content",
+        permanent: true,
+      },
+      {
+        // Fully superseded: /high-converting-website has a public repo and real
+        // proof, and both targeted "build a site with Claude Code".
+        source: "/claude-website",
+        destination: "/high-converting-website",
+        permanent: true,
+      },
+      {
+        // 10 searches a month, video gone, no repo. The hub is where someone
+        // arriving on it is actually trying to get to.
+        source: "/claude-seo",
+        destination: "/claude-code-tutorial",
+        permanent: true,
+      },
     ];
   },
   async headers() {

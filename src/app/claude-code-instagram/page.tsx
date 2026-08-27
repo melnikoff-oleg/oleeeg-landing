@@ -1,6 +1,19 @@
 import type { ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { ResourcePageShell } from "@/components/resource-page-shell";
+import {
+  Block,
+  Callout,
+  Code,
+  CompareTable,
+  Guide,
+  GuideSection,
+  GuideSteps,
+  GuideToc,
+  KeyFacts,
+  Out,
+} from "@/components/guide";
+import { PLANS, usd } from "@/lib/pricing";
 
 const REPO = "https://github.com/melnikoff-oleg/reel-studio";
 
@@ -309,6 +322,165 @@ const steps = [
   },
 ];
 
+
+const SECTIONS = [
+  "what it actually is",
+  "two videos it made, and how",
+  "what a video costs, and how many you get",
+  "using it",
+  "the four things that make the output good",
+  "what it is not",
+];
+
+const guideSteps = [
+  {
+    title: "start a new reel and drop the materials in",
+    schema:
+      "Create a new reel and put every clip, photo, voiceover and music file you want in it into the materials panel.",
+    body: (
+      <>
+        <p>
+          press new reel and put everything you have on the left: clips, photos,
+          a voiceover, music. no order, no labels, no naming convention.
+        </p>
+        <p>
+          you do not describe what any of it is. it watches each file, works out
+          what is in it, transcribes what is said, and decides where it belongs.
+          that is the part that makes this different from a template tool.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "say what the video should be, in a sentence",
+    schema:
+      "Describe the video you want in plain language in the middle panel, rather than specifying an edit.",
+    body: (
+      <>
+        <p>
+          the middle panel takes plain english. &quot;make a video about my trip
+          to paris from these visuals, use the voiceover as the storyline, find
+          some music, stitch it so it makes sense.&quot;
+        </p>
+        <p>
+          you are briefing an editor, not operating an editor. what to make, not
+          which cut goes where.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "press build and go and do something else",
+    schema:
+      "Build the video and leave it. A one-minute reel takes roughly thirty minutes, and you can watch the steps as it works.",
+    body: (
+      <>
+        <p>
+          a one-minute reel takes about <strong>thirty minutes</strong>. you can
+          watch every step in the middle panel, and you should not.
+        </p>
+        <p>
+          this is the whole deal: it is slower than a human editor at the
+          keyboard and it costs about fifty cents, and neither of those matters
+          because you are not in the room.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "review v1 and give feedback in words",
+    schema:
+      "Watch the first version, type what to change, and it produces a new version. Versions are kept side by side.",
+    body: (
+      <>
+        <p>
+          you get v1. watch it, type what is wrong (&quot;the cut at eight
+          seconds is too early&quot;, &quot;captions are too big&quot;), and it
+          produces v2. then v3. every version is kept.
+        </p>
+        <p>
+          this is the correct mental model for the whole thing: it is a first
+          draft from an editor you are giving notes to, not a render you either
+          accept or throw away.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "nail the style on five seconds before you build the whole thing",
+    schema:
+      "Ask it to style only the first five seconds and produce several variations, then pick one before building the full video.",
+    body: (
+      <>
+        <p>
+          the highest-value habit here. ask it to edit{" "}
+          <strong>only the first five seconds</strong> and give you four
+          variations of the caption style, the font, the music.
+        </p>
+        <p>
+          pick one, then build the rest. iterating on five seconds costs almost
+          nothing. discovering you hate the captions after a thirty-minute
+          render costs thirty minutes.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "save the style so you never re-explain it",
+    schema:
+      "Once a video looks right, press save this style so the fonts, motion and feel become a skill you can reuse.",
+    body: (
+      <>
+        <p>
+          when a video finally looks right, press <strong>save this
+          style</strong>. it reads back the fonts, the motion graphics and the
+          general feel and stores them as a skill.
+        </p>
+        <p>
+          every video after that starts from your look instead of from nothing.
+          this is what turns a good afternoon into a system: you pay the styling
+          cost once.
+        </p>
+      </>
+    ),
+  },
+];
+
+const faq = [
+  {
+    q: "how much does one video cost",
+    a: "About 50 cents in Claude usage for a one-minute reel, and no API keys at all. The editing framework underneath is HyperFrames from HeyGen, which is open source and free, so everything happens inside Claude Code and comes out of your existing plan rather than a separate bill.",
+  },
+  {
+    q: "how many videos can i make per month",
+    a: "It depends on your plan, because you are spending plan usage rather than credits. On Pro at $20 a month, roughly 20 to 32 videos, which works out at three to five a day against the daily limits. On the $100 tier, roughly 50 to 160. On the largest plan, roughly 200 to 320. Complex videos cost more than simple ones, so these are ranges rather than quotas.",
+  },
+  {
+    q: "how long does it take to make a video",
+    a: "About thirty minutes for a one-minute reel, scaling roughly with length. That is slower than a human editor at a keyboard, and it does not matter, because you are not sitting there. You brief it, leave, and come back to a first version.",
+  },
+  {
+    q: "do i need to label or organise my footage",
+    a: "No, and this is the part that surprises people. Drop everything in unsorted. It watches each clip, works out what is in it, transcribes anything spoken, and decides where each piece belongs and what to cut. You never describe the material, only the video you want out of it.",
+  },
+  {
+    q: "is the output as good as a professional editor",
+    a: "No, and I would not claim otherwise. A top-tier editor will beat it. The honest comparison is not against a great editor, it is against the video you were not going to make, because you could not afford one or did not have the two hours. Measured that way it wins easily.",
+  },
+  {
+    q: "can it make a video with no footage at all",
+    a: "Yes. One of the examples I show started from nothing but a link to a landing page: it read the site, took the screenshots, the styling and the real reviews, and built a motion-graphics ad out of them. You can also just describe a motion-graphics video and get one with no materials at all.",
+  },
+  {
+    q: "what kinds of video can it make",
+    a: "The app has a what-it-can-do list covering the main shapes: a reel built from photos, footage cut to music, captions over a talking head, and motion graphics from scratch. There are templates for each underneath, which is why asking for style variations works so well.",
+  },
+  {
+    q: "what do i do when something breaks",
+    a: "Ask it. The app is running inside Claude Code, so typing \"explain how I use the saved styles\" or \"this failed, what happened\" gets an answer in a few seconds. Most problems people would post as a comment under the video are faster to solve by asking the thing that built the app.",
+  },
+];
+
 export default function ClaudeCodeInstagramPage() {
   return (
     <ResourcePageShell
@@ -320,13 +492,195 @@ export default function ClaudeCodeInstagramPage() {
       subhead="drop your photos and a voice take on the left, say what you want, watch the reel appear on the right. runs on your own laptop, free per video."
       steps={steps}
       troubleshooting={["claudeNotFound", "costs", "skipPermissions"]}
+      breadcrumb={[
+        { name: "Claude Code", path: "/claude-code-tutorial" },
+        { name: "Instagram video editing", path: "/claude-code-instagram" },
+      ]}
+      howTo={{
+        name: "Edit Instagram videos with Claude Code and Reel Studio",
+        description:
+          "Drop unsorted footage into Reel Studio, describe the video you want, and get an edited reel back with captions and motion graphics, then refine it version by version.",
+        totalTime: "PT30M",
+        steps: guideSteps.map((s) => ({ name: s.title, text: s.schema })),
+      }}
+      faq={faq}
+      guide={
+        <Guide>
+          <GuideSection title="what it actually is">
+            <p>
+              three panels.{" "}
+              <strong>left: everything you have.</strong> clips, photos, a
+              voiceover, music, dropped in unsorted.{" "}
+              <strong>middle: a sentence saying what you want.</strong>{" "}
+              <strong>right: the edited video.</strong>
+            </p>
+            <p>
+              the thing that makes it work is the part you do not do. you never
+              describe your footage. it watches every clip, works out what is in
+              it, transcribes anything spoken, and decides which two seconds of
+              a thirty-second take are the ones worth keeping.
+            </p>
+            <p>
+              so the instruction can be as short as &quot;make a good video out
+              of these&quot;, and that is a genuinely different interaction from
+              every template-based editor, where you are still the one deciding
+              what goes in slot three.
+            </p>
+            <GuideToc sections={SECTIONS} />
+          </GuideSection>
+
+          <GuideSection title="two videos it made, and how">
+            <p>
+              <strong>a storytelling reel about moving to paris.</strong> i gave
+              it a pile of photos, a few music files and a voiceover, and said:
+              use the voiceover as the storyline, stitch the visuals so they
+              make sense against it. it matched the b-roll to what was being
+              said, beat by beat. photos in that example, but video works the
+              same way and it cuts the parts that are not relevant.
+            </p>
+            <p>
+              <strong>a product ad from a single link.</strong> the materials
+              panel contained one thing: a url to a landing page for a travel-day
+              tracking app. it read the site, pulled the screenshots, the visual
+              style and the real reviews, and built a motion-graphics ad out of
+              them. one prompt, no assets.
+            </p>
+            <Callout title="the honest quality line">
+              <p>
+                this is not the standard of a top-tier editor and i would not
+                pretend it is. the comparison that matters is not against a
+                great editor, it is against <strong>the video you were not
+                going to make</strong> because you could not afford one or did
+                not have two hours. against that, it is not close.
+              </p>
+            </Callout>
+          </GuideSection>
+
+          <GuideSection title="what a video costs, and how many you get">
+            <p>
+              the surprising part: <strong>no api keys.</strong> the editing
+              framework underneath is{" "}
+              <Out href="https://github.com/heygen-com/hyperframes">
+                hyperframes from heygen
+              </Out>
+              , which is open source and free. everything runs inside claude
+              code, so you are spending plan usage rather than paying a separate
+              bill.
+            </p>
+            <KeyFacts
+              rows={[
+                { label: "cost per one-minute video", value: "about 50 cents of claude usage" },
+                { label: "time per one-minute video", value: "about 30 minutes, scaling with length" },
+                { label: "extra apis", value: "none" },
+                { label: "the framework", value: "hyperframes, open source, free" },
+              ]}
+            />
+            <p>
+              because you are spending plan usage, the real question is how many
+              videos a plan buys. roughly:
+            </p>
+            <CompareTable
+              columns={["plan", "videos per month", "in practice"]}
+              rows={[
+                {
+                  label: `Pro, ${usd(PLANS.pro.monthly)}`,
+                  cells: ["20 to 32", "three to five a day against the daily limits"],
+                },
+                {
+                  label: `${usd(PLANS.max.monthlyFrom)} tier`,
+                  cells: ["50 to 160", "comfortable for a serious posting schedule"],
+                },
+                {
+                  label: "largest plan",
+                  cells: ["200 to 320", "agency volume"],
+                },
+              ]}
+              caption="ranges, not quotas: a complex video with lots of motion graphics costs several times a simple photo reel."
+            />
+          </GuideSection>
+
+          <GuideSection title="using it">
+            <GuideSteps steps={guideSteps} />
+          </GuideSection>
+
+          <GuideSection title="the four things that make the output good">
+            <p>
+              the difference between people who get something postable and
+              people who give up is these four, and none of them are technical.
+            </p>
+            <ol className="guide-list">
+              <li>
+                <strong>style five seconds before you build sixty.</strong> ask
+                for four variations of the opening: font, caption style, music.
+                pick one. then build. this saves more time than everything else
+                here combined.
+              </li>
+              <li>
+                <strong>save the style when you like it.</strong> one button. it
+                becomes a skill and every future video starts from your look
+                rather than from default. you pay the styling cost once.
+              </li>
+              <li>
+                <strong>expect versions, like with a person.</strong> v1 is a
+                first draft. give notes, get v2. anyone expecting the first
+                render to be finished is going to be disappointed by a human
+                editor too.
+              </li>
+              <li>
+                <strong>ask it when you are stuck.</strong> the app is running
+                inside claude code. &quot;how do i use a saved style&quot; gets
+                an answer in fifteen seconds, which is faster than asking me in
+                the comments.
+              </li>
+            </ol>
+          </GuideSection>
+
+          <GuideSection title="what it is not">
+            <ul>
+              <li>
+                <strong>not fast.</strong> thirty minutes a minute of video.
+                design your day around that, do not fight it.
+              </li>
+              <li>
+                <strong>not a replacement for a great editor.</strong> it is a
+                replacement for not making the video.
+              </li>
+              <li>
+                <strong>not a script writer.</strong> it cuts the video. what to
+                say is a different job, and{" "}
+                <a href="/claude-reels">the reels research system</a> is the one
+                that does it.
+              </li>
+              <li>
+                <strong>not free of a plan.</strong> Pro or higher. the free
+                claude account cannot run claude code at all.
+              </li>
+              <li>
+                <strong>not unlimited on Pro.</strong> three to five videos a day
+                is the honest ceiling there, which is plenty for one person and
+                not enough for an agency.
+              </li>
+            </ul>
+            <p>
+              if you want the other half, deciding what the video should be
+              about, that is{" "}
+              <a href="/claude-reels">the reels system</a>, and the
+              account-level strategy is on{" "}
+              <a href="/claude-social-growth">the growth guide</a>. never used{" "}
+              <Code>claude code</Code>?{" "}
+              <a href="/claude-code-tutorial">start here</a>, and{" "}
+              <a href="/claude-code-pricing">this is what the plans cost</a>.
+            </p>
+          </GuideSection>
+        </Guide>
+      }
       jsonLd={{
         title: "Claude Code Instagram Video Editor: Free Setup Guide",
         description:
           "Set up Reel Studio, a local video editor driven by Claude Code, in five steps: VS Code, a Claude plan, Claude Code, one prompt that installs the rest, then your first Instagram Reel.",
         url: "https://oleg.ae/claude-code-instagram",
         datePublished: "2026-08-01",
-        dateModified: "2026-08-01",
+        dateModified: "2026-08-27",
       }}
       boldaneCredit
     />

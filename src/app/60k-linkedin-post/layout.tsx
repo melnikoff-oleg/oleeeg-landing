@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "The $60K LinkedIn Post: 3 AI Prompts to Write Posts That Sell",
+  title: "The $60K LinkedIn Post: 3 AI Prompts",
   description:
-    "The exact 3-prompt system that generated $60,000 from a single LinkedIn post. Build your content foundation, run an AI interview, and get posts built from what you say. Works with Claude or ChatGPT.",
+    "The three prompts behind a client's $60K month on LinkedIn. Copy them, plus how the system works and the case study it came from. Free, no signup.",
   keywords: [
     "LinkedIn content AI",
     "AI LinkedIn posts",
