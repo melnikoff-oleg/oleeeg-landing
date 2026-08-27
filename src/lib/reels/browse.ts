@@ -91,7 +91,7 @@ export async function browseReels(
   signal?: AbortSignal,
 ): Promise<BrowsePage> {
   const { ranges, page } = filters;
-  // The /viral-reels-browse route never passes a limit, so it always gets the
+  // The /reels route never passes a limit, so it always gets the
   // page size. The ideas chat does, because its effort and diversity filters are
   // applied in TypeScript and need more rows than they keep.
   const limit = Math.min(BROWSE_MAX_LIMIT, Math.max(1, filters.limit ?? BROWSE_PAGE_SIZE));

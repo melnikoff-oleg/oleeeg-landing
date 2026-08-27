@@ -31,7 +31,7 @@ function pageHref(page: number, filters: CreatorFilters): string {
   if (page > 1) params.set("page", String(page));
   writeCreatorFilters(params, filters);
   const query = params.toString();
-  return query ? `/viral-reels-creators?${query}` : "/viral-reels-creators";
+  return query ? `/creators?${query}` : "/creators";
 }
 
 function PageLink({

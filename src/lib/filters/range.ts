@@ -1,7 +1,7 @@
 // The geometry behind every histogram-with-two-thumbs filter on the site.
 //
-// One implementation, shared by /viral-reels-browse (five filters over reels)
-// and /viral-reels-creators (six over creators). It was written for the second
+// One implementation, shared by /reels (five filters over reels)
+// and /creators (six over creators). It was written for the second
 // and copied nowhere: a page's filter set is a list of SCALES handed to these
 // functions, so adding a filter is a scale, and adding a page is a scale set.
 //

@@ -191,7 +191,7 @@ export const RESOURCES: Resource[] = [
     icon: Clapperboard,
   },
   {
-    slug: "viral-reels",
+    slug: "reels",
     title: "Viral Reels Database",
     description:
       "Search hundreds of Instagram reels that beat their creator's audience 5x, each with its hook, what held the viewer and what they got",

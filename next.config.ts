@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
         // page, and is in the sitemap Google already fetched. Permanent, so the
         // ranking follows it to the flat slug rather than being split.
         source: "/viral-reels/browse",
-        destination: "/viral-reels-browse",
+        destination: "/reels",
         permanent: true,
       },
       {
@@ -27,7 +27,35 @@ const nextConfig: NextConfig = {
         // under the same box. Permanent, so whatever ranking /viral-reels had
         // follows it rather than being split between a live page and a dead one.
         source: "/viral-reels",
-        destination: "/viral-reels-browse",
+        destination: "/reels",
+        permanent: true,
+      },
+      {
+        // The library's own slug until 2026-08-27, when it took /reels: the
+        // page a visitor calls "reels" should live at /reels. Everything Google
+        // has indexed under the old one points here.
+        source: "/viral-reels-browse",
+        destination: "/reels",
+        permanent: true,
+      },
+      {
+        // Same move, the other end of the corpus.
+        source: "/viral-reels-creators",
+        destination: "/creators",
+        permanent: true,
+      },
+      {
+        // ~245 creator pages hung under the old slug and every one of them is
+        // in a sitemap Google has already fetched.
+        source: "/viral-reels-creators/:account",
+        destination: "/creators/:account",
+        permanent: true,
+      },
+      {
+        // The ideas chat, deleted on 2026-08-27. It read the same corpus, so
+        // the library is where someone arriving on its slug wants to be.
+        source: "/viral-reels-ideas",
+        destination: "/reels",
         permanent: true,
       },
     ];

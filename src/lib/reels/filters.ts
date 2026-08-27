@@ -1,5 +1,5 @@
 // The five filters over the reel library, and the numbers both halves of
-// /viral-reels-browse agree on.
+// /reels agree on.
 //
 // Kept apart from browse.ts and search.ts for the same reason types.ts is: those
 // modules read the service-role key and the OpenAI key at import time, and the
@@ -8,7 +8,7 @@
 // bundler to shake it out.
 //
 // The geometry lives in src/lib/filters/range.ts and is shared with
-// /viral-reels-creators. Everything here is the reel-shaped half: which five
+// /creators. Everything here is the reel-shaped half: which five
 // scales, what they are called, and how "posted 30 to 90 days ago" becomes two
 // dates the database can answer.
 
@@ -81,7 +81,7 @@ export type ReelFilterKey = (typeof REEL_FILTER_KEYS)[number];
 export const REEL_FILTERS: FilterSet<ReelFilterKey> = {
   keys: REEL_FILTER_KEYS,
   scales: {
-    // The same ladder /viral-reels-creators offers, so "1M to 5M" means one
+    // The same ladder /creators offers, so "1M to 5M" means one
     // thing across the site.
     followers: {
       label: "audience size",

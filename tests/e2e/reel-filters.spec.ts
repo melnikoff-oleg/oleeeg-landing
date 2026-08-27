@@ -40,8 +40,8 @@ import {
 } from "../../src/lib/reels/filters";
 import { formatAge } from "../../src/lib/reels/format";
 
-// Tests 200+: the filter geometry behind /viral-reels-browse and
-// /viral-reels-creators. Pure functions, no browser, no network, no secrets:
+// Tests 200+: the filter geometry behind /reels and
+// /creators. Pure functions, no browser, no network, no secrets:
 // they run in every environment and they are the only place the "a thumb sits
 // on a bar boundary" rule is actually checked.
 

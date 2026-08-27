@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 
-// Tests 88+: /viral-reels-creators, the semantic search over the PEOPLE behind
+// Tests 88+: /creators, the semantic search over the PEOPLE behind
 // the viral reel database, and the per-creator page it opens onto.
 //
 // Everything here is deterministic without a secret. The API guard rails all
@@ -94,7 +94,7 @@ test.describe("88 - creator search api validation", () => {
 test("89 - creators: the page is the search box, the filters and the roster", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
   await expect(page.locator("#creator-query")).toBeVisible();
   await expect(page.getByRole("button", { name: "search" })).toBeVisible();
   // Six ranges, twelve thumbs: audience, worth studying, doing well now, and
@@ -116,7 +116,7 @@ test("89 - creators: the page is the search box, the filters and the roster", as
 test("90 - creators: the search button is disabled until there is a query", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
   const button = page.getByRole("button", { name: "search" });
   await expect(button).toBeDisabled();
   await page.fill("#creator-query", "someone who films street interviews");
@@ -124,12 +124,12 @@ test("90 - creators: the search button is disabled until there is a query", asyn
 });
 
 test("91 - creators: a ?q= link prefills the box", async ({ page }) => {
-  await settle(page, "/viral-reels-creators?q=fitness%20coaches");
+  await settle(page, "/creators?q=fitness%20coaches");
   await expect(page.locator("#creator-query")).toHaveValue("fitness coaches");
 });
 
 test("92 - creators: no em dashes in the copy", async ({ page }) => {
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
   const text = await page.locator("body").innerText();
   expect(text).not.toMatch(/[–—]/);
 });
@@ -142,13 +142,13 @@ test("93 - creators: a handle that is not a handle is a 404, not a query", async
   // The URL segment reaches a PostgREST filter, so anything outside
   // [A-Za-z0-9._] must be refused before the database is asked about it.
   for (const bad of ["a%2Cb%29", "..%2F..%2Fetc", "a%20b"]) {
-    const res = await page.goto(`/viral-reels-creators/${bad}`);
+    const res = await page.goto(`/creators/${bad}`);
     expect(res!.status()).toBe(404);
   }
 });
 
 test("94 - creators: an unknown handle is a 404", async ({ page }) => {
-  const res = await page.goto("/viral-reels-creators/definitely_not_a_creator_x9");
+  const res = await page.goto("/creators/definitely_not_a_creator_x9");
   // 404 with a live index (nobody by that name), 404 with no key either (the
   // page cannot be built at all). One answer, both ways.
   expect(res!.status()).toBe(404);
@@ -160,7 +160,7 @@ test("95 - creators: the query input is 16px so iOS does not zoom on focus", asy
   page,
 }, testInfo) => {
   MOBILE_ONLY(testInfo);
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
   const size = await page
     .locator("#creator-query")
     .evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
@@ -171,7 +171,7 @@ test("96 - creators: the search controls are >=44px tap targets", async ({
   page,
 }, testInfo) => {
   MOBILE_ONLY(testInfo);
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
 
   const targets = [
     page.locator("#creator-query"),
@@ -204,7 +204,7 @@ async function chartTotal(page: Page, label: string): Promise<number> {
 }
 
 test("97 - creators: the filters render and start unset", async ({ page }) => {
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
 
   // Both thumbs at the ends of their tracks on all six scales: 0 to 12 on the
   // audience ladder, 0 to 10 on each 1-10 scale.
@@ -223,7 +223,7 @@ test("98 - creators: a filtered URL positions the thumbs", async ({ page }) => {
   // The audience ladder carries thumb indices; the 1-10 scales carry their real
   // values, so "edu=4-8" reads as the sentence it is. A top thumb is one past
   // the last value inside the range, because a bar covers [edge, nextEdge).
-  await settle(page, "/viral-reels-creators?aud=3-9&edu=4-8");
+  await settle(page, "/creators?aud=3-9&edu=4-8");
   await expect(page.getByTestId("range-aud-min")).toHaveValue("3");
   await expect(page.getByTestId("range-aud-max")).toHaveValue("9");
   await expect(page.getByTestId("range-edu-min")).toHaveValue("3");
@@ -244,7 +244,7 @@ test("98b - creators: a junk range falls back to unset, never clamped", async ({
   // nothing, which reads as an empty database rather than as a rejected input.
   // The backwards pair is the one that matters: it is the only junk a real
   // control could ever emit.
-  await settle(page, "/viral-reels-creators?aud=9-3&edu=99-1&ent=abc&insp=");
+  await settle(page, "/creators?aud=9-3&edu=99-1&ent=abc&insp=");
   for (const [param, top] of SCALE_TOPS) {
     await expect(page.getByTestId(`range-${param}-min`)).toHaveValue("0");
     await expect(page.getByTestId(`range-${param}-max`)).toHaveValue(String(top));
@@ -255,7 +255,7 @@ test("98b - creators: a junk range falls back to unset, never clamped", async ({
 test("98c - creators: a filter redraws the other histograms, never its own", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
   const wholeIndex = await chartTotal(page, "audience size");
   test.skip(wholeIndex <= 0, "needs a live index");
 
@@ -278,7 +278,7 @@ test("98c - creators: a filter redraws the other histograms, never its own", asy
 test("98d - creators: moving a thumb narrows the count and writes the URL", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
   test.skip((await chartTotal(page, "audience size")) <= 0, "needs a live index");
 
   const max = page.getByTestId("range-edu-max");
@@ -299,7 +299,7 @@ test("98d - creators: moving a thumb narrows the count and writes the URL", asyn
 test("98e - creators: opening a creator and coming back keeps the filters", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
   test.skip((await chartTotal(page, "audience size")) <= 0, "needs a live index");
 
   const min = page.getByTestId("range-aud-min");
@@ -312,7 +312,7 @@ test("98e - creators: opening a creator and coming back keeps the filters", asyn
   // filter, and a row that is replaced between mousedown and mouseup eats the
   // click. A person pauses; a test has to say so.
   await page.mouse.click(10, 10);
-  const card = page.locator("a[href^='/viral-reels-creators/']").first();
+  const card = page.locator("a[href^='/creators/']").first();
   const href = await card.getAttribute("href");
   await card.click();
   await expect(page).toHaveURL(new RegExp(`${href}$`));
@@ -355,7 +355,7 @@ test("99 - creators: an arbitrary range never reaches the RPC", async ({
 });
 
 test("99b - creators: the filters survive a roster page link", async ({ page }) => {
-  await settle(page, "/viral-reels-creators?aud=0-6");
+  await settle(page, "/creators?aud=0-6");
   const next = page.getByRole("link", { name: "more" });
   if ((await next.count()) && (await next.getAttribute("href"))) {
     // Paging must not silently drop the filter: page two of a filtered roster
@@ -368,7 +368,7 @@ test("99c - creators: the range tracks are >=44px tap targets", async ({
   page,
 }, testInfo) => {
   MOBILE_ONLY(testInfo);
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
   for (const [param] of SCALE_TOPS) {
     for (const end of ["min", "max"]) {
       const box = await page.getByTestId(`range-${param}-${end}`).boundingBox();
@@ -383,7 +383,7 @@ test("99d - creators: the roster survives an unreachable filter", async ({
 }) => {
   // Nobody is 10 out of 10 on all three scales at once. An empty answer has to
   // read as an empty answer rather than as a broken page.
-  await settle(page, "/viral-reels-creators?ent=10-10&edu=10-10&insp=10-10");
+  await settle(page, "/creators?ent=10-10&edu=10-10&insp=10-10");
   await expect(page.locator("input[type=range]")).toHaveCount(12);
   await expect(page.getByRole("button", { name: /clear filters/i })).toBeVisible();
 });
@@ -394,11 +394,11 @@ test("99d - creators: the roster survives an unreachable filter", async ({
 // They skip rather than fail without one, the same way the filter tests do.
 
 async function openFirstCreator(page: Page): Promise<boolean> {
-  await settle(page, "/viral-reels-creators");
-  const card = page.locator("a[href^='/viral-reels-creators/']").first();
+  await settle(page, "/creators");
+  const card = page.locator("a[href^='/creators/']").first();
   if ((await card.count()) === 0) return false;
   await card.click();
-  await page.waitForURL(/\/viral-reels-creators\/[^/]+$/);
+  await page.waitForURL(/\/creators\/[^/]+$/);
   return (await page.locator("main div.grid > a").count()) > 0;
 }
 
@@ -518,16 +518,16 @@ test("104 - a creator opens newest first, and the order is a switch", async ({
 
   // And back, to the bare address rather than to ?sort=new.
   await page.getByRole("link", { name: "newest first" }).click();
-  await page.waitForURL(/\/viral-reels-creators\/[^/?]+$/);
+  await page.waitForURL(/\/creators\/[^/?]+$/);
   expect(await views()).toEqual(newest);
 });
 
 test("105 - a junk sort falls back to newest, and paging keeps the order", async ({
   page,
 }) => {
-  await settle(page, "/viral-reels-creators");
+  await settle(page, "/creators");
   const href = await page
-    .locator("a[href^='/viral-reels-creators/']")
+    .locator("a[href^='/creators/']")
     .first()
     .getAttribute("href");
   test.skip(!href, "needs a live index");
@@ -611,7 +611,7 @@ test("107 - the creator list reveals 10 at a time and stops at 50", async ({
   page,
 }) => {
   await mockCreatorSearch(page, 50);
-  await settle(page, "/viral-reels-creators?q=ai");
+  await settle(page, "/creators?q=ai");
 
   const cards = page.getByRole("article");
   await expect(cards).toHaveCount(10);
@@ -632,7 +632,7 @@ test("108 - a shorter creator answer stops where it runs out", async ({
   page,
 }) => {
   await mockCreatorSearch(page, 14);
-  await settle(page, "/viral-reels-creators?q=ai");
+  await settle(page, "/creators?q=ai");
 
   const cards = page.getByRole("article");
   await expect(cards).toHaveCount(10);
@@ -647,7 +647,7 @@ test("109 - a second creator search starts at the top of its own answer", async 
   page,
 }) => {
   await mockCreatorSearch(page, 50);
-  await settle(page, "/viral-reels-creators?q=ai");
+  await settle(page, "/creators?q=ai");
 
   const cards = page.getByRole("article");
   await toBottom(page);

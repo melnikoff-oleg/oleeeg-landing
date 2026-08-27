@@ -1,4 +1,4 @@
-// The shape and the numbers both halves of /viral-reels-creators agree on.
+// The shape and the numbers both halves of /creators agree on.
 //
 // Kept apart from search.ts for the same reason src/lib/reels/types.ts is: that
 // module reads the service-role key and the OpenAI key at import time, and the

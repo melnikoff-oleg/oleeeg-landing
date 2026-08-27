@@ -151,7 +151,7 @@ body {
   text-transform: uppercase;
 }
 
-/* ---- Dual-thumb range slider (/viral-reels-browse follower filter) ----
+/* ---- Dual-thumb range slider (/reels follower filter) ----
    Two native inputs stacked over one drawn track, which is the only way to get
    a two-ended range that is still keyboard operable and still announces itself.
    The inputs take no pointer events and their thumbs take them back, so where

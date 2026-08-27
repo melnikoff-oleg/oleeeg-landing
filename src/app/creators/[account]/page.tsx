@@ -64,11 +64,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       title,
       description,
       type: "profile",
-      url: `https://oleg.ae/viral-reels-creators/${creator.account}`,
+      url: `https://oleg.ae/creators/${creator.account}`,
     },
     twitter: { card: "summary_large_image", title, description },
     alternates: {
-      canonical: `https://oleg.ae/viral-reels-creators/${creator.account}`,
+      canonical: `https://oleg.ae/creators/${creator.account}`,
     },
   };
 }
@@ -208,7 +208,7 @@ function reelsHref(account: string, page: number, sort: CreatorSort): string {
   if (sort !== "new") params.set("sort", sort);
   if (page > 1) params.set("page", String(page));
   const query = params.toString();
-  return `/viral-reels-creators/${account}${query ? `?${query}` : ""}`;
+  return `/creators/${account}${query ? `?${query}` : ""}`;
 }
 
 function PageLink({
@@ -291,7 +291,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
   return (
     <main className="mx-auto max-w-6xl px-4 pt-6 pb-16 sm:px-6 sm:pt-10">
       <Link
-        href="/viral-reels-creators"
+        href="/creators"
         className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-body text-xs text-silver-muted transition-colors hover:bg-silver/5 hover:text-white"
       >
         <ArrowLeft className="size-3.5" aria-hidden />

@@ -36,7 +36,7 @@ function pageHref(page: number, ranges: ReelFilters, query: string): string {
   if (page > 1) params.set("page", String(page));
   writeRanges(REEL_FILTERS, params, ranges);
   const search = params.toString();
-  return search ? `/viral-reels-browse?${search}` : "/viral-reels-browse";
+  return search ? `/reels?${search}` : "/reels";
 }
 
 function PageLink({

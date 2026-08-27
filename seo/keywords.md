@@ -74,4 +74,4 @@ These target person-plus-AI queries, which are high volume and news-driven. They
 
 ## Deliberately not targeting anything
 
-`/viral-reels`, `/viral-reels-browse`, `/viral-reels-ideas`, `/viral-reels-creators`, `/reels`, `/ideas`. Tools and audience surfaces, intentionally bare. Do not write keyword copy onto them.
+`/reels`, `/creators`, `/ideas`. Tools and audience surfaces, intentionally bare. Do not write keyword copy onto them.

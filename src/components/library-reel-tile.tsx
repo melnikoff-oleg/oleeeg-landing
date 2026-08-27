@@ -91,7 +91,7 @@ export function LibraryReelTile({ reel }: { reel: ReelTileRow }) {
 
       {/* Above the picture link, so it stays clickable. */}
       <Link
-        href={`/viral-reels-creators/${reel.account}`}
+        href={`/creators/${reel.account}`}
         className="absolute left-2 top-2 z-20 max-w-[calc(100%-1rem)] truncate rounded-full bg-navy/55 px-2 py-1 font-body text-[11px] font-medium text-white/85 backdrop-blur-md transition-colors hover:bg-navy/80 hover:text-white sm:text-xs"
       >
         @{reel.account}

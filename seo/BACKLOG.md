@@ -47,7 +47,7 @@ Open work, highest value first. IDs are stable, so a task keeps its ID after it 
 Ubersuggest runs a generic checklist and does not know this codebase. Before adding one of its suggestions here, check it against these, because several of its standard findings are already handled or are deliberate:
 
 - **"Missing canonical tags"** -> all 32 child layouts already have one. If the tool disagrees it is reading a snapshot before hydration.
-- **"Thin content" on `/viral-reels`, `/viral-reels-browse`, `/viral-reels-ideas`** -> deliberate. Those pages are intentionally bare with an `sr-only` h1.
+- **"Thin content" on `/reels` and `/creators`** -> deliberate. Those pages are intentionally bare with an `sr-only` h1.
 - **"Missing h1"** on the filmed pages -> check the real rendered HTML first, those pages ship no shared chrome by design.
 - **"Low word count"** -> only act on this where the page genuinely under-serves the query, never by padding.
 - **"Add internal links from the homepage"** -> the homepage deliberately links to no resource pages. Needs Oleg's sign-off, it is not a free win.

@@ -1,5 +1,5 @@
 // The creator roster and one creator's page. The other half of
-// /viral-reels-creators.
+// /creators.
 //
 // Search answers "who is close to this description"; the roster answers "who is
 // in here at all", and getCreator answers "what did this one actually make". No

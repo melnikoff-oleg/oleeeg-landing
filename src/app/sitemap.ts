@@ -13,7 +13,7 @@ async function creatorEntries(): Promise<MetadataRoute.Sitemap> {
   try {
     const handles = await listCreatorHandles();
     return handles.map((account) => ({
-      url: `https://oleg.ae/viral-reels-creators/${account}`,
+      url: `https://oleg.ae/creators/${account}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.5,
@@ -201,28 +201,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      // The library. It absorbed /viral-reels (the old search page) on
+      // 2026-08-25 and took the /reels slug on 2026-08-27; both of the slugs it
+      // left behind are permanent redirects now, so neither is listed here: a
+      // sitemap that lists a 308 tells a crawler to fetch a page twice.
       url: "https://oleg.ae/reels",
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      // The library, which absorbed /viral-reels (the old search page) on
-      // 2026-08-25. That slug is a permanent redirect now, so it is gone from
-      // here: a sitemap that lists a 308 tells a crawler to fetch a page twice.
-      url: "https://oleg.ae/viral-reels-browse",
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: "https://oleg.ae/viral-reels-creators",
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: "https://oleg.ae/viral-reels-ideas",
+      url: "https://oleg.ae/creators",
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,

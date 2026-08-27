@@ -101,7 +101,7 @@ function Metric({
  */
 export function CreatorCard({ creator }: { creator: CreatorTileRow }) {
   const handle = `@${creator.account}`;
-  const href = `/viral-reels-creators/${creator.account}`;
+  const href = `/creators/${creator.account}`;
 
   return (
     <article className="surface-card transition-colors hover:border-vivid-blue/40">

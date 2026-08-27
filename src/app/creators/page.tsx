@@ -34,10 +34,10 @@ export const metadata: Metadata = {
     title,
     description,
     type: "website",
-    url: "https://oleg.ae/viral-reels-creators",
+    url: "https://oleg.ae/creators",
   },
   twitter: { card: "summary_large_image", title, description },
-  alternates: { canonical: "https://oleg.ae/viral-reels-creators" },
+  alternates: { canonical: "https://oleg.ae/creators" },
 };
 
 // The roster depends on searchParams and on a table creators.py rewrites, so it
@@ -109,7 +109,7 @@ export default async function CreatorsPage({
   return (
     <main className="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-6 sm:pt-10">
       <h1 className="sr-only">viral reel creators</h1>
-      <ReelNav current="/viral-reels-creators" />
+      <ReelNav current="/creators" />
       <CreatorSearch
         initialQuery={initialQuery}
         initialFilters={filters}

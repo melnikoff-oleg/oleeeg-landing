@@ -34,12 +34,12 @@
       "60k-linkedin-post"
     ],
     "claude-content": [
-      "viral-reels",
+      "reels",
       "claude-reels",
       "claude-tiktok"
     ],
     "claude-reels": [
-      "viral-reels",
+      "reels",
       "claude-code-instagram",
       "claude-tiktok"
     ],
@@ -99,7 +99,7 @@
       "claude-reels"
     ],
     "claude-code-instagram": [
-      "viral-reels",
+      "reels",
       "claude-code-ads",
       "claude-reels"
     ],
@@ -118,7 +118,7 @@
       "5-levels-ai",
       "claude-code-second-brain"
     ],
-    "viral-reels": [
+    "reels": [
       "claude-code-instagram",
       "claude-reels",
       "claude-content"

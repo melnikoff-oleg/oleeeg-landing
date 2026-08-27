@@ -27,7 +27,7 @@ import { RangeFilter } from "./range-filter";
  * longer on screen. A filter never narrows its own chart, or dragging a thumb
  * would eat the bars it is being dragged across.
  *
- * Shared by /viral-reels-browse and /viral-reels-creators. The two differ only
+ * Shared by /reels and /creators. The two differ only
  * in which scales they hand it and what they call a row.
  */
 export function FilterBar<K extends string>({
