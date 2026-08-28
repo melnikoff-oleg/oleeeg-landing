@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "article",
-    url: "https://oleg.ae/claude-code-sessions",
+    url: "https://www.oleg.ae/claude-code-sessions",
     publishedTime: "2026-08-09T00:00:00Z",
     modifiedTime: "2026-08-09T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     description: SHORT,
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-code-sessions",
+    canonical: "https://www.oleg.ae/claude-code-sessions",
   },
 };
 

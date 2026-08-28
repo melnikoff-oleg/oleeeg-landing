@@ -26,10 +26,10 @@ export const metadata: Metadata = {
     title,
     description,
     type: "website",
-    url: "https://oleg.ae/reels",
+    url: "https://www.oleg.ae/reels",
   },
   twitter: { card: "summary_large_image", title, description },
-  alternates: { canonical: "https://oleg.ae/reels" },
+  alternates: { canonical: "https://www.oleg.ae/reels" },
 };
 
 // The wall depends on searchParams and on a table sync.py rewrites, so it is

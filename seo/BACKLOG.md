@@ -12,7 +12,7 @@ Open work, highest value first. IDs are stable, so a task keeps its ID after it 
 
 | ID | Task | Impact | Effort | Notes |
 | --- | --- | --- | --- | --- |
-| S-06 | **Google Search Console verification** | High | 15 min | **Now the single highest-value item on this list.** The 2026-08-27 pass shipped 14 rewritten guides and 5 new cluster pages against measured demand, and there is no way to see whether any of it lands without GSC. Ubersuggest estimates what GSC reports for free. Verify with a `google-site-verification` meta tag in the root layout or a DNS TXT record at the registrar, then submit the sitemap. Needs Oleg to open the GSC account; the code side is one line. |
+| S-20 | **Read Performance to Countries once there is data** | High | 10 min | About 2026-10-23. `.ae` is a ccTLD Google reads as UAE-targeted and there is no override. If impressions cluster in the UAE while the content targets US demand, the domain is the constraint and a `.com` becomes a real conversation. If they look global, close this and keep the domain. |
 | S-10 | **Get backlinks, because DA 3 is now the binding constraint** | High | Ongoing | 7 backlinks from 3 referring domains. The content problem is fixed; this one is not, and it is what decides whether the SD 15-30 terms are actually winnable. Cheapest real sources, in order: the YouTube descriptions (already pointing at oleg.ae, but a link from a 121k-view video description is worth asking whether it is `nofollow`), the GitHub repos (`social-media`, `tiktok-ai`, `x-ai`, `ads-ai` READMEs should link the guide page for each), the Skool community, and Boldane's own site. None of that needs outreach. |
 | S-11 | **Rewrite `/claude-code-second-brain` for "claude code obsidian"** | Medium | 2 hours | 720 searches a month at **SD 14**, which is the same shape as the cluster pages that got built, and the page already exists and covers the topic. It just does not target the term and has no written guide yet. Highest ratio of value to effort left on the site. |
 
@@ -71,6 +71,8 @@ Recorded so the same suggestion does not get re-triaged next month.
 | S-17 | The video is buried and behind a facade, so no page is eligible for a video result | 2026-08-28. Real `<iframe loading="lazy">` in the fold, VideoObject with real uploadDate/duration/views, chapters as `hasPart` Clips. |
 | S-18 | Guides render as a wall of text | 2026-08-28. Root cause was a CSS specificity bug (Tailwind v4 `:where()`), plus 32 video stills and answer-first openings. |
 | S-19 | Lowercase copy site-wide | 2026-08-28. Sentence case across 85 files, and proper nouns capitalized, which is also entity recognition. |
+| S-06 | Google Search Console verification | 2026-08-28. Domain property (covers www and apex), TXT record at Vercel, sitemap submitted, six pages queued for indexing. |
+| S-21 | The www / apex canonical mismatch | 2026-08-28. Found while submitting the sitemap: 417 sitemap urls and every canonical pointed at a host that redirects. Code moved to www. |
 | S-16 | Get the videos' visual content onto the pages | 2026-08-27 as **text**; 2026-08-28 as **images** too, from the videos themselves. |
 | S-01 | Open Graph images, every route | 2026-08-27. One build-time generator plus 31 route files. |
 | S-02 | Honest `lastModified` in the sitemap | 2026-08-27. Real per-page dates, plus unit tests that diff the list against `src/app` both ways. |

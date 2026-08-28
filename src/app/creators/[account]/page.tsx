@@ -64,11 +64,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       title,
       description,
       type: "profile",
-      url: `https://oleg.ae/creators/${creator.account}`,
+      url: `https://www.oleg.ae/creators/${creator.account}`,
     },
     twitter: { card: "summary_large_image", title, description },
     alternates: {
-      canonical: `https://oleg.ae/creators/${creator.account}`,
+      canonical: `https://www.oleg.ae/creators/${creator.account}`,
     },
   };
 }

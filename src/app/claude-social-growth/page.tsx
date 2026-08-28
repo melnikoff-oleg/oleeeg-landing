@@ -684,7 +684,7 @@ export default function ClaudeSocialGrowthPage() {
       jsonLd={{
         title: "AI Social Media Growth with Claude Code",
         description: "Analyze thousands of competitor videos, find the standout performers, and build a data-driven content strategy for YouTube, Instagram, and TikTok growth.",
-        url: "https://oleg.ae/claude-social-growth",
+        url: "https://www.oleg.ae/claude-social-growth",
         datePublished: "2026-05-12",
         dateModified: "2026-08-27",
       }}

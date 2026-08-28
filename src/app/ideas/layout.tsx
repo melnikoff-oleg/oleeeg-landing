@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     description:
       "Suggest a video, or vote for one that is already on the board. The ideas with the most votes get made.",
     type: "website",
-    url: "https://oleg.ae/ideas",
+    url: "https://www.oleg.ae/ideas",
   },
   twitter: {
     card: "summary_large_image",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
       "Suggest a video, or vote for one that is already on the board. The ideas with the most votes get made.",
   },
   alternates: {
-    canonical: "https://oleg.ae/ideas",
+    canonical: "https://www.oleg.ae/ideas",
   },
 };
 

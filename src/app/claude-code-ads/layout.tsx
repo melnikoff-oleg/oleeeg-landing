@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description:
       "Paste a company's website, get a finished video ad in their own brand. Every step from installing VS Code to your first render.",
     type: "article",
-    url: "https://oleg.ae/claude-code-ads",
+    url: "https://www.oleg.ae/claude-code-ads",
     publishedTime: "2026-08-07T00:00:00Z",
     modifiedTime: "2026-08-07T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Paste a company's website, get a finished video ad in their own brand. Local, free per ad.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-code-ads",
+    canonical: "https://www.oleg.ae/claude-code-ads",
   },
 };
 

@@ -548,7 +548,7 @@ export default function ClaudeCodeTutorialPage() {
         title: "Claude Code tutorial for people who are not developers",
         description:
           "What Claude Code is, how to install it on any machine, your first twenty minutes, the commands that matter, and the four ideas that separate people who get value from it from people who bounce off it.",
-        url: "https://oleg.ae/claude-code-tutorial",
+        url: "https://www.oleg.ae/claude-code-tutorial",
         datePublished: "2026-08-27",
         dateModified: "2026-08-27",
       }}

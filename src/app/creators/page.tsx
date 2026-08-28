@@ -36,10 +36,10 @@ export const metadata: Metadata = {
     title,
     description,
     type: "website",
-    url: "https://oleg.ae/creators",
+    url: "https://www.oleg.ae/creators",
   },
   twitter: { card: "summary_large_image", title, description },
-  alternates: { canonical: "https://oleg.ae/creators" },
+  alternates: { canonical: "https://www.oleg.ae/creators" },
 };
 
 // The roster depends on searchParams and on a table creators.py rewrites, so it

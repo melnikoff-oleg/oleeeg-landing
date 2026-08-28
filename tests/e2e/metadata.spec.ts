@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { ROUTES } from "./routes";
+import { ROUTES , SITE_URL } from "./routes";
 
 // /reels and /creators are Oleg's own tools and are out of scope by his
 // instruction, so their metadata is left exactly as he wrote it.
@@ -54,7 +54,7 @@ test("87 - canonicals are self-referential and absolute", async ({ page }) => {
     expect(await links.count(), `${route}: canonical count`).toBe(1);
     const href = await links.getAttribute("href");
     expect(href, `${route}: canonical`).toBe(
-      route === "/" ? "https://oleg.ae" : `https://oleg.ae${route}`,
+      route === "/" ? SITE_URL : `${SITE_URL}${route}`,
     );
   }
 });

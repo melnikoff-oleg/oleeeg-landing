@@ -601,6 +601,18 @@ there (`<a class="ytmVideoInfoVideoTitle" aria-level="2">`) that nobody here can
 fix.
 
 
+
+**The canonical host is `www.oleg.ae`, not `oleg.ae` (fixed 2026-08-28).** Vercel
+serves www and 307s the apex to it, which is Vercel's own recommendation, but
+every canonical, all 417 sitemap entries, `robots.txt`, `llms.txt` and the
+Person/WebSite `@id` said `https://oleg.ae`. So the site handed Google 417
+addresses that all redirected, and every canonical pointed at a URL that was not
+the page being served. `SITE_URL` in `src/lib/seo/schema.ts` is the one line
+everything derives from; the 92 hardcoded copies in the route layouts were
+switched with it, and `tests/e2e/routes.ts` now exports the same constant so the
+metadata and schema specs cannot drift from the app again. **If the serving host
+ever changes, change `SITE_URL` and the test constant together.**
+
 ## Notes
 
 - Keep context minimal but sufficient — avoid bloat

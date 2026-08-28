@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description:
       "Study the Reels winning in your niche and generate ready-to-film scripts with sharp hooks, retention analysis, and clear visual direction.",
     type: "article",
-    url: "https://oleg.ae/claude-reels",
+    url: "https://www.oleg.ae/claude-reels",
     publishedTime: "2026-05-12T00:00:00Z",
     modifiedTime: "2026-05-13T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Study the Reels winning in your niche and generate ready-to-film scripts with Claude Code.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-reels",
+    canonical: "https://www.oleg.ae/claude-reels",
   },
 };
 

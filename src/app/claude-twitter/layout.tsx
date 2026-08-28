@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description:
       "Build an X/Twitter content system with Claude Code. Study your competitors' best tweets and generate posts in your own voice.",
     type: "article",
-    url: "https://oleg.ae/claude-twitter",
+    url: "https://www.oleg.ae/claude-twitter",
     publishedTime: "2026-05-12T00:00:00Z",
     modifiedTime: "2026-05-13T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Study your competitors' best tweets and generate ready-to-publish posts in your own voice with Claude Code.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-twitter",
+    canonical: "https://www.oleg.ae/claude-twitter",
   },
 };
 

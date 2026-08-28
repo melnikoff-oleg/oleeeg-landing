@@ -563,7 +563,7 @@ include b-roll direction for each shot.`}</Block>
         title: "AI TikTok Content with Claude Code",
         description:
           "Build an AI system that reverse-engineers viral TikToks in your niche and generates scroll-stopping video concepts and scripts automatically.",
-        url: "https://oleg.ae/claude-tiktok",
+        url: "https://www.oleg.ae/claude-tiktok",
         datePublished: "2026-05-12",
         dateModified: "2026-08-27",
       }}

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     description:
       "Editor or agent is the real question. Prices, shapes, and what Claude Code is genuinely worse at.",
     type: "article",
-    url: "https://oleg.ae/claude-code-vs-cursor",
+    url: "https://www.oleg.ae/claude-code-vs-cursor",
     publishedTime: "2026-08-27T00:00:00Z",
     modifiedTime: "2026-08-27T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     description:
       "Editor or agent is the real question. Prices, shapes, and what Claude Code is genuinely worse at.",
   },
-  alternates: { canonical: "https://oleg.ae/claude-code-vs-cursor" },
+  alternates: { canonical: "https://www.oleg.ae/claude-code-vs-cursor" },
 };
 
 export default function ClaudeCodeVsCursorLayout({

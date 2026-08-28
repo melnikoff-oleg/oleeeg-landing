@@ -6,6 +6,40 @@ Format: `### YYYY-MM-DD  Title` then what changed, why, and the commit if there 
 
 ---
 
+### 2026-08-28  Search Console verified, and the www mismatch it exposed
+
+`S-06` is closed. Oleg verified a **Domain** property (`oleg.ae`) by TXT record
+and submitted the sitemap. Domain rather than URL-prefix on purpose: it covers
+`oleg.ae` and `www.oleg.ae` together, which matters here. Indexing requested for
+the homepage plus the five pages aimed at measured demand: `/claude-cowork`,
+`/claude-code-tutorial`, `/claude-code-pricing`, `/claude-cowork-pricing`,
+`/claude-code-vs-cursor`.
+
+Two things worth recording from the setup:
+
+- **The DNS is at Vercel, not at the registrar.** `oleg.ae` is an aeDA domain
+  bought through Tasjeel (only accredited UAE registrars can sell `.ae`, which
+  is why Namecheap refused), but its nameservers are `ns1/ns2.vercel-dns.com`
+  and Vercel answers authoritatively. The TXT record goes in Vercel. Tasjeel is
+  never touched.
+- **`.ae` is a real ccTLD, and that is a strategic constraint.** Google treats a
+  ccTLD as "a strong signal that your site is explicitly intended for a certain
+  country", and `.ae` is **not** on Google's list of ccTLDs treated as generic
+  (`.io`, `.me`, `.tv`, `.co`, `.ai` and about fifteen others are). It cannot be
+  overridden: the International Targeting report was removed from Search Console
+  on 2022-09-22. Every keyword in `keywords.md` is US volume and the audience is
+  US, India, Brazil, Germany, UK. **This is now measurable**: in about eight
+  weeks, Performance to Countries answers whether the domain is costing reach.
+  Do not act on it before then.
+
+**The host mismatch, found while checking the sitemap and fixed the same day.**
+The site is served at `www.oleg.ae` (Vercel redirects the apex to it) while the
+code said `https://oleg.ae` in 93 places. Every sitemap URL redirected and every
+canonical pointed at a URL that was not the page being served. Resolved by
+moving the code to www rather than flipping Vercel, since www is what already
+works and what Vercel recommends. `SITE_URL` is the single source; the test
+suite now imports the same constant.
+
 ### 2026-08-28  The readable-pages pass: sentence case, visuals, and the player back in the fold
 
 Driven by Oleg, not by a tool. Three asks that shared a root cause, plus one

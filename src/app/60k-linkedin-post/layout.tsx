@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description:
       "The exact 3-prompt system that generated $60,000 from a single LinkedIn post. Works with Claude or ChatGPT.",
     type: "article",
-    url: "https://oleg.ae/60k-linkedin-post",
+    url: "https://www.oleg.ae/60k-linkedin-post",
     publishedTime: "2026-06-10T00:00:00Z",
     modifiedTime: "2026-06-10T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "The exact 3-prompt system that generated $60,000 from a single LinkedIn post. Works with Claude or ChatGPT.",
   },
   alternates: {
-    canonical: "https://oleg.ae/60k-linkedin-post",
+    canonical: "https://www.oleg.ae/60k-linkedin-post",
   },
 };
 

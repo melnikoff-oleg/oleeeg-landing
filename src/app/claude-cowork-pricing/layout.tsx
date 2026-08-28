@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     description:
       "Not free. Pro is $20 a month and includes Claude Code too. Every plan compared, plus the real monthly bill.",
     type: "article",
-    url: "https://oleg.ae/claude-cowork-pricing",
+    url: "https://www.oleg.ae/claude-cowork-pricing",
     publishedTime: "2026-08-27T00:00:00Z",
     modifiedTime: "2026-08-27T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description:
       "Not free. Pro is $20 a month and includes Claude Code too. Every plan compared.",
   },
-  alternates: { canonical: "https://oleg.ae/claude-cowork-pricing" },
+  alternates: { canonical: "https://www.oleg.ae/claude-cowork-pricing" },
 };
 
 export default function ClaudeCoworkPricingLayout({

@@ -701,7 +701,7 @@ ANTHROPIC_API_KEY=...`}</Block>
         title: "X/Twitter Content System with Claude Code",
         description:
           "Build an X/Twitter content system with Claude Code. Study what works in your competitors' tweets and generate ready-to-publish posts in your own voice.",
-        url: "https://oleg.ae/claude-twitter",
+        url: "https://www.oleg.ae/claude-twitter",
         datePublished: "2026-05-12",
         dateModified: "2026-08-27",
       }}

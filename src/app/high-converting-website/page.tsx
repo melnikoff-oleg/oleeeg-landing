@@ -332,7 +332,7 @@ export default function HighConvertingWebsitePage() {
       <ArticleJsonLd
         title="Build a High-Converting Landing Page with Claude Code"
         description="A free, open-source kit that builds a landing page engineered to convert. Claude Code reads a distilled conversion playbook from Alex Hormozi and the world's best marketers, then builds and deploys your page on your own domain."
-        url="https://oleg.ae/high-converting-website"
+        url="https://www.oleg.ae/high-converting-website"
         datePublished="2026-06-28"
         dateModified="2026-06-28"
       />

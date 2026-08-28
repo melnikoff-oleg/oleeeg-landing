@@ -30,7 +30,7 @@ export default function SamAltmanAiPage() {
       <ArticleJsonLd
         title="20 Things Sam Altman Actually Does With AI"
         description="Twenty rules from Sam Altman, one to a slide, read out of 63 interviews and 1,947 of his posts."
-        url="https://oleg.ae/sam-altman-ai"
+        url="https://www.oleg.ae/sam-altman-ai"
         datePublished={PUBLISHED}
         dateModified={MODIFIED}
       />

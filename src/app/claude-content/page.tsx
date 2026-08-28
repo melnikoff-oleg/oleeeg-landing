@@ -593,7 +593,7 @@ and make each one useful to my audience rather than about me.`}</Block>
         title: "Content Creation System with Claude Code",
         description:
           "Produce weeks of social media content with custom visuals (infographics, carousels, personal images) from a single prompt using Claude Code.",
-        url: "https://oleg.ae/claude-content",
+        url: "https://www.oleg.ae/claude-content",
         datePublished: "2026-05-12",
         dateModified: "2026-08-27",
       }}

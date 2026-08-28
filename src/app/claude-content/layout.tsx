@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     description:
       "Produce weeks of social media content with custom visuals (infographics, carousels, personal images) from one prompt using Claude Code.",
     type: "article",
-    url: "https://oleg.ae/claude-content",
+    url: "https://www.oleg.ae/claude-content",
     publishedTime: "2026-05-12T00:00:00Z",
     modifiedTime: "2026-05-13T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
       "Produce weeks of social media content with custom visuals from a single prompt using Claude Code.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-content",
+    canonical: "https://www.oleg.ae/claude-content",
   },
 };
 

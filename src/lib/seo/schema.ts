@@ -12,7 +12,12 @@
 
 import { isoDuration, thumbnailUrl, videoMeta } from "@/lib/videos";
 
-export const SITE_URL = "https://oleg.ae";
+// The host the site is actually served from. Vercel serves www and redirects
+// the apex to it, which is Vercel's own recommendation, so this is www: a
+// canonical that points at a URL which redirects is a canonical pointing at a
+// different page. Every sitemap entry, every canonical, robots.txt, llms.txt
+// and the Person @id derive from this one line.
+export const SITE_URL = "https://www.oleg.ae";
 
 // The profiles Oleg actively points people at, checked against his own YouTube
 // descriptions on 2026-08-27: linkedin.com/in/olegane appears in all 24 live

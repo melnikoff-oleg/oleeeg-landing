@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "article",
-    url: "https://oleg.ae/elon-musk-ai",
+    url: "https://www.oleg.ae/elon-musk-ai",
     publishedTime: "2026-08-05T00:00:00Z",
     modifiedTime: "2026-08-05T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     description: SHORT,
   },
   alternates: {
-    canonical: "https://oleg.ae/elon-musk-ai",
+    canonical: "https://www.oleg.ae/elon-musk-ai",
   },
 };
 

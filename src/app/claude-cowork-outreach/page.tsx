@@ -550,7 +550,7 @@ when the table is done, stop and show it to me.`}</Block>
         title: "Claude Cowork for Cold Outreach: the full LinkedIn system",
         description:
           "How to run B2B cold outreach with Claude Cowork: the Apify lead setup, what it costs, the prompt, and the human checkpoint that keeps it from damaging your name.",
-        url: "https://oleg.ae/claude-cowork-outreach",
+        url: "https://www.oleg.ae/claude-cowork-outreach",
         datePublished: "2026-05-12",
         dateModified: "2026-08-27",
       }}

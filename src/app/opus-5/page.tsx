@@ -367,7 +367,7 @@ export default function Opus5Page() {
       <ArticleJsonLd
         title="Opus 5, no hype: 5 rules nobody is talking about"
         description="Five practical rules for Claude Opus 5, every one taken from Anthropic's own charts and docs. Why max effort makes answers worse, what to delete from your prompt, why to skip Fable 5, which model to run per task, and what the security numbers actually say."
-        url="https://oleg.ae/opus-5"
+        url="https://www.oleg.ae/opus-5"
         datePublished="2026-07-25T00:00:00Z"
         dateModified="2026-07-25T00:00:00Z"
       />

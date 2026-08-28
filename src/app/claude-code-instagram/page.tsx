@@ -711,7 +711,7 @@ export default function ClaudeCodeInstagramPage() {
         title: "Claude Code Instagram Video Editor: Free Setup Guide",
         description:
           "Set up Reel Studio, a local video editor driven by Claude Code, in five steps: VS Code, a Claude plan, Claude Code, one prompt that installs the rest, then your first Instagram Reel.",
-        url: "https://oleg.ae/claude-code-instagram",
+        url: "https://www.oleg.ae/claude-code-instagram",
         datePublished: "2026-08-01",
         dateModified: "2026-08-27",
       }}

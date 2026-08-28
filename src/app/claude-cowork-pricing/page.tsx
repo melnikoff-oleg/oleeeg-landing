@@ -324,7 +324,7 @@ export default function ClaudeCoworkPricingPage() {
         title: "Claude Cowork pricing: every plan, and what a real month costs",
         description:
           "Claude Cowork is not free. Pro is $20 a month and includes Claude Code too. Every tier compared, what changes between them, and the real monthly bill for running outreach and reporting through it.",
-        url: "https://oleg.ae/claude-cowork-pricing",
+        url: "https://www.oleg.ae/claude-cowork-pricing",
         datePublished: "2026-08-27",
         dateModified: "2026-08-27",
       }}

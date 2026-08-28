@@ -395,7 +395,7 @@ export default function ClaudeCodeAdsPage() {
         title: "Make Video Ads With Claude Code: Free Setup Guide",
         description:
           "Set up Ads Studio, a local video ad maker driven by Claude Code, in seven steps: VS Code, a Claude plan, Claude Code, the folder from GitHub, a free Firecrawl key, one setup prompt, then your first ad.",
-        url: "https://oleg.ae/claude-code-ads",
+        url: "https://www.oleg.ae/claude-code-ads",
         datePublished: "2026-08-07",
         dateModified: "2026-08-07",
       }}

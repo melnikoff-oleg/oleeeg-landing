@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "article",
-    url: "https://oleg.ae/sam-altman-ai",
+    url: "https://www.oleg.ae/sam-altman-ai",
     publishedTime: "2026-08-07T00:00:00Z",
     modifiedTime: "2026-08-12T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     description: SHORT,
   },
   alternates: {
-    canonical: "https://oleg.ae/sam-altman-ai",
+    canonical: "https://www.oleg.ae/sam-altman-ai",
   },
 };
 

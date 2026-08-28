@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     description:
       "A free kit that builds a landing page engineered to sell, powered by a conversion playbook from Hormozi and top marketers. No code required.",
     type: "article",
-    url: "https://oleg.ae/high-converting-website",
+    url: "https://www.oleg.ae/high-converting-website",
     publishedTime: "2026-06-28T00:00:00Z",
     modifiedTime: "2026-06-28T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
       "A free kit that builds a landing page engineered to sell, powered by a conversion playbook from Hormozi and top marketers. No code required.",
   },
   alternates: {
-    canonical: "https://oleg.ae/high-converting-website",
+    canonical: "https://www.oleg.ae/high-converting-website",
   },
 };
 

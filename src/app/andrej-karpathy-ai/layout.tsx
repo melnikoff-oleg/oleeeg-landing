@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "article",
-    url: "https://oleg.ae/andrej-karpathy-ai",
+    url: "https://www.oleg.ae/andrej-karpathy-ai",
     publishedTime: "2026-08-12T00:00:00Z",
     modifiedTime: "2026-08-12T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     description: SHORT,
   },
   alternates: {
-    canonical: "https://oleg.ae/andrej-karpathy-ai",
+    canonical: "https://www.oleg.ae/andrej-karpathy-ai",
   },
 };
 

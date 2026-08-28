@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     description:
       "Build a deeply personalized B2B outreach system with Claude Code. Find leads, score them, and write value-driven messages that earn real replies.",
     type: "article",
-    url: "https://oleg.ae/claude-b2b-outreach",
+    url: "https://www.oleg.ae/claude-b2b-outreach",
     publishedTime: "2026-05-12T00:00:00Z",
     modifiedTime: "2026-05-13T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
       "Build a deeply personalized B2B outreach system. Find leads, score them, and write value-driven messages with custom visuals.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-b2b-outreach",
+    canonical: "https://www.oleg.ae/claude-b2b-outreach",
   },
 };
 

@@ -426,7 +426,7 @@ export default function ClaudeCodeVsCursorPage() {
         title: "Claude Code vs Cursor, Codex and the rest",
         description:
           "A practitioner's comparison. The real question is whether you want an editor or an agent, not which product wins. Prices, shapes, what Claude Code is genuinely worse at, and how to decide in a week.",
-        url: "https://oleg.ae/claude-code-vs-cursor",
+        url: "https://www.oleg.ae/claude-code-vs-cursor",
         datePublished: "2026-08-27",
         dateModified: "2026-08-27",
       }}

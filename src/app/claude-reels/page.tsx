@@ -805,7 +805,7 @@ export default function ClaudeReelsPage() {
         title: "AI Instagram Reels with Claude Code",
         description:
           "Reverse-engineer viral Instagram Reels from competitors, analyze hooks and retention patterns, and generate ready-to-film AI Reels scripts.",
-        url: "https://oleg.ae/claude-reels",
+        url: "https://www.oleg.ae/claude-reels",
         datePublished: "2026-05-12",
         dateModified: "2026-08-27",
       }}

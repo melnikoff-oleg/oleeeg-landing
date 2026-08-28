@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { GUIDE_ROUTES, REDIRECTED_ROUTES } from "./routes";
+import { GUIDE_ROUTES, REDIRECTED_ROUTES, SITE_URL } from "./routes";
 
 // Tests 73-80: the standalone-guide contract.
 //
@@ -101,7 +101,7 @@ test("78 - every guide page emits breadcrumbs", async ({ page }) => {
     await page.goto(route, { waitUntil: "domcontentloaded" });
     const crumbs = (await jsonLd(page)).find((d) => d["@type"] === "BreadcrumbList");
     expect(crumbs, `${route} breadcrumbs`).toBeTruthy();
-    expect(crumbs.itemListElement[0].item).toBe("https://oleg.ae");
+    expect(crumbs.itemListElement[0].item).toBe(SITE_URL);
     const last = crumbs.itemListElement.at(-1);
     expect(last.item, `${route} breadcrumb tail`).toContain(route);
   }

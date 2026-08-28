@@ -555,7 +555,7 @@ export default function AdsAiPage() {
       <ArticleJsonLd
         title="AI Ads Creator: Free Open Source Tool"
         description="Study the Meta ads your competitors are actually running, understand why they convert, and generate new ad concepts for your brand: copy, visuals, and video scripts."
-        url="https://oleg.ae/ads-ai"
+        url="https://www.oleg.ae/ads-ai"
         datePublished="2026-05-31"
         dateModified="2026-08-27"
       />

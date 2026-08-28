@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     description:
       "Analyze thousands of competitor videos, find the standout performers, and build a data-driven content strategy for YouTube, Instagram, and TikTok.",
     type: "article",
-    url: "https://oleg.ae/claude-social-growth",
+    url: "https://www.oleg.ae/claude-social-growth",
     publishedTime: "2026-05-12T00:00:00Z",
     modifiedTime: "2026-05-13T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
       "Analyze competitor videos, find the standout performers, and build a data-driven content growth strategy with Claude Code.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-social-growth",
+    canonical: "https://www.oleg.ae/claude-social-growth",
   },
 };
 

@@ -312,7 +312,7 @@ export default function ClaudeCodeSecondBrainPage() {
         title: "AI Second Brain with Claude Code and Obsidian: Free Setup Guide",
         description:
           "Set up an AI second brain in about 10 minutes: VS Code, Obsidian, Claude Code, one folder both apps share, and the one prompt that builds the vault itself.",
-        url: "https://oleg.ae/claude-code-second-brain",
+        url: "https://www.oleg.ae/claude-code-second-brain",
         datePublished: "2026-08-07",
         dateModified: "2026-08-07",
       }}

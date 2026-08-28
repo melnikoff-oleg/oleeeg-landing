@@ -376,7 +376,7 @@ export default function ClaudeCodePricingPage() {
         title: "Claude Code pricing: every plan, the API route, and what people really spend",
         description:
           "Claude Code is not free. It is included in every paid Claude plan from $20 a month, or billed per token on the API. Every plan compared, Anthropic's own spend figures, and the four things that drive the bill.",
-        url: "https://oleg.ae/claude-code-pricing",
+        url: "https://www.oleg.ae/claude-code-pricing",
         datePublished: "2026-08-27",
         dateModified: "2026-08-27",
       }}

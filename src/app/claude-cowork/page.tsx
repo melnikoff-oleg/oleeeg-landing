@@ -597,7 +597,7 @@ if a source is missing, say so at the top instead of guessing.`}</Block>
         title: "Claude Cowork: what it is, what it costs, and how to use it",
         description:
           "A practitioner's guide to Claude Cowork: the difference from Claude Code, the real pricing, the new built-in browser, how to prompt it, eight recurring jobs it does well, and what it is bad at.",
-        url: "https://oleg.ae/claude-cowork",
+        url: "https://www.oleg.ae/claude-cowork",
         datePublished: "2026-08-27",
         dateModified: "2026-08-27",
       }}
