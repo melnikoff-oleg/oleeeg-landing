@@ -6,13 +6,13 @@ export const metadata: Metadata = {
     "What Claude Code is, how to install it on any machine, and the four ideas that make it click. Written by someone who uses it for marketing, not engineering.",
   keywords: [
     "Claude Code tutorial",
-    "what is Claude Code",
-    "how to use Claude Code",
+    "What is Claude Code",
+    "How to use Claude Code",
     "Claude Code guide",
     "Claude Code for beginners",
-    "learn Claude Code",
+    "Learn Claude Code",
     "Claude Code for non developers",
-    "install Claude Code",
+    "Install Claude Code",
   ],
   openGraph: {
     title: "Claude Code Tutorial: A Guide For People Who Are Not Developers",

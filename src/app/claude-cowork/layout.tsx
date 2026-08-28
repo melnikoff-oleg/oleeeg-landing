@@ -6,8 +6,8 @@ export const metadata: Metadata = {
     "What Claude Cowork actually does, how it differs from Claude Code, the new built-in browser, and the eight jobs I hand it every week. Plus what it is bad at.",
   keywords: [
     "Claude Cowork",
-    "what is Claude Cowork",
-    "how to use Claude Cowork",
+    "What is Claude Cowork",
+    "How to use Claude Cowork",
     "Claude Cowork use cases",
     "Claude Cowork for Windows",
     "Claude Cowork vs Claude Code",

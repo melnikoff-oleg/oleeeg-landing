@@ -10,10 +10,10 @@ import { ContextDrawer } from "./components/context-drawer";
 import { ExpertStrip } from "./components/expert-strip";
 
 const STARTERS = [
-  "make an irresistible offer",
-  "outbound or content?",
-  "get my first 5 customers",
-  "thumbnails that get clicks",
+  "Make an irresistible offer",
+  "Outbound or content?",
+  "Get my first 5 customers",
+  "Thumbnails that get clicks",
 ];
 
 export default function MarketingBrainPage() {
@@ -46,7 +46,7 @@ export default function MarketingBrainPage() {
     localStorage.setItem("mb-auto-capture", v ? "1" : "0");
   };
 
-  // Auto-dismiss the "added to your context" toast.
+  // Auto-dismiss the "Added to your context" toast.
   useEffect(() => {
     if (!toast) return;
     const t = window.setTimeout(() => setToast(null), 7000);
@@ -110,7 +110,7 @@ export default function MarketingBrainPage() {
             href="/"
             className="brand-wordmark font-display text-lg tracking-tight"
           >
-            oleg melnikov
+            Oleg Melnikov
           </Link>
           <div className="flex items-center gap-2">
             <button
@@ -120,7 +120,7 @@ export default function MarketingBrainPage() {
             >
               your context
               {memory.hasContext && (
-                <span className="size-1.5 rounded-full bg-emerald-400" title="personalized: on" />
+                <span className="size-1.5 rounded-full bg-emerald-400" title="Personalized: on" />
               )}
             </button>
             <Link
@@ -176,7 +176,7 @@ export default function MarketingBrainPage() {
                   ? "✦ edit your context"
                   : "✦ add your business context"}
               </button>
-              {/* Mobile-only: on sm+ the header already shows "browse the sources". */}
+              {/* Mobile-only: on sm+ the header already shows "Browse the sources". */}
               <Link
                 href="/marketing-brain-knowledge"
                 className="inline-flex min-h-[44px] items-center font-body text-sm text-silver-muted underline decoration-silver-muted/50 underline-offset-4 transition-colors hover:text-silver sm:hidden"
@@ -222,7 +222,7 @@ export default function MarketingBrainPage() {
         {/* Composer */}
         <div className="sticky bottom-0 border-t border-hairline bg-navy/70 backdrop-blur-md">
           <div className="mx-auto w-full max-w-3xl px-6 py-4">
-            {/* "added to your context" toast */}
+            {/* "Added to your context" toast */}
             <AnimatePresence>
               {toast && (
                 <motion.div
@@ -276,7 +276,7 @@ export default function MarketingBrainPage() {
                   }
                 }}
                 rows={1}
-                placeholder="ask the brain…"
+                placeholder="Ask the brain…"
                 // text-base below sm: inputs under 16px make iOS Safari zoom on focus
                 className="max-h-40 flex-1 resize-none overflow-y-auto bg-transparent px-3 py-2 font-body text-base text-silver placeholder:text-silver-muted focus:outline-none sm:text-[15px]"
               />

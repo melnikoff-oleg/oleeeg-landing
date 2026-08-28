@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     "AI systems for marketing",
     "Claude Code",
     "Claude Code for marketing",
-    "personal branding for founders",
+    "Personal branding for founders",
     "AI for B2B founders",
     "Boldane",
     "Oleg Melnikov",

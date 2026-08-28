@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "LinkedIn outreach AI",
     "Claude Code tutorial",
     "AI sales outreach",
-    "personalized outreach automation",
+    "Personalized outreach automation",
     "Claude Code for marketing",
     "B2B lead gen AI",
   ],

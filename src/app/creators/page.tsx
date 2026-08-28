@@ -25,11 +25,11 @@ export const metadata: Metadata = {
   description,
   keywords: [
     "instagram creators",
-    "viral instagram creators",
-    "find instagram creators by niche",
+    "Viral Instagram creators",
+    "Find Instagram creators by niche",
     "creator database",
-    "instagram reel creators",
-    "short form creators",
+    "Instagram reel creators",
+    "Short form creators",
     "Oleg Melnikov",
   ],
   openGraph: {
@@ -109,7 +109,7 @@ export default async function CreatorsPage({
     // Charts with no bars, sliders that still work. The filters are applied by
     // the database either way, so losing this costs the preview, not the
     // filtering.
-    else console.error("creator facts ssr failed", factsResult.reason);
+    else console.error("Creator facts ssr failed", factsResult.reason);
 
     if (rosterResult.status === "fulfilled") {
       if (resting) {
@@ -126,7 +126,7 @@ export default async function CreatorsPage({
     } else {
       // A dead upstream must not 500 the page: the search box still works from
       // the client, and an empty roster beats an error screen.
-      console.error("creator roster ssr failed", rosterResult.reason);
+      console.error("Creator roster ssr failed", rosterResult.reason);
     }
 
     // A featured read that came back empty is not an error and must not be one
@@ -138,14 +138,14 @@ export default async function CreatorsPage({
         roster = fallback.rows;
         total = fallback.total;
       } catch (err) {
-        console.error("creator roster fallback ssr failed", err);
+        console.error("Creator roster fallback ssr failed", err);
       }
     }
   }
 
   return (
     <main className="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-6 sm:pt-10">
-      <h1 className="sr-only">viral reel creators</h1>
+      <h1 className="sr-only">Viral reel creators</h1>
       <ReelNav current="/creators" />
       <CreatorSearch
         initialQuery={initialQuery}

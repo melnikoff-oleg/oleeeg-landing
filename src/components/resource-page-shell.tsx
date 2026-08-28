@@ -19,7 +19,7 @@ import { GuideFaq } from "@/components/guide-faq";
 import type { FaqEntry, HowToStep } from "@/lib/seo/schema";
 import { BoldaneCta } from "@/components/boldane-cta";
 import { RepoCta } from "@/components/repo-cta";
-import { YouTubeEmbed } from "@/components/youtube-embed";
+import { VideoChapters, VideoProof, YouTubeEmbed } from "@/components/youtube-embed";
 import { Troubleshooting } from "@/components/troubleshooting";
 import { faqEntriesFor, type FixKey } from "@/components/troubleshooting-data";
 import { Reveal, RevealGroup } from "@/components/motion/reveal";
@@ -43,7 +43,7 @@ type ResourcePageShellProps = {
    */
   repoCta?: { href: string; label?: string; icon?: ReactNode };
   /**
-   * Keys from FIXES, rendered as a collapsed "if you get stuck" section right
+   * Keys from FIXES, rendered as a collapsed "If you get stuck" section right
    * after the setup guide. Pick only what applies to the page. See
    * troubleshooting.tsx for where the list came from.
    */
@@ -78,7 +78,7 @@ type ResourcePageShellProps = {
   breadcrumb?: { name: string; path: string }[];
   /** Inner content of a BoldaneCta card, rendered after the video (optional). */
   boldaneCta?: ReactNode;
-  /** Show the "founder of Boldane" footer credit (only on pages with no other Boldane mention). */
+  /** Show the "Founder of Boldane" footer credit (only on pages with no other Boldane mention). */
   boldaneCredit?: boolean;
 };
 
@@ -104,7 +104,7 @@ export function ResourcePageShell({
   // ONE FAQPage per page, built from the page's own questions plus the exact
   // troubleshooting entries it renders. Two FAQPage blocks on one document is a
   // validation smell, and the troubleshooting answers are the long-tail queries
-  // people type verbatim ("command not found claude", "credit balance too
+  // people type verbatim ("Command not found Claude", "credit balance too
   // low"), so leaving them out of the markup wastes the best-matching copy on
   // the page.
   const faqEntries = [...(faq ?? []), ...faqEntriesFor(troubleshooting ?? [])];
@@ -137,7 +137,7 @@ export function ResourcePageShell({
             href="/"
             className="brand-wordmark font-display text-lg tracking-tight"
           >
-            oleg melnikov
+            Oleg Melnikov
           </Link>
           <Link
             href="https://www.youtube.com/@Oleg-Melnikov"
@@ -148,44 +148,134 @@ export function ResourcePageShell({
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="size-4">
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
             </svg>
-            youtube
+            YouTube
           </Link>
         </div>
       </header>
 
       <main>
-        {/* Hero / title */}
-        <section className="pt-16 pb-12 md:pt-24 md:pb-16">
-          <RevealGroup
-            immediate
-            stagger={0.15}
-            className="mx-auto max-w-3xl px-6 text-center"
-          >
-            <span className="eyebrow inline-block rounded-full border border-hairline bg-vivid-blue/10 px-4 py-1.5 font-body text-xs text-vivid-blue/90">
-              {eyebrow}
-            </span>
+        {/*
+          The hero.
 
-            <h1 className="text-metallic mt-8 font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl md:text-5xl">
-              {title}
-            </h1>
+          Two shapes, chosen by whether the page has a video.
 
-            <p className="mt-4 font-body text-lg text-silver-muted md:text-xl">
-              {subhead}
-            </p>
+          With one, it is a two-column fold: the claim, the answer and the
+          primary button on the left, the player on the right. The video moved
+          up here from the bottom of the page for two reasons that point the
+          same way. Google will not treat a page as a watch page, and will not
+          show a video thumbnail for it, unless the video is the main content
+          rather than a footnote. And a reader who arrived from a search result
+          has never heard of Oleg: a player showing a six-figure view count is
+          the fastest honest answer to "why should I trust this page".
 
-            {repoCta ? (
-              <div className="mt-8">
-                <RepoCta href={repoCta.href} label={repoCta.label} icon={repoCta.icon} />
+          The button still comes before the player in the DOM, on every screen.
+          That ordering is worth 17% versus 2-7% conversion (see RepoCta), and
+          most arrivals here have already watched the thing.
+
+          Without a video the old centered hero is still right: there is nothing
+          to put in the second column.
+        */}
+        <section className="pt-12 pb-10 md:pt-20 md:pb-14">
+          {videoId ? (
+            <RevealGroup
+              immediate
+              stagger={0.15}
+              className="mx-auto max-w-5xl px-6"
+            >
+              <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-14">
+                <div>
+                  <span className="eyebrow inline-block rounded-full border border-hairline bg-vivid-blue/10 px-4 py-1.5 font-body text-xs text-vivid-blue/90">
+                    {eyebrow}
+                  </span>
+
+                  <h1 className="text-metallic mt-6 font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl md:text-5xl">
+                    {title}
+                  </h1>
+
+                  <p className="mt-4 font-body text-lg text-silver-muted md:text-xl">
+                    {subhead}
+                  </p>
+
+                  {repoCta ? (
+                    <div className="mt-7 flex flex-col items-start gap-3">
+                      <RepoCta
+                        href={repoCta.href}
+                        label={repoCta.label}
+                        icon={repoCta.icon}
+                        align="start"
+                      />
+                    </div>
+                  ) : null}
+
+                  {/*
+                    The one line that serves both arrivals at once. Someone from
+                    the video description wants the steps and has no use for the
+                    player; someone from Google wants to know there is a written
+                    version before they commit to sixteen minutes of video.
+                  */}
+                  <p className="mt-6 font-body text-sm text-silver-muted">
+                    <a
+                      href="#setup-guide"
+                      className="text-vivid-blue underline decoration-vivid-blue/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+                    >
+                      Jump to the setup steps
+                    </a>
+                    {guide ? (
+                      <>
+                        {" "}
+                        or{" "}
+                        <a
+                          href="#written-guide"
+                          className="text-vivid-blue underline decoration-vivid-blue/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+                        >
+                          read the whole thing in writing
+                        </a>
+                      </>
+                    ) : null}
+                    .
+                  </p>
+                </div>
+
+                <div>
+                  <YouTubeEmbed videoId={videoId} title={videoTitle ?? title} />
+                  <VideoProof videoId={videoId} />
+                </div>
               </div>
-            ) : null}
-          </RevealGroup>
+
+              <VideoChapters videoId={videoId} />
+            </RevealGroup>
+          ) : (
+            <RevealGroup
+              immediate
+              stagger={0.15}
+              className="mx-auto max-w-3xl px-6 text-center"
+            >
+              <span className="eyebrow inline-block rounded-full border border-hairline bg-vivid-blue/10 px-4 py-1.5 font-body text-xs text-vivid-blue/90">
+                {eyebrow}
+              </span>
+
+              <h1 className="text-metallic mt-8 font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl md:text-5xl">
+                {title}
+              </h1>
+
+              <p className="mt-4 font-body text-lg text-silver-muted md:text-xl">
+                {subhead}
+              </p>
+
+              {repoCta ? (
+                <div className="mt-8">
+                  <RepoCta href={repoCta.href} label={repoCta.label} icon={repoCta.icon} />
+                </div>
+              ) : null}
+            </RevealGroup>
+          )}
         </section>
 
         {/* Setup guide */}
-        <section className="pb-16 md:pb-20">
+        <section id="setup-guide" className="scroll-mt-8 pb-16 md:pb-20">
           <RevealGroup stagger={0.12} className="mx-auto max-w-3xl px-6">
             <h2 className="eyebrow font-body text-[13px] text-vivid-blue">
-              setup guide
+              Setup guide
             </h2>
 
             <div className="mt-8">
@@ -205,15 +295,6 @@ export function ResourcePageShell({
         ) : null}
 
         {faq?.length ? <GuideFaq entries={faq} /> : null}
-
-        {/* YouTube video (click-to-load facade). Omitted when videoId is unset. */}
-        {videoId ? (
-          <Reveal as="section" className="pb-16 md:pb-32">
-            <div className="mx-auto max-w-3xl px-6">
-              <YouTubeEmbed videoId={videoId} title={videoTitle ?? title} />
-            </div>
-          </Reveal>
-        ) : null}
 
         {boldaneCta ? <BoldaneCta>{boldaneCta}</BoldaneCta> : null}
       </main>

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "AI content creation tools 2026",
     "AI social media content",
     "Claude Code tutorial",
-    "content creation system",
+    "Content creation system",
     "AI social media posts",
     "Claude Code for marketing",
     "AI social media content generator",

@@ -117,7 +117,7 @@ export default function MarketingBrainKnowledgePage() {
             href="/"
             className="brand-wordmark font-display text-lg tracking-tight"
           >
-            oleg melnikov
+            Oleg Melnikov
           </Link>
           <Link
             href="/marketing-brain"
@@ -161,8 +161,8 @@ export default function MarketingBrainKnowledgePage() {
               variants={fadeUp}
               className="mx-auto mt-6 max-w-2xl font-body text-lg text-silver-muted md:text-xl"
             >
-              the greatest marketing minds, distilled into one searchable brain:
-              every book and every talk that shapes how i think about growth,
+              The greatest marketing minds, distilled into one searchable brain:
+              every book and every talk that shapes how I think about growth,
               offers, and building an audience.
             </motion.p>
 
@@ -198,7 +198,7 @@ export default function MarketingBrainKnowledgePage() {
               variants={fadeUp}
               className="eyebrow font-body text-[13px] text-vivid-blue"
             >
-              the bookshelf
+              The bookshelf
             </motion.h2>
             <motion.div
               variants={stagger}
@@ -337,12 +337,12 @@ export default function MarketingBrainKnowledgePage() {
         <section className="border-t border-hairline py-20 md:py-28">
           <div className="mx-auto max-w-3xl px-6 text-center">
             <h2 className="text-metallic font-display text-2xl tracking-tight md:text-3xl">
-              this is the brain behind the content
+              This is the brain behind the content
             </h2>
             <p className="mx-auto mt-4 max-w-xl font-body text-silver-muted">
-              i built an AI system that turns these minds into answers i can
-              query, every claim cited to the exact page or timecode. ask it
-              anything, or follow along as i build AI systems for marketing in
+              I built an AI system that turns these minds into answers I can
+              query, every claim cited to the exact page or timecode. Ask it
+              anything, or follow along as I build AI systems for marketing in
               public.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -358,7 +358,7 @@ export default function MarketingBrainKnowledgePage() {
                 rel="noopener noreferrer"
                 className="inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline px-5 py-2.5 font-body text-sm font-medium text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
               >
-                watch on youtube
+                watch on YouTube
               </a>
             </div>
           </div>

@@ -68,7 +68,10 @@ Recorded so the same suggestion does not get re-triaged next month.
 
 | ID | Task | Shipped |
 | --- | --- | --- |
-| S-16 | Get the videos' visual content onto the pages | 2026-08-27. Resolved as **text, not screenshots**, and the text is better: see `LOG.md`. |
+| S-17 | The video is buried and behind a facade, so no page is eligible for a video result | 2026-08-28. Real `<iframe loading="lazy">` in the fold, VideoObject with real uploadDate/duration/views, chapters as `hasPart` Clips. |
+| S-18 | Guides render as a wall of text | 2026-08-28. Root cause was a CSS specificity bug (Tailwind v4 `:where()`), plus 32 video stills and answer-first openings. |
+| S-19 | Lowercase copy site-wide | 2026-08-28. Sentence case across 85 files, and proper nouns capitalized, which is also entity recognition. |
+| S-16 | Get the videos' visual content onto the pages | 2026-08-27 as **text**; 2026-08-28 as **images** too, from the videos themselves. |
 | S-01 | Open Graph images, every route | 2026-08-27. One build-time generator plus 31 route files. |
 | S-02 | Honest `lastModified` in the sitemap | 2026-08-27. Real per-page dates, plus unit tests that diff the list against `src/app` both ways. |
 | S-03 | Add `/sam-altman-ai` to the sitemap | 2026-08-24 |

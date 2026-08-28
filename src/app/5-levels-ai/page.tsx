@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Fragment, useState, type ReactNode } from "react";
 import { ResourceFooter } from "@/components/resource-footer";
-import { YouTubeEmbed } from "@/components/youtube-embed";
+import { VideoChapters, VideoProof, YouTubeEmbed } from "@/components/youtube-embed";
 
 const VIDEO_ID = "mFYKAsGcnso";
 const VIDEO_TITLE = "Anthropic Just Revealed How the Top 1% Use AI";
@@ -69,7 +69,7 @@ const icons: Record<string, ReactNode> = {
       <circle cx="20" cy="19.8" r="1.4" />
     </svg>
   ),
-  ceo: (
+  CEO: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
       <path d="M6 21V3" />
       <path d="M6 4h11l-2.6 3.5L17 11H6" />
@@ -100,7 +100,7 @@ const levels: Level[] = [
       "One agent works inside your projects, but you watch every move and approve everything it does.",
     stuck: (
       <>
-        <strong>Trust.</strong> You read everything, so you can never look away.
+        <strong>trust.</strong> You read everything, so you can never look away.
       </>
     ),
     icon: icons.micromanager,
@@ -119,7 +119,7 @@ const levels: Level[] = [
     role: "The Manager",
     agents: "~100",
     looks:
-      'Agents launch agents; work runs while you sleep. "Did you check it?" becomes "what context was it missing?"',
+      'Agents launch agents; work runs while you sleep. "Did you check it?" becomes "What context was it missing?"',
     stuck: (
       <>
         Not the AI. <strong>Your clarity.</strong> A vague vision wastes an army.
@@ -281,14 +281,14 @@ function LevelRung({ lvl }: { lvl: Level }) {
               {lvl.agents}
             </span>
             <span className="eyebrow mt-1 block text-xs font-semibold text-silver-muted">
-              agents
+              Agents
             </span>
           </div>
         </div>
         <div className="mt-4 space-y-4 border-t border-hairline pt-4">
           <div>
             <span className="eyebrow block text-xs font-semibold text-silver-muted">
-              what it looks like
+              What it looks like
             </span>
             <p className="mt-1.5 font-body text-base leading-relaxed text-silver-muted">
               {lvl.looks}
@@ -296,7 +296,7 @@ function LevelRung({ lvl }: { lvl: Level }) {
           </div>
           <div className="border-l-2 border-vivid-blue pl-3.5 [&_strong]:font-semibold [&_strong]:text-silver">
             <span className="eyebrow block text-[13px] font-semibold text-vivid-blue">
-              what keeps you stuck
+              What keeps you stuck
             </span>
             <p className="mt-1.5 font-body text-base leading-relaxed text-silver-muted">
               {lvl.stuck}
@@ -346,7 +346,7 @@ export default function FiveLevelsPage() {
       <header className="px-2">
         <div className="mx-auto mt-2 flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="brand-wordmark font-display text-lg tracking-tight">
-            oleg melnikov
+            Oleg Melnikov
           </Link>
           <a
             href="https://youtube.com/@Oleg-Melnikov"
@@ -358,7 +358,7 @@ export default function FiveLevelsPage() {
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" />
               <path fill="black" d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
             </svg>
-            youtube
+            YouTube
           </a>
         </div>
       </header>
@@ -383,14 +383,14 @@ export default function FiveLevelsPage() {
               variants={fadeUp}
               className="text-metallic mt-8 font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl md:text-5xl"
             >
-              the builder&apos;s ladder
+              The builder&apos;s ladder
             </motion.h1>
 
             <motion.p
               variants={fadeUp}
               className="mt-4 font-body text-lg text-silver-muted md:text-xl"
             >
-              the 5 levels of AI adoption, from copy-pasting out of a chat window
+              The 5 levels of AI adoption, from copy-pasting out of a chat window
               to a thousand agents that launch themselves.
             </motion.p>
 
@@ -398,9 +398,15 @@ export default function FiveLevelsPage() {
               variants={fadeUp}
               className="mt-3 font-body text-base text-silver-muted"
             >
-              find where you are today, then take the one move that gets you to
-              the next rung. every step runs on Claude Code.
+              Find where you are today, then take the one move that gets you to
+              the next rung. Every step runs on Claude Code.
             </motion.p>
+
+            <motion.div variants={fadeUp} className="mt-10">
+              <YouTubeEmbed videoId={VIDEO_ID} title={VIDEO_TITLE} />
+              <VideoProof videoId={VIDEO_ID} />
+              <VideoChapters videoId={VIDEO_ID} />
+            </motion.div>
           </motion.div>
         </section>
 
@@ -498,7 +504,7 @@ export default function FiveLevelsPage() {
             </div>
 
             <p className="mx-auto mt-6 max-w-2xl text-center font-body text-base text-silver-muted">
-              most people stall between level 1 and level 2. the jump is not a
+              Most people stall between level 1 and level 2. The jump is not a
               smarter model, it is learning to review results instead of
               keystrokes.
             </p>
@@ -507,17 +513,6 @@ export default function FiveLevelsPage() {
 
         {/* The video this page came from. Click-to-load facade, kept low on the
             page: almost everyone here arrived from that video already. */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={fadeUp}
-          className="pb-16 md:pb-32"
-        >
-          <div className="mx-auto max-w-3xl px-6">
-            <YouTubeEmbed videoId={VIDEO_ID} title={VIDEO_TITLE} />
-          </div>
-        </motion.section>
       </main>
 
       <ResourceFooter currentSlug="5-levels-ai" boldaneCredit />

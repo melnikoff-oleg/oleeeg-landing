@@ -36,14 +36,14 @@ export const metadata: Metadata = {
   description: SHORT,
   keywords: [
     "Andrej Karpathy",
-    "how Andrej Karpathy uses AI",
+    "How Andrej Karpathy uses AI",
     "Karpathy LLM knowledge base",
     "Karpathy autoresearch",
     "agentic engineering",
     "vibe coding",
     "Claude Code",
     "AI coding agents",
-    "how to use LLMs",
+    "How to use LLMs",
     "Anthropic",
   ],
   openGraph: {

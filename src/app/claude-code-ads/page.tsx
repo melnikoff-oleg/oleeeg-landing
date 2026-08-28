@@ -87,7 +87,7 @@ function Step({ children }: { children: ReactNode }) {
  * list of clicks instead of a wall of reassurance.
  */
 function Why({
-  label = "what is this?",
+  label = "What is this?",
   children,
 }: {
   label?: string;
@@ -108,29 +108,29 @@ function Why({
 
 const steps = [
   {
-    title: "install visual studio code",
+    title: "Install Visual Studio Code",
     content: (
       <div>
         <Do>
           <Step>
-            open <A href="https://code.visualstudio.com">code.visualstudio.com</A>
+            Open <A href="https://code.visualstudio.com">code.visualstudio.com</A>
           </Step>
-          <Step>press the big blue download button</Step>
-          <Step>open the file it downloads and install it</Step>
-          <Step>open VS Code and leave it open</Step>
+          <Step>Press the big blue download button</Step>
+          <Step>Open the file it downloads and install it</Step>
+          <Step>Open VS Code and leave it open</Step>
         </Do>
         <Why>
           <p>
-            a free app from Microsoft. you will not write any code in it. it is
+            A free app from Microsoft. You will not write any code in it. It is
             just the window everything else happens inside.
           </p>
           <p>
-            the one part you will use is the terminal: the menu is{" "}
+            The one part you will use is the terminal: the menu is{" "}
             <UI>Terminal</UI>, then <UI>New Terminal</UI>, and a black box opens
-            at the bottom. that is where you type things.
+            at the bottom. That is where you type things.
           </p>
           <p>
-            on a Mac, drag <UI>Visual Studio Code</UI> into <UI>Applications</UI>{" "}
+            On a Mac, drag <UI>Visual Studio Code</UI> into <UI>Applications</UI>{" "}
             first, then open it from there.
           </p>
         </Why>
@@ -138,24 +138,24 @@ const steps = [
     ),
   },
   {
-    title: "get a claude plan",
+    title: "Get a Claude plan",
     content: (
       <div>
         <Do>
           <Step>
-            open <A href="https://claude.ai">claude.ai</A> and make an account
+            Open <A href="https://claude.ai">claude.ai</A> and make an account
           </Step>
           <Step>
-            pick <UI>Pro</UI>, $20 a month. already have a free account? upgrade
+            Pick <UI>Pro</UI>, $20 a month. Already have a free account? Upgrade
             at{" "}
             <A href="https://claude.ai/settings/billing">
               claude.ai/settings/billing
             </A>
           </Step>
         </Do>
-        <Why label="do i really have to pay?">
+        <Why label="Do I really have to pay?">
           <p>
-            yes. this is the one thing on this page that costs money. the free
+            Yes. This is the one thing on this page that costs money. The free
             plan does not include Claude Code at all.
           </p>
           <p>
@@ -167,41 +167,40 @@ const steps = [
     ),
   },
   {
-    title: "install claude code and sign in",
+    title: "Install Claude Code and sign in",
     content: (
       <div>
         <Do>
           <Step>
-            in VS Code, open <UI>Terminal</UI>, then <UI>New Terminal</UI>
+            In VS Code, open <UI>Terminal</UI>, then <UI>New Terminal</UI>
           </Step>
-          <Step>paste this line and press Enter</Step>
+          <Step>Paste this line and press Enter</Step>
         </Do>
         <div className="mt-3 space-y-3">
-          <Cmd text={INSTALL_CMD} label="copy command" />
+          <Cmd text={INSTALL_CMD} label="Copy command" />
           <p className="text-sm text-silver-muted">
-            on Windows: switch the terminal to <UI>PowerShell</UI> first, then
+            On Windows: switch the terminal to <UI>PowerShell</UI> first, then
             paste <K>irm https://claude.ai/install.ps1 | iex</K> instead.
           </p>
         </div>
         <Do>
-          <Step>quit VS Code and open it again</Step>
+          <Step>Quit VS Code and open it again</Step>
           <Step>
-            open a new terminal, type <K>claude</K>, press Enter
+            Open a new terminal, type <K>Claude</K>, press Enter
           </Step>
           <Step>
-            pick <UI>Claude account with subscription</UI>
+            Pick <UI>Claude account with subscription</UI>
           </Step>
-          <Step>your browser opens. sign in and press approve</Step>
-          <Step>go back to VS Code. you are connected</Step>
+          <Step>Your browser opens. Sign in and press approve</Step>
+          <Step>Go back to VS Code. You are connected</Step>
         </Do>
-        <Why label="something went wrong">
+        <Why label="Something went wrong">
           <p>
-            <K>command not found: claude</K> means you did not quit and reopen VS
-            Code. a terminal that was already open cannot see something installed
-            after it started. this is the most common snag on this page.
+            <K>command not found: Claude</K> means you did not quit and reopen VS Code. A terminal that was already open cannot see something installed
+            after it started. This is the most common snag on this page.
           </p>
           <p>
-            no browser opened? press <K>c</K> in the terminal to copy the sign-in
+            No browser opened? Press <K>c</K> in the terminal to copy the sign-in
             link, then paste it into your browser yourself.
           </p>
         </Why>
@@ -209,88 +208,88 @@ const steps = [
     ),
   },
   {
-    title: "download the ads studio folder",
+    title: "Download the ads studio folder",
     content: (
       <div>
         <Do>
           <Step>
-            open <A href={REPO}>{REPO.replace("https://", "")}</A>
+            Open <A href={REPO}>{REPO.replace("https://", "")}</A>
           </Step>
           <Step>
-            press the green <UI>Code</UI> button, then <UI>Download ZIP</UI>
+            Press the green <UI>Code</UI> button, then <UI>Download ZIP</UI>
           </Step>
-          <Step>open the file you downloaded. it turns into a folder</Step>
-          <Step>drag that folder to your Documents so it is easy to find</Step>
+          <Step>Open the file you downloaded. It turns into a folder</Step>
+          <Step>Drag that folder to your Documents so it is easy to find</Step>
           <Step>
-            in VS Code: <UI>File</UI>, then <UI>Open Folder</UI>, and pick it
+            In VS Code: <UI>File</UI>, then <UI>Open Folder</UI>, and pick it
           </Step>
         </Do>
-        <Why label="how do i know i opened the right thing?">
+        <Why label="How do I know I opened the right thing?">
           <p>
-            the left side of VS Code should now list <K>CLAUDE.md</K>,{" "}
-            <K>README.md</K>, <K>ads</K>, <K>reference</K> and <K>scripts</K>. if
+            The left side of VS Code should now list <K>CLAUDE.md</K>,{" "}
+            <K>README.md</K>, <K>ads</K>, <K>reference</K> and <K>scripts</K>. If
             you only see one folder inside another folder, open the inner one.
           </p>
           <p>
-            know what git is? <K>git clone {REPO}.git</K> does the same thing.
+            Know what git is? <K>git clone {REPO}.git</K> does the same thing.
           </p>
         </Why>
       </div>
     ),
   },
   {
-    title: "get your free firecrawl key",
+    title: "Get your free Firecrawl key",
     content: (
       <div>
         <p className="mb-4 text-silver">
-          this is how the tool reads a company&apos;s website. it is free to
+          This is how the tool reads a company&apos;s website. It is free to
           start and takes two minutes.
         </p>
         <Do>
           <Step>
-            open <A href="https://www.firecrawl.dev">firecrawl.dev</A> and make
+            Open <A href="https://www.firecrawl.dev">firecrawl.dev</A> and make
             an account
           </Step>
           <Step>
-            go to <A href="https://firecrawl.dev/app/api-keys">API Keys</A>
+            Go to <A href="https://firecrawl.dev/app/api-keys">API Keys</A>
           </Step>
           <Step>
-            copy your key. it starts with <K>fc-</K>
+            Copy your key. It starts with <K>fc-</K>
           </Step>
         </Do>
-        <p className="mt-5 mb-3 text-silver">now put the key in the folder:</p>
+        <p className="mt-5 mb-3 text-silver">Now put the key in the folder:</p>
         <Do>
           <Step>
-            in VS Code, click the file called <K>.env.example</K>
+            In VS Code, click the file called <K>.env.example</K>
           </Step>
           <Step>
-            right-click it, press <UI>Rename</UI>, and name it exactly{" "}
+            Right-click it, press <UI>Rename</UI>, and name it exactly{" "}
             <K>.env</K>
           </Step>
           <Step>
-            find the line <K>FIRECRAWL_API_KEY=fc-your-key-here</K>
+            Find the line <K>FIRECRAWL_API_KEY=fc-your-key-here</K>
           </Step>
           <Step>
-            delete <K>fc-your-key-here</K> and paste your real key in its place
+            Delete <K>fc-your-key-here</K> and paste your real key in its place
           </Step>
           <Step>
-            save the file: <K>Cmd+S</K> on Mac, <K>Ctrl+S</K> on Windows
+            Save the file: <K>Cmd+S</K> on Mac, <K>Ctrl+S</K> on Windows
           </Step>
         </Do>
         <div className="mt-4">
-          <Cmd text={ENV_EXAMPLE} label="copy line" />
+          <Cmd text={ENV_EXAMPLE} label="Copy line" />
         </div>
-        <Why label="careful with this bit">
+        <Why label="Careful with this bit">
           <p>
-            no spaces around the <K>=</K> sign, and no quote marks. just the
+            No spaces around the <K>=</K> sign, and no quote marks. Just the
             word, the equals sign, and your key.
           </p>
           <p>
-            the file name is <K>.env</K> with a dot at the front and nothing
-            after it. not <K>.env.txt</K>, not <K>env</K>.
+            The file name is <K>.env</K> with a dot at the front and nothing
+            after it. Not <K>.env.txt</K>, not <K>env</K>.
           </p>
           <p>
-            never post this key anywhere or put it in a video. it is yours. if
+            Never post this key anywhere or put it in a video. It is yours. If
             you ever show it by accident, make a new one on the same page and the
             old one stops working.
           </p>
@@ -299,34 +298,34 @@ const steps = [
     ),
   },
   {
-    title: "let claude code finish the setup",
+    title: "Let Claude Code finish the setup",
     content: (
       <div>
         <Do>
           <Step>
-            open a terminal in VS Code, type <K>claude</K>, press Enter
+            Open a terminal in VS Code, type <K>Claude</K>, press Enter
           </Step>
-          <Step>paste this and press Enter</Step>
+          <Step>Paste this and press Enter</Step>
         </Do>
         <div className="mt-3">
           <Cmd text={SETUP_PROMPT} />
         </div>
         <Do>
-          <Step>it will ask permission a few times. say yes</Step>
-          <Step>wait until it tells you everything passed</Step>
+          <Step>It will ask permission a few times. Say yes</Step>
+          <Step>Wait until it tells you everything passed</Step>
         </Do>
-        <Why label="what is it actually doing?">
+        <Why label="What is it actually doing?">
           <p>
-            checking that three free tools are on your computer, and installing
-            them if they are not: Node, ffmpeg and Python. they are what turn the
+            Checking that three free tools are on your computer, and installing
+            them if they are not: Node, ffmpeg and Python. They are what turn the
             ad into a real video file.
           </p>
           <p>
-            the first time takes a few minutes. after today you never do this
+            The first time takes a few minutes. After today you never do this
             step again.
           </p>
           <p>
-            if anything goes wrong, say so in the same box. it can read its own
+            If anything goes wrong, say so in the same box. It can read its own
             error and fix it.
           </p>
         </Why>
@@ -334,29 +333,29 @@ const steps = [
     ),
   },
   {
-    title: "make your first ad",
+    title: "Make your first ad",
     content: (
       <div>
         <p className="mb-4 text-silver">
-          paste one sentence. that is the whole job.
+          Paste one sentence. That is the whole job.
         </p>
         <Cmd text={FIRST_AD_PROMPT} />
         <Do>
-          <Step>it reads the website and picks up the colours and logo</Step>
-          <Step>it writes the ad, then renders it</Step>
+          <Step>It reads the website and picks up the colours and logo</Step>
+          <Step>It writes the ad, then renders it</Step>
           <Step>
-            when it finishes, the video is in the new folder inside <K>ads</K>
+            When it finishes, the video is in the new folder inside <K>ads</K>
           </Step>
         </Do>
         <p className="mt-4 text-silver">
-          then just say what to change:{" "}
+          Then just say what to change:{" "}
           <UI>&ldquo;slower at the start&rdquo;</UI>,{" "}
           <UI>&ldquo;bigger text&rdquo;</UI>,{" "}
-          <UI>&ldquo;end on the logo&rdquo;</UI>. two or three rounds gets it
+          <UI>&ldquo;end on the logo&rdquo;</UI>. Two or three rounds gets it
           good.
         </p>
-        <Why label="more ways to ask">
-          <p>swap the website and the mood for anything you like:</p>
+        <Why label="More ways to ask">
+          <p>Swap the website and the mood for anything you like:</p>
           <p>
             <K>make a 30 second ad for stripe.com, lead with the speed</K>
           </p>
@@ -367,15 +366,15 @@ const steps = [
             <K>6 second bumper for notion.so, just the logo and one line</K>
           </p>
           <p>
-            the first video takes longer than every one after it. a 15 second ad
+            The first video takes longer than every one after it. A 15 second ad
             is usually a few minutes.
           </p>
           <p>
-            every ad lives in its own folder inside <K>ads</K>, so nothing you
+            Every ad lives in its own folder inside <K>ads</K>, so nothing you
             make ever overwrites anything else.
           </p>
           <p>
-            it costs nothing per video. it all runs on your own computer.
+            It costs nothing per video. It all runs on your own computer.
           </p>
         </Why>
       </div>
@@ -388,8 +387,8 @@ export default function ClaudeCodeAdsPage() {
     <ResourcePageShell
       slug="claude-code-ads"
       repoCta={{ href: REPO }}
-      title="make video ads with claude code"
-      subhead="paste a company's website, say what kind of ad you want, get a finished video. it reads the brand itself. runs on your own laptop, free per ad."
+      title="Make video ads with Claude Code"
+      subhead="Paste a company's website, say what kind of ad you want, get a finished video. It reads the brand itself. Runs on your own laptop, free per ad."
       steps={steps}
       troubleshooting={["claudeNotFound", "costs", "skipPermissions"]}
       jsonLd={{

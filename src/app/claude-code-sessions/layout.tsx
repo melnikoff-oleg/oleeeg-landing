@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     "cross-session messaging",
     "Claude Code tips",
     "AI agents",
-    "run two Claude Code sessions",
+    "Run two Claude Code sessions",
     "Claude Code multi session",
     "AI for productivity",
   ],

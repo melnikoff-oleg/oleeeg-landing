@@ -64,7 +64,7 @@ export function ContextDrawer({
           >
             <div className="flex items-center justify-between border-b border-hairline px-6 py-4">
               <h2 className="font-display text-lg tracking-tight text-silver">
-                your business context
+                Your business context
               </h2>
               <button
                 type="button"
@@ -81,22 +81,22 @@ export function ContextDrawer({
 
             <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
               <p className="font-body text-sm leading-relaxed text-silver-muted">
-                tell the brain about your business so its advice is personalized to
-                you: your offers, audience, and goals. add a website, upload files,
+                Tell the brain about your business so its advice is personalized to
+                you: your offers, audience, and goals. Add a website, upload files,
                 or just write it below.
               </p>
 
               {/* Website */}
               <div className="space-y-2">
                 <label className="eyebrow text-xs font-medium text-vivid-blue/80">
-                  scrape a website
+                  Scrape a website
                 </label>
                 <div className="flex gap-2">
                   <input
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && onScrape()}
-                    placeholder="yourbusiness.com"
+                    placeholder="Yourbusiness.com"
                     // text-base: inputs under 16px make iOS Safari zoom on focus
                     className="min-w-0 flex-1 rounded-lg border border-hairline surface-raised px-3 py-2 font-body text-base text-silver placeholder:text-silver-muted focus:border-vivid-blue/50 focus:outline-none"
                   />
@@ -114,7 +114,7 @@ export function ContextDrawer({
               {/* Files */}
               <div className="space-y-2">
                 <label className="eyebrow text-xs font-medium text-vivid-blue/80">
-                  upload files (pdf, txt, md)
+                  Upload files (PDF, txt, md)
                 </label>
                 <input
                   ref={fileRef}
@@ -126,7 +126,7 @@ export function ContextDrawer({
                   className="block w-full font-body text-sm text-silver-muted file:mr-3 file:rounded-full file:border-0 file:bg-vivid-blue/15 file:px-4 file:py-2 file:text-sm file:font-medium file:text-silver hover:file:bg-vivid-blue/25"
                 />
                 {memory.working === "upload" && (
-                  <p className="font-body text-xs text-silver-muted">reading file…</p>
+                  <p className="font-body text-xs text-silver-muted">Reading file…</p>
                 )}
               </div>
 
@@ -139,12 +139,12 @@ export function ContextDrawer({
               {/* Editor */}
               <div className="space-y-2">
                 <label className="eyebrow text-xs font-medium text-vivid-blue/80">
-                  what the brain knows
+                  What the brain knows
                 </label>
                 <textarea
                   value={memory.text}
                   onChange={(e) => memory.setText(e.target.value)}
-                  placeholder="e.g. I run Boldane, premium personal branding for founders with real expertise…"
+                  placeholder="E.g. I run Boldane, premium personal branding for founders with real expertise…"
                   rows={12}
                   // text-base: inputs under 16px make iOS Safari zoom on focus
                   className="w-full resize-y rounded-lg border border-hairline surface-raised px-3 py-2 font-body text-base leading-relaxed text-silver placeholder:text-silver-muted focus:border-vivid-blue/50 focus:outline-none"
@@ -154,9 +154,9 @@ export function ContextDrawer({
               {/* Auto-capture toggle */}
               <label className="flex cursor-pointer items-center justify-between rounded-lg border border-hairline surface-raised px-3 py-2.5">
                 <span className="font-body text-sm text-silver">
-                  auto-capture facts from chat
+                  Auto-capture facts from chat
                   <span className="mt-0.5 block text-xs text-silver-muted">
-                    save new business details you mention while chatting
+                    Save new business details you mention while chatting
                   </span>
                 </span>
                 <button

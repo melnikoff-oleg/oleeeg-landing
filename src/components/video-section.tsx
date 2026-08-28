@@ -9,11 +9,11 @@ export function VideoSection() {
     <section id="watch" className="py-16 md:py-32">
       <RevealGroup stagger={0.15} className="mx-auto max-w-4xl px-6">
         <h2 className="eyebrow font-body text-[13px] text-vivid-blue">
-          watch
+          Watch
         </h2>
 
         <p className="mt-8 font-body text-xl text-silver md:text-2xl">
-          i share my journey building with ai on youtube.
+          I share my journey building with AI on YouTube.
         </p>
 
         {/* Looping video preview */}
@@ -37,14 +37,14 @@ export function VideoSection() {
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="size-4 lg:hidden">
                   <path d="M8 5.14v13.72L19 12 8 5.14z" />
                 </svg>
-                watch on youtube
+                watch on YouTube
               </span>
             </div>
           </Link>
         </div>
 
         <p className="mt-6 text-center font-body text-silver-muted">
-          new claude code and ai-for-marketing tutorials every week.
+          New Claude Code and AI-for-marketing tutorials every week.
         </p>
       </RevealGroup>
     </section>

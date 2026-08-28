@@ -219,7 +219,7 @@ npm run test:update  # Regenerate visual-regression baselines
 `tests/` holds a Playwright suite (`tests/playwright.config.ts`, specs in `tests/e2e/`) run against a production build on desktop + a Chromium iPhone-sized viewport (~140 test instances across both projects). Angles:
 - Route health (1-6), design-token/brand fidelity (7-11), visual-regression snapshots desktop + mobile (12-15, 28), interactions (16-18), a11y + no-em-dash content rules (19-20).
 - `/5-levels-ai` mobile ladder (`mobile-ladder.spec.ts`, 21-27: below `lg` the wide comparison table is swapped for a rail-threaded rung-card stack so no field is clipped on a phone; at `lg`+ the original table is preserved).
-- Site-wide mobile refinement (`mobile-audit.spec.ts`, 29-39): ≥44px tap targets, ≥16px primary copy, no eager YouTube iframe (`YouTubeEmbed` facade present + click-to-load), no-horizontal-overflow on every route.
+- Site-wide mobile refinement (`mobile-audit.spec.ts`, 29-39): ≥44px tap targets, ≥16px primary copy, a real crawlable player (`youtube-embed` testid, `src` in the markup, `loading="lazy"`, sitting in the first 15% of the page), no-horizontal-overflow on every route.
 - Hero CTA (`hero-cta.spec.ts`, 40-44): the three repo pages + two non-repo download pages render an above-the-fold primary CTA that sits before the video facade.
 - `/opus-5` (`opus-5.spec.ts`, 52-58): all five rule sections and their anchors, a sample of the sourced numbers, every source link external + `rel=noopener` (scoped by `data-testid="source-link"`), the rail's five anchors, the no-em-dash copy rule, plus mobile-only checks that the benchmark table is swapped for the 9-card stack and that the hero toy stays inside the 390px viewport with rule prose at ≥16px.
 - **The standalone-guide contract (`guide.spec.ts`, 73-80)**: every guide route carries over 900 visible words and at least four `h2`s, its guide body is visible without interaction, its FAQ schema names only questions the page really renders, its HowTo step anchors resolve to real ids, it emits breadcrumbs, the five consolidated slugs answer 308, and the hero CTA still sits above the written guide.
@@ -280,9 +280,9 @@ Route list is a single source of truth: `tests/e2e/routes.ts` (`ROUTES` / `FOOTE
 
 The two pages are cross-linked (chat header → "browse the sources"; knowledge header + footer → "ask the brain"). The chat (`/marketing-brain`) is also listed in `ResourceFooter`, so it appears in the "more free resources" grid on every resource/tool/lead-magnet page; the knowledge gallery renders the `ResourceFooter` too, linking it to the rest of the site.
 
-Resource pages follow a shared pattern: minimal header, hero (repo-backed pages carry a `RepoCta` here; the two non-repo app-download pages carry a download-variant `RepoCta`, see below), accordion setup steps (first step open by default via `defaultOpen={0}`), a `YouTubeEmbed` **facade** lower on the page, cross-linked resource footer. The 14 `claude-*` pages render this pattern through the shared **`ResourcePageShell`** (see the Code-review hardening section) — each is just a data object; only the bespoke tool pages hand-inline it. Tool pages follow the same pattern but replace the video embed with a GitHub download CTA and "how it works" overview. Lead magnet pages have their own structure: prompts with copy buttons, how-it-works overview, and client proof. Each lives in `src/app/{slug}/page.tsx` with its own `layout.tsx` for metadata. **The video is deliberately NOT the hero** even though the pattern once put it first: these are near-100% YouTube entry pages, so the visitor already watched it (see `RepoCta` above; grounded in Plausible entry-page + referrer analysis).
+Resource pages follow a shared pattern: minimal header, a **two-column hero** (left: eyebrow, h1, subhead, `RepoCta`, and a "jump to the setup steps or read the whole thing in writing" line; right: the **`YouTubeEmbed` player**, with `VideoProof` under it and `VideoChapters` below the pair), accordion setup steps (first step open by default via `defaultOpen={0}`), the written guide, troubleshooting, FAQ, cross-linked resource footer. The 14 `claude-*` pages render this pattern through the shared **`ResourcePageShell`** (see the Code-review hardening section) — each is just a data object; only the bespoke tool pages hand-inline it. Tool pages follow the same pattern but replace the video embed with a GitHub download CTA and "how it works" overview. Lead magnet pages have their own structure: prompts with copy buttons, how-it-works overview, and client proof. Each lives in `src/app/{slug}/page.tsx` with its own `layout.tsx` for metadata. **The video moved back into the fold on 2026-08-28**, having sat at the foot of the page since the mobile pass. Two reasons pointing the same way: Google will not treat a page as a watch page, and will not show a video thumbnail for it, unless the video is main content rather than a footnote; and a reader arriving from a search result has never heard of Oleg, so a player carrying a six-figure view count is the fastest honest answer to "why trust this page". **The CTA still comes before the player in the DOM on every screen** (17% versus 2-7% conversion, see `RepoCta`), which on a wide screen means the left column and on a phone means genuinely above it. `hero-cta.spec.ts` asserts document order rather than a smaller `y`, because the two are level in the two-column layout.
 
-**Mobile refinement pass (2026-07-23, branch `mobile-optimization`):** site-wide mobile-friendliness lift grounded in the Plausible traffic profile. Primary reading copy is >=16px (`text-base`) everywhere; interactive tap targets are >=44px (header hamburger `size-11`, chat send `size-11`, starter chips, copy buttons, knowledge sticky-nav chips + an always-visible "ask" CTA); section eyebrows went `text-vivid-blue/80 text-xs` -> `text-vivid-blue text-[13px]` for AA contrast; mobile section padding `py-24` -> `py-16`; the shared `Accordion` body copy is `text-silver` (was the borderline `text-silver-muted`). Every resource page's eager YouTube iframe became a `YouTubeEmbed` facade (see above). Verified by `tests/e2e/mobile-audit.spec.ts`.
+**Mobile refinement pass (2026-07-23, branch `mobile-optimization`):** site-wide mobile-friendliness lift grounded in the Plausible traffic profile. Primary reading copy is >=16px (`text-base`) everywhere; interactive tap targets are >=44px (header hamburger `size-11`, chat send `size-11`, starter chips, copy buttons, knowledge sticky-nav chips + an always-visible "ask" CTA); section eyebrows went `text-vivid-blue/80 text-xs` -> `text-vivid-blue text-[13px]` for AA contrast; mobile section padding `py-24` -> `py-16`; the shared `Accordion` body copy is `text-silver` (was the borderline `text-silver-muted`). Every resource page's eager YouTube iframe became a `YouTubeEmbed` facade (**reversed on 2026-08-28**, see the component bullet: Google does not support facades for video indexing). Verified by `tests/e2e/mobile-audit.spec.ts`.
 
 **Boldane soft CTAs (2026-07-06):** 7 resource pages carry a `BoldaneCta` card (shared component `src/components/boldane-cta.tsx`, extracted from the `/60k-linkedin-post` inline pattern) placed after the video section, before the `ResourceFooter`. Two angles, chosen by page relevance from Plausible traffic analysis: **DIY-vs-done-for-you** on the content pages (`claude-interviewer`, `claude-content`, `claude-twitter`, `claude-social-growth`) and **profile-authority** ("prospects check your LinkedIn before replying") on the outreach pages (`claude-cowork-outreach`, `claude-b2b-outreach`, `claude-outreach`). Deliberately NOT on `/claude-reels`, `/claude-tiktok`, `/ads-ai`, `/claude-seo`, `/claude-trend-scanner`, `/marketing-brain` — wrong audience intent for a done-for-you LinkedIn service; a hard plug there would read as an ad. Copy follows Boldane's rules: no em dashes, never imply ghostwriting ("what you said", not "in your voice" / "in your own words" / "sound like you"), service voice ("a real team", "done for you"). `/60k-linkedin-post` keeps its own inline version. (The homepage previously carried a `ConsultCta` for a paid ~$300 1:1 consult via calendly.com/boldane/ai-consult; removed 2026-07-09, component deleted.)
 
@@ -305,7 +305,7 @@ Resource pages follow a shared pattern: minimal header, hero (repo-backed pages 
 - `scripts/build-recommendations.mjs` — build-time generator for `src/lib/recommendations.json`. Pulls per-page popularity (unique visitors, 90d) from Plausible (`PLAUSIBLE_*` in `.env`, `site_id = oleg.ae`), reads each resource's topic from `resources-data.ts`, then asks Claude **once** (`claude-sonnet-4-6`, `ANTHROPIC_API_KEY`) to pick + rank the best 3 next pages per page, balancing relevance + popularity + quality (a small quality boost list for `marketing-brain` / `high-converting-website` / `5-levels-ai`). Output is validated (known slugs only, exactly 3, never self, popularity-backfilled). **Regenerate after adding/removing a resource page or to refresh popularity:** `node scripts/build-recommendations.mjs`.
 - `src/components/resource-footer.tsx` — Cross-linked footer rendered on every resource/tool/lead-magnet page and the Marketing Brain knowledge gallery. NOT on the homepage (removed 2026-07-09: "more free resources" read wrong there and Oleg wants the page to end on the connect section's "cheers, oleg"; the homepage has no footer/copyright line at all). It now leads with `<NextUp>` (the ranked picks) and collapses the FULL library behind a `see all free resources` `<details>` disclosure (`data-testid="see-all-resources"`), so it is no longer a flat wall of equal links but every internal link stays in the HTML for SEO/crawlers. Imports the pool from `resources-data.ts`. Takes an opt-in `boldaneCredit` prop for the "founder of Boldane" credit line — see the Boldane presence policy above for which pages get it.
 - `src/components/boldane-cta.tsx` — `BoldaneCta` (soft-CTA card, copy passed as children) + `BoldaneLink` (styled boldane.com link). Used on 7 resource pages (see "Boldane soft CTAs" above); when adding a new resource page, decide whether a Boldane plug is relevant (content-from-expertise or outreach topics: yes; virality/ads/SEO topics: no).
-- `src/components/youtube-embed.tsx` — `YouTubeEmbed` click-to-load YouTube **facade** (poster + play button; swaps in the real iframe only on tap). Used on every resource/tool page instead of an eager iframe (which pulled ~0.5-1MB of player JS on load). Poster is ytimg `hqdefault` (maxres 404s for many videos); degrades to a clean play tile if the poster 404s (private/removed video). When adding a resource page, use `<YouTubeEmbed videoId={VIDEO_ID} title="..." />`, never a raw `<iframe>`.
+- `src/components/youtube-embed.tsx` — `YouTubeEmbed` (a **real** `<iframe loading="lazy">`), plus `VideoProof` (the view count / runtime / publish date line) and `VideoChapters` (the chapters, as links into the exact second). **This was a click-to-load facade until 2026-08-28 and the swap is deliberate**: Google's video documentation says a video "must not rely on user actions (such as swiping, clicking, or typing) to load", so a facade makes the page ineligible for a video result altogether. On pages that exist *because* of a video that trade was backwards. The facade saved about 1.1 MB of third-party bytes; that is now the measured cost of a page with a player (the site's own payload is ~65 kB). Upside: it is a **server** component now, so these pages ship less of their own JavaScript than they did with the facade. When adding a resource page use `<YouTubeEmbed videoId={VIDEO_ID} title="..." />`, never a raw `<iframe>`, and never reintroduce a facade.
 - `src/components/troubleshooting.tsx` — `Troubleshooting` + the `FIXES` map: the recurring YouTube-comment failures, answered on the page. Rendered through `ResourcePageShell`'s `troubleshooting` prop (an array of `FIXES` keys), placed **right after the setup guide**, since that is where people are standing when they get stuck. Each entry is a `<details>` shut by default, following the `/claude-code-instagram` rule that a wall of caveats beside every instruction "looks monstrous for people who are non-technical". Ten entries: `claudeNotFound`, `crAlias`, `noEnvFile`, `costs`, `costsScraping`, `creditBalance`, `geminiQuota`, `skipPermissions`, `linkedinBan`, `scrapingSafety`. (`costs` was split 2026-08-12: `costs` is the generic Claude-plan answer for every page; `costsScraping` carries the Apify/Google AI Studio bills and belongs ONLY on the 10 scraper-pipeline pages, so pure-Claude pages stop describing bills they do not have.) Built from all 593 comments on the 17 Claude-era videos (230 of them questions, clustered by frequency, scraped with `yt-dlp --write-comments`), and every fact checked against primary docs on 2026-08-12. **Pick only what applies to a page** (a competitor-research page should not carry a LinkedIn ban warning). Wired on 16 pages; see each `page.tsx`.
 - `src/components/filmed-page-outro.tsx` — `FilmedPageOutro`, the end card for the six **filmed** pages (`/elon-musk-ai`, `/boris-cherny-ai`, `/sam-altman-ai`, `/andrej-karpathy-ai`, `/claude-code-sessions`, `/claude-riemann-hypothesis`). Those render none of the shared shell and had **zero internal links of any kind**, so a visitor from search hit the end of the argument with no route to the video or the site. It respects both of their constraints: **zero client JS** (the video is a thumbnail inside a plain `<a>`, not the click-to-load facade, because a fast programmatic scroll outruns any observer and blanks a band on camera) and **total style isolation** (every value inline, including the font stack, since one of those pages sets Comic Neue as a label face). `videoId`/`videoTitle` are **optional** since 2026-08-12: while a companion video is unpublished (boris, sam, karpathy today) the card renders a "more from oleg" variant with channel + free-guides links, and gains the video block when the id is added. Mounted on ALL six filmed routes, after `{children}`, outside the scoped ground div. **Ownership caveat:** on the deck routes (boris, sam, karpathy) and riemann, `layout.tsx` is GENERATED by the vault port script, so the outro mount lives in each port script's layout template; `claude-code-sessions`'s port script seeds `layout.tsx` only when missing; elon's is hand-written. When a filmed video publishes, add `videoId`/`videoTitle` in the port-script template (not the site file) and re-port.
 - `src/components/repo-cta.tsx` — `RepoCta`, the single above-the-fold primary CTA for resource pages. Default is a "get it on github" button with the GitHub icon (repo-backed pages: claude-reels, claude-tiktok, ads-ai). It also takes an optional `icon` prop (export `DOWNLOAD_ICON` for a tray-arrow) + `label`, so **non-repo pages that hand over an app** use the same component: `/claude-cowork-outreach` ("download claude cowork" -> claude.ai/download; #2 page by volume, 79% bounce) and `/claude-social-growth` ("get claude code" -> claude.ai/download; previously converted 232 visitors at 0.4% with no hero action). Rationale: resource pages are near-100% YouTube *entry* pages (Plausible: /claude-reels 96% entry, cowork-outreach 95%), so the visitor already watched the video; the fold's job is to hand them the thing they clicked through for, not re-show the demo. That is also why the video stays LOW on the page (as a facade), not hero. This reconciled the earlier `analytics-ux`/`HeroActions` experiment: `RepoCta` is the one hero-CTA component, so a page never gets two. Covered by `tests/e2e/hero-cta.spec.ts`.
@@ -316,10 +316,10 @@ Resource pages follow a shared pattern: minimal header, hero (repo-backed pages 
 
 A full-codebase review pass. Key permanent changes beyond the animation swap (Tech Stack) and test additions (Testing):
 
-- **`ResourcePageShell` (`src/components/resource-page-shell.tsx`)** — the 14 `claude-*` resource pages delegate to one server-rendered shell that encapsulates the whole shared pattern from the section above: minimal header, hero (+ optional `repoCta` above-the-fold CTA), setup `Accordion` (`defaultOpen={0}`), an optional `YouTubeEmbed` **facade**, optional `BoldaneCta`, and footer. Each `page.tsx` is reduced to its data. Props: `steps`, `title`, `subhead`, `jsonLd`; `videoId`+`videoTitle` (**omit both** on the 4 pages whose video was removed — seo/outreach/interviewer/trend-scanner — and on claude-code-instagram until its video is published, so no facade and no video schema render); `repoCta={{ href, label?, icon? }}` for repo/app pages (reels, tiktok, code-instagram → GitHub; social-growth, cowork → `claude.ai/download` with `DOWNLOAD_ICON`); and `boldaneCta` (7 pages) **or** `boldaneCredit` (never both — see Boldane presence policy). Ships no animation-runtime JS (uses the `Reveal` primitives). ads-ai / high-converting-website / 60k-linkedin-post keep bespoke layouts (they still import `YouTubeEmbed`/`RepoCta` directly and still use Framer Motion). When adding a resource page, prefer `ResourcePageShell` over hand-inlining.
+- **`ResourcePageShell` (`src/components/resource-page-shell.tsx`)** — the 14 `claude-*` resource pages delegate to one server-rendered shell that encapsulates the whole shared pattern from the section above: minimal header, hero (+ optional `repoCta` above-the-fold CTA), setup `Accordion` (`defaultOpen={0}`), the `YouTubeEmbed` player **in the hero**, optional `BoldaneCta`, and footer. Each `page.tsx` is reduced to its data. Props: `steps`, `title`, `subhead`, `jsonLd`; `videoId`+`videoTitle` (**omit both** on pages whose video was removed, so no player and no video schema render, and the hero falls back to its centered single-column shape); `repoCta={{ href, label?, icon? }}` for repo/app pages (reels, tiktok, code-instagram → GitHub; social-growth, cowork → `claude.ai/download` with `DOWNLOAD_ICON`); and `boldaneCta` (7 pages) **or** `boldaneCredit` (never both — see Boldane presence policy). Ships no animation-runtime JS (uses the `Reveal` primitives). ads-ai / high-converting-website / 60k-linkedin-post keep bespoke layouts (they still import `YouTubeEmbed`/`RepoCta` directly and still use Framer Motion). When adding a resource page, prefer `ResourcePageShell` over hand-inlining.
 - **Security (marketing-brain backend):** the paid routes (`scrape`/`upload`/`extract`) and `PUT /memory` are rate-limited (`rate-limit.ts` now has namespaced buckets + a `MEMORY_DAILY_LIMIT`, opportunistic pruning, and a non-spoofable client IP via `x-real-ip`/right-most XFF). Business context is **client-owned** (browser `localStorage`, sent as `businessContext` each request); the write routes append to the client-sent context via the pure `mergeSection` (no shared server-file bleed), and `GET /memory` returns empty on Vercel. The chat route validates/clamps the `messages` array (fixes a 500 on malformed input, bounds prompt cost) and passes `req.signal` so the Anthropic stream aborts on client disconnect. `scrape` rejects private/loopback/metadata hosts and returns generic errors; `upload` caps PDF pages + extracted chars.
 - **Assets/perf:** `hero.jpg` is the ~24 MP camera original re-exported to **2560×1706 (KEEP the 3:2 aspect — the source is 3:2; do NOT force 16:9 or the face distorts), quality 90, ~550 KB, EXIF stripped**; the `<Image>` in `hero-section.tsx` declares matching `width={2560} height={1706} quality={90}` + `sizes`. `preview.mp4` re-encoded 1.9 MB→~300 KB and lazy-loaded via `LazyVideo` (`preload=none` + poster, plays on viewport); dead Space Grotesk 300 weight dropped; `next.config.ts` adds AVIF + `Cache-Control` on static `public/` media. When re-exporting an image, always match the `<Image>` width/height to the file's real aspect ratio and verify with a screenshot.
-- **Merged with `mobile-optimization` (2026-07-23):** this branch was merged into `main` on top of the mobile-optimization pass. The combined result keeps both: the shell + CSS reveals + security hardening here, AND the mobile refinements (YouTubeEmbed facade, RepoCta hero, ≥44px tap targets, ≥16px copy, `text-[13px]` eyebrows, `py-16` mobile padding, `defaultOpen={0}`). The facade + RepoCta + video-removal now flow through `ResourcePageShell` props (above).
+- **Merged with `mobile-optimization` (2026-07-23):** this branch was merged into `main` on top of the mobile-optimization pass. The combined result keeps both: the shell + CSS reveals + security hardening here, AND the mobile refinements (YouTubeEmbed facade, RepoCta hero, ≥44px tap targets, ≥16px copy, `text-[13px]` eyebrows, `py-16` mobile padding, `defaultOpen={0}`). The player + RepoCta + video-removal now flow through `ResourcePageShell` props (above).
 
 ## YouTube sync pass (2026-08-12)
 
@@ -514,6 +514,92 @@ element specifies `font-display` or `font-body`. Fonts went 106 kB → 58 kB and
 weight 299 kB → 252 kB, with the visual snapshots unchanged. `--font-sans` now resolves to the body
 face. Budgets are enforced by `tests/e2e/perf-budget.spec.ts` (81-84): font bytes, font file count,
 route JS, total weight and FCP.
+
+
+## The readable-pages pass (2026-08-28, branch `readable-pages`)
+
+Three things Oleg asked for at once: stop writing the site in lowercase, stop
+the guides reading as a wall of text, and stop burying the video at the bottom.
+They turned out to share one root: the pages were built to be *scanned by the
+person who made them*, not read by a stranger.
+
+**Sentence case, site-wide. The lowercase style is retired.** It was a real
+legibility cost (no capital means no signal where one sentence ends) and it left
+brand names reading as common nouns, which is also how a search engine resolves
+entities: "claude code" appeared 184 times in copy. About 2,300 strings were
+rewritten across 85 files. Three things a future pass must keep straight:
+proper nouns are capitalized in prose but **never inside a URL, a shell command,
+a repo name (`tiktok-ai`, `ads-ai`, `x-ai`) or a quoted prompt fragment**; a
+`<strong>` or `<em>` mid-sentence is not a sentence start; and `.eyebrow` is
+upper-cased by CSS, so lowercase source there is correct. Guarded by
+`guide.spec.ts` test 110, which fails on any lowercase-initial heading.
+
+**The wall of text had a mechanical cause, and it is worth knowing.**
+`GuideSection` wraps its children in Tailwind's `space-y-4`. **Tailwind v4 emits
+`space-*` inside `:where()`, which has zero specificity**, so `.prose-guide p {
+margin: 0 }` in `globals.css` won every time and *every paragraph in every
+written guide had `margin-top: 0px` and `margin-bottom: 0px`*. Nothing looked
+broken; it just read as one undifferentiated block. The fix is the explicit
+`.prose-guide p + p` block in `globals.css`, which carries real specificity.
+**Check computed margins, not the class list, when spacing looks wrong in this
+codebase.**
+
+**The guides are illustrated from the videos themselves.** `public/guide/`
+holds 32 stills pulled from the nine videos and wired in with the new `Figure`
+primitive, each one deep linked to the second it came from, so a screenshot is
+evidence rather than decoration. New primitives in `src/components/guide.tsx`,
+all still server components with zero client JS: `Answer` (one sentence that
+answers the h2 outright, before any context, which is also the shape an answer
+engine lifts), `Figure`, `Stats`, `Checklist`, `Quote`. Tests 111 and 112 hold
+the floor: at least two non-prose blocks per guide, and every video figure links
+to a real `?t=` with `rel=noopener`.
+
+**How to pull more frames** (`scripts/` has no helper for this on purpose, it is
+a one-off): the globally installed `yt-dlp` (2026.03.03) still 403s on downloads,
+so run a current one from a throwaway venv. Download the video once at 1080p
+rather than using `--download-sections`, whose ranges start at the nearest
+keyframe and drift by up to 20 seconds. Scout with a contact sheet
+(`fps=1/20,drawtext,tile`), then extract exact frames with a fast seek to `t-6`
+followed by an accurate `-ss 6`. **The contact-sheet labels run ~20s behind the
+true timestamp; verify before trusting them.**
+
+**The privacy rule now has a second half.** The existing rule was never to
+publish a frame containing a real lead list. Reviewing these videos found the
+same problem in a different shape: the Cowork and B2B videos are full of
+identifiable third parties' LinkedIn profiles, and the content video names a
+client. **Do not publish a frame showing an identifiable person's profile,
+inbox or contact details**, even though the video itself is public. Product UI,
+dashboards, config screens, charts, Oleg's own accounts and public creator
+metrics are all fine, and are where every published frame came from.
+
+**Video metadata is generated, not typed.** `src/lib/videos.ts` (from
+`node scripts/build-video-meta.mjs`, which uses `yt-dlp`) holds each video's
+real title, view count, duration, upload date and chapters. It feeds both the
+`VideoProof` line a reader sees and the `VideoObject` a crawler reads.
+`videoObject()` in `src/lib/seo/schema.ts` now emits `uploadDate` (**the
+video's, not the page's, which is what it used to send**), `duration`,
+`interactionStatistic` and, from the chapters Oleg already writes into every
+description, `hasPart` Clips plus a `SeekToAction`, which is what makes a result
+eligible for Google's key-moments treatment. Re-run the script when a video is
+added or the counts have drifted.
+
+**One dual-intent decision, made deliberately.** Oleg asked whether each topic
+should have separate YouTube-visitor and Google-visitor versions. It should not:
+two URLs for one topic splits link equity and reads as duplicate content, and a
+referrer-based client-side swap shows Google only the default while costing a
+layout shift. The difference between the two intents is **order**, not content,
+and one page can serve both: the answer and the button first, the player beside
+them for proof, one line offering "jump to the setup steps or read the whole
+thing in writing", and chapters that let a returning viewer re-find their spot.
+If the two audiences ever need measuring apart, add `?from=yt` to the YouTube
+description links and read it in Plausible; do not fork the page.
+
+**Accessibility scope changed for a reason.** `a11y-content.spec.ts` and
+`mobile-ladder.spec.ts` now `.exclude("iframe")`. With a real player in the
+fold, axe descends into YouTube's own markup and reports a genuine violation
+there (`<a class="ytmVideoInfoVideoTitle" aria-level="2">`) that nobody here can
+fix.
+
 
 ## Notes
 

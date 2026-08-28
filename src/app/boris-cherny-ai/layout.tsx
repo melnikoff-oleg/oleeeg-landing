@@ -40,8 +40,8 @@ export const metadata: Metadata = {
   description: SHORT,
   keywords: [
     "Boris Cherny",
-    "creator of Claude Code",
-    "how to use Claude Code",
+    "Creator of Claude Code",
+    "How to use Claude Code",
     "Claude Code tips",
     "Claude Code workflow",
     "CLAUDE.md",

@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "Suggest the next video, vote on the rest", eyebrow: "your call" });
+  return ogImage({ title: "Suggest the next video, vote on the rest", eyebrow: "Your call" });
 }

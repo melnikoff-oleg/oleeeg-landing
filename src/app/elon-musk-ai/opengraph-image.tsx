@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "Seven things Elon Musk actually does with AI", eyebrow: "the evidence" });
+  return ogImage({ title: "Seven things Elon Musk actually does with AI", eyebrow: "The evidence" });
 }

@@ -171,7 +171,12 @@ test("27 - ladder: table preserved on desktop, no critical a11y", async ({ page 
   await expect(page.locator("table")).toBeVisible();
   await expect(page.getByTestId("ladder-cards")).toBeHidden();
 
-  const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+  // .exclude("iframe"): the embedded YouTube player carries violations in
+  // YouTube's own markup. See a11y-content.spec.ts.
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa"])
+    .exclude("iframe")
+    .analyze();
   const critical = results.violations.filter((v) => v.impact === "critical");
   expect(critical, JSON.stringify(critical.map((v) => v.id))).toEqual([]);
 

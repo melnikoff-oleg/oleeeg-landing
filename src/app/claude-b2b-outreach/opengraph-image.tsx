@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "B2B outreach with Claude Code, 35% reply rate", eyebrow: "b2b sales" });
+  return ogImage({ title: "B2B outreach with Claude Code, 35% reply rate", eyebrow: "B2B sales" });
 }

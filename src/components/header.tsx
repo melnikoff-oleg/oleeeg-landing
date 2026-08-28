@@ -5,10 +5,10 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { name: "about", href: "#about" },
-  { name: "results", href: "#results" },
-  { name: "watch", href: "#watch" },
-  { name: "connect", href: "#connect" },
+  { name: "About", href: "#about" },
+  { name: "Results", href: "#results" },
+  { name: "Watch", href: "#watch" },
+  { name: "Connect", href: "#connect" },
 ];
 
 export function Header() {
@@ -41,7 +41,7 @@ export function Header() {
             href="/"
             className="brand-wordmark font-display text-lg tracking-tight"
           >
-            oleg melnikov
+            Oleg Melnikov
           </Link>
 
           {/* Desktop nav */}

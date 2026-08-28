@@ -112,7 +112,7 @@ export const SourceCard = forwardRef<
             key={active.seconds}
             src={`https://www.youtube.com/embed/${source.videoId}?start=${active.seconds}&autoplay=1`}
             title={source.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="Accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="absolute inset-0 h-full w-full"
           />

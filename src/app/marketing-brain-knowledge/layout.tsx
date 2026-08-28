@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   description:
     "The whole corpus behind the Marketing Brain, grouped by expert: every book and talk from Hormozi, Brunson, Cialdini, Godin and more.",
   keywords: [
-    "marketing knowledge base",
-    "best marketing books",
+    "Marketing knowledge base",
+    "Best marketing books",
     "Alex Hormozi",
     "Russell Brunson",
     "Robert Cialdini",

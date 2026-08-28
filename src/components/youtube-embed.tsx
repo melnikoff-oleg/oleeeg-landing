@@ -1,17 +1,22 @@
-"use client";
-
-import { useState } from "react";
+import { clock, compactViews, videoMeta, watchUrl } from "@/lib/videos";
 
 /**
- * Lightweight YouTube facade. Renders a poster + play button (a few KB) and only
- * swaps in the real ~0.5-1MB player iframe once the user actually taps play.
- * On phones arriving over mobile data this cuts first-load weight sharply on the
- * top-traffic resource pages, with no layout shift (fixed 16:9 box).
+ * A real YouTube player.
  *
- * Drop-in replacement for the old inline block:
- *   <div className="glow-blue overflow-hidden rounded-2xl border border-hairline">
- *     <div style={{ paddingBottom: "56.25%" }}><iframe .../></div>
- *   </div>
+ * This used to be a click-to-load facade: a poster plus a play button that
+ * swapped in the iframe on tap, which saved about half a megabyte on load.
+ * Google's video documentation rules that out in one line: a video "must not
+ * rely on user actions (such as swiping, clicking, or typing) to load", and a
+ * page whose video cannot be loaded is not eligible for a video result at all.
+ * The facade was buying page weight at the cost of the entire feature, on the
+ * pages whose whole reason to exist is a video.
+ *
+ * So the iframe is real and its `src` is in the HTML. `loading="lazy"` keeps it
+ * off the critical path without hiding it from a crawler: the browser fetches
+ * it on approach, no interaction required.
+ *
+ * A bonus of the swap: this is now a server component, so the resource pages
+ * ship less JavaScript than they did with the facade, not more.
  */
 export function YouTubeEmbed({
   videoId,
@@ -22,56 +27,93 @@ export function YouTubeEmbed({
   title: string;
   className?: string;
 }) {
-  const [playing, setPlaying] = useState(false);
-  const [posterOk, setPosterOk] = useState(true);
-
   return (
     <div
       className={`glow-blue overflow-hidden rounded-2xl border border-hairline ${className ?? ""}`}
     >
       <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-        {playing ? (
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-            title={title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="absolute inset-0 h-full w-full"
-          />
-        ) : (
-          <button
-            type="button"
-            data-testid="youtube-facade"
-            onClick={() => setPlaying(true)}
-            aria-label={`Play video: ${title}`}
-            className="group absolute inset-0 h-full w-full cursor-pointer bg-navy-raised"
-          >
-            {/* Poster. hqdefault exists for every public video; if it 404s (a
-                private/removed video), we drop it and keep the clean play tile
-                rather than showing a broken image. */}
-            {posterOk && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
-                alt=""
-                loading="lazy"
-                onError={() => setPosterOk(false)}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              />
-            )}
-            {/* Scrim for contrast on the play button */}
-            <span className="absolute inset-0 bg-navy/25 transition-colors duration-300 group-hover:bg-navy/40" />
-            {/* Play button */}
-            <span className="absolute inset-0 flex items-center justify-center">
-              <span className="flex size-16 items-center justify-center rounded-full border border-silver/25 bg-navy/60 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:bg-vivid-blue md:size-20">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="ml-1 size-7 text-white md:size-9">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </span>
-            </span>
-          </button>
-        )}
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}`}
+          title={title}
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+          data-testid="youtube-embed"
+          className="absolute inset-0 h-full w-full"
+        />
       </div>
     </div>
+  );
+}
+
+/**
+ * The credibility line under the player.
+ *
+ * Someone arriving from a search result has no idea who wrote this. The single
+ * most useful thing the page can tell them in one glance is that the video it
+ * is built from has been watched a hundred thousand times. The numbers are real
+ * and dated (src/lib/videos.ts), never rounded up.
+ */
+export function VideoProof({ videoId }: { videoId: string }) {
+  const meta = videoMeta(videoId);
+  if (!meta) return null;
+  const posted = new Date(`${meta.uploadDate}T00:00:00Z`).toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  return (
+    <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 font-body text-sm text-silver-muted">
+      <a
+        href={watchUrl(videoId)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 text-silver transition-colors hover:text-white"
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="size-4 text-[#ff0000]">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+        </svg>
+        <strong className="font-medium">{compactViews(meta.views)} views</strong>
+      </a>
+      <span aria-hidden>&middot;</span>
+      <span>{clock(meta.seconds)} long</span>
+      <span aria-hidden>&middot;</span>
+      <span>Published {posted}</span>
+    </p>
+  );
+}
+
+/**
+ * The chapters, as links into the exact second on YouTube.
+ *
+ * Oleg already writes these into every description, so they cost nothing to
+ * surface, and they do three jobs at once: they tell a reader from Google what
+ * the video actually covers before committing sixteen minutes; they let a
+ * reader from YouTube jump back to the part they came looking for; and they are
+ * the visible half of the `hasPart` Clip data that makes a result eligible for
+ * Google's key-moments treatment.
+ */
+export function VideoChapters({ videoId }: { videoId: string }) {
+  const meta = videoMeta(videoId);
+  if (!meta || meta.chapters.length < 2) return null;
+  return (
+    <nav aria-label="Video chapters" className="mt-4">
+      <ul className="flex flex-wrap gap-2">
+        {meta.chapters.map((c) => (
+          <li key={c.start}>
+            <a
+              href={watchUrl(videoId, c.start)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-hairline px-3.5 py-2 font-body text-sm text-silver-muted transition-colors hover:border-vivid-blue/50 hover:text-white"
+            >
+              <span className="font-mono text-xs text-vivid-blue">{clock(c.start)}</span>
+              {c.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

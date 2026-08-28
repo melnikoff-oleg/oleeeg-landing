@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Claude Cowork",
     "Claude AI",
     "AI LinkedIn automation",
-    "cold outreach AI",
+    "Cold outreach AI",
     "B2B sales AI",
     "Claude Code tutorial",
     "AI sales automation",

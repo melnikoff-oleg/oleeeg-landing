@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Claude Agent SDK",
     "AI for founders",
     "AI orchestration",
-    "levels of AI",
+    "Levels of AI",
     "AI automation",
     "Boldane",
   ],

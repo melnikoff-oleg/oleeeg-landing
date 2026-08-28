@@ -13,11 +13,11 @@ import { VoxelClawd } from "./voxel-clawd";
 // hero VoxelClawd toy, so the page ships no animation-runtime JS.
 
 const RAIL: readonly RailItem[] = [
-  { id: "r1", num: "01", label: "effort" },
-  { id: "r2", num: "02", label: "prompt" },
-  { id: "r3", num: "03", label: "fable 5" },
-  { id: "r4", num: "04", label: "which model" },
-  { id: "r5", num: "05", label: "security" },
+  { id: "r1", num: "01", label: "Effort" },
+  { id: "r2", num: "02", label: "Prompt" },
+  { id: "r3", num: "03", label: "Fable 5" },
+  { id: "r4", num: "04", label: "Which model" },
+  { id: "r5", num: "05", label: "Security" },
 ];
 
 /* ---------------------------------------------------------------- primitives */
@@ -61,7 +61,7 @@ function FigureTitle({ children }: { children: ReactNode }) {
 function Notes({ children }: { children: ReactNode }) {
   return (
     <div className="mt-10 flex flex-col gap-3 border-t border-dashed border-hairline pt-5">
-      <p className="eyebrow font-body text-[13px] text-silver-muted">notes</p>
+      <p className="eyebrow font-body text-[13px] text-silver-muted">Notes</p>
       {children}
     </div>
   );
@@ -274,13 +274,13 @@ function BenchmarkBoard() {
           <thead>
             <tr>
               <th className="eyebrow border-b border-hairline px-3 py-3 font-body text-[13px] font-semibold text-silver-muted">
-                benchmark
+                Benchmark
               </th>
               <th className="eyebrow border-b border-hairline px-3 py-3 font-body text-[13px] font-semibold text-silver-muted">
-                opus 5 <span className="tabular-nums">{OPUS_PRICE}</span>
+                Opus 5 <span className="tabular-nums">{OPUS_PRICE}</span>
               </th>
               <th className="eyebrow border-b border-hairline px-3 py-3 font-body text-[13px] font-semibold text-silver-muted">
-                fable 5 <span className="tabular-nums">{FABLE_PRICE}</span>
+                Fable 5 <span className="tabular-nums">{FABLE_PRICE}</span>
               </th>
             </tr>
           </thead>
@@ -325,7 +325,7 @@ function BenchmarkBoard() {
             <div className="mt-2.5 grid grid-cols-2 gap-3">
               <div className="min-w-0">
                 <p className="eyebrow font-body text-[13px] text-silver-muted">
-                  opus 5
+                  Opus 5
                 </p>
                 <p
                   className={`mt-1 font-body text-lg font-bold tabular-nums ${
@@ -337,7 +337,7 @@ function BenchmarkBoard() {
               </div>
               <div className="min-w-0">
                 <p className="eyebrow font-body text-[13px] text-silver-muted">
-                  fable 5
+                  Fable 5
                 </p>
                 <p
                   className={`mt-1 font-body text-lg font-bold tabular-nums ${
@@ -352,7 +352,7 @@ function BenchmarkBoard() {
         ))}
       </ul>
       <p className="font-body text-base text-silver-muted md:hidden">
-        price per million tokens, input then output. opus 5 {OPUS_PRICE}, fable 5{" "}
+        Price per million tokens, input then output. Opus 5 {OPUS_PRICE}, fable 5{" "}
         {FABLE_PRICE}.
       </p>
     </>
@@ -379,7 +379,7 @@ export default function Opus5Page() {
             href="/"
             className="brand-wordmark font-display text-lg tracking-tight"
           >
-            oleg melnikov
+            Oleg Melnikov
           </Link>
           <Link
             href="https://www.youtube.com/@Oleg-Melnikov"
@@ -395,7 +395,7 @@ export default function Opus5Page() {
             >
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
             </svg>
-            youtube
+            YouTube
           </Link>
         </div>
       </header>
@@ -409,7 +409,7 @@ export default function Opus5Page() {
             <div className="order-2 md:order-1">
               <RevealGroup immediate stagger={0.12}>
                 <p className="eyebrow font-body text-[13px] text-vivid-blue">
-                  claude opus 5 &middot; released 24 july 2026
+                  Claude Opus 5 &middot; released 24 july 2026
                 </p>
                 <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl">
                   Opus 5, no hype.
@@ -489,11 +489,11 @@ export default function Opus5Page() {
               links={[
                 {
                   href: "https://www.anthropic.com/news/claude-opus-5",
-                  label: "announcement",
+                  label: "Announcement",
                 },
                 {
                   href: "https://platform.claude.com/docs/en/build-with-claude/effort",
-                  label: "effort docs",
+                  label: "Effort docs",
                 },
               ]}
             />
@@ -521,7 +521,7 @@ export default function Opus5Page() {
           <Reveal as="figure" className="mt-10 grid gap-4 md:mt-12 md:grid-cols-2">
             <div className="flex flex-col gap-3.5 rounded-xl border-2 border-amber-500/50 bg-amber-500/5 p-5 sm:p-6">
               <p className="eyebrow font-body text-[13px] text-silver-muted">
-                old way
+                Old way
               </p>
               <p className="font-display text-lg font-bold tracking-tight text-amber-400">
                 Written for Opus 4.8
@@ -548,7 +548,7 @@ export default function Opus5Page() {
 
             <div className="flex flex-col gap-3.5 rounded-xl border-2 border-vivid-blue/60 bg-vivid-blue/10 p-5 sm:p-6">
               <p className="eyebrow font-body text-[13px] text-silver-muted">
-                new way
+                New way
               </p>
               <p className="font-display text-lg font-bold tracking-tight text-vivid-blue">
                 Written for Opus 5
@@ -575,8 +575,7 @@ export default function Opus5Page() {
 
           <Notes>
             <Note label="Anthropic's own wording.">
-              Verification instructions &quot;cause over-verification on Claude
-              Opus 5, and removing them reduces wasted tokens with no loss in
+              Verification instructions &quot;cause over-verification on Claude Opus 5, and removing them reduces wasted tokens with no loss in
               quality.&quot; Every line in the blue card is lifted straight from
               their prompting guide.
             </Note>
@@ -589,11 +588,11 @@ export default function Opus5Page() {
               links={[
                 {
                   href: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5",
-                  label: "prompting guide",
+                  label: "Prompting guide",
                 },
                 {
                   href: "https://platform.claude.com/docs/en/about-claude/models/migration-guide",
-                  label: "migration guide",
+                  label: "Migration guide",
                 },
               ]}
             />
@@ -640,11 +639,11 @@ export default function Opus5Page() {
               links={[
                 {
                   href: "https://www.anthropic.com/news/claude-opus-5",
-                  label: "benchmark table",
+                  label: "Benchmark table",
                 },
                 {
                   href: "https://platform.claude.com/docs/en/about-claude/pricing",
-                  label: "pricing",
+                  label: "Pricing",
                 },
               ]}
             />
@@ -749,11 +748,11 @@ export default function Opus5Page() {
               links={[
                 {
                   href: "https://platform.claude.com/docs/en/about-claude/pricing",
-                  label: "pricing",
+                  label: "Pricing",
                 },
                 {
                   href: "https://www.anthropic.com/news/claude-opus-5",
-                  label: "benchmarks",
+                  label: "Benchmarks",
                 },
               ]}
             />
@@ -828,15 +827,15 @@ export default function Opus5Page() {
               links={[
                 {
                   href: "https://www.anthropic.com/news/claude-opus-5",
-                  label: "oss-fuzz chart",
+                  label: "Oss-fuzz chart",
                 },
                 {
                   href: "https://support.claude.com/en/articles/14604842-real-time-cyber-safeguards-on-claude-opus-and-sonnet",
-                  label: "cyber verification program",
+                  label: "Cyber verification program",
                 },
                 {
                   href: "https://www.anthropic.com/claude-opus-5-system-card",
-                  label: "system card",
+                  label: "System card",
                 },
               ]}
             />
@@ -848,7 +847,7 @@ export default function Opus5Page() {
           <div className="mx-auto max-w-3xl px-6">
             <Reveal>
               <p className="eyebrow font-body text-[13px] text-vivid-blue">
-                the bottom line
+                The bottom line
               </p>
               <h2 className="mt-5 max-w-[22ch] font-display text-2xl font-semibold leading-[1.08] tracking-tight text-white sm:text-3xl md:text-4xl">
                 57 days. Same price. Double the score.
@@ -906,11 +905,11 @@ export default function Opus5Page() {
                 links={[
                   {
                     href: "https://www.anthropic.com/news/claude-opus-4-8",
-                    label: "opus 4.8 announcement",
+                    label: "Opus 4.8 announcement",
                   },
                   {
                     href: "https://www.anthropic.com/news/claude-opus-5",
-                    label: "opus 5 announcement",
+                    label: "Opus 5 announcement",
                   },
                 ]}
               />

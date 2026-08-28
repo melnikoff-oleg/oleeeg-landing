@@ -11,9 +11,9 @@ export const metadata: Metadata = {
     "Claude Code Obsidian",
     "Obsidian second brain",
     "Claude Code tutorial",
-    "second brain setup",
-    "how to build a second brain",
-    "personal knowledge management",
+    "Second brain setup",
+    "How to build a second brain",
+    "Personal knowledge management",
     "Claude Code for beginners",
   ],
   openGraph: {

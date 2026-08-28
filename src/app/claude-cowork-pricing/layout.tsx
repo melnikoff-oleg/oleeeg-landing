@@ -6,11 +6,11 @@ export const metadata: Metadata = {
     "No. Pro is $20 a month and includes Claude Code too. Every tier compared, when Max is worth it, and the real monthly bill for running outreach through it.",
   keywords: [
     "Claude Cowork pricing",
-    "is Claude Cowork free",
+    "Is Claude Cowork free",
     "Claude Cowork cost",
     "Claude Cowork price",
-    "how much is Claude Cowork",
-    "how much does Claude Cowork cost",
+    "How much is Claude Cowork",
+    "How much does Claude Cowork cost",
     "Claude Cowork plans",
   ],
   openGraph: {

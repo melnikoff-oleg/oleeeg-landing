@@ -36,7 +36,7 @@ export function AdminLogin() {
       className="surface-card mx-auto mt-20 max-w-sm p-6"
     >
       <label htmlFor="admin-secret" className="font-body text-base text-silver">
-        admin
+        Admin
       </label>
       <input
         id="admin-secret"
@@ -101,8 +101,8 @@ function IdeaRow({ idea }: { idea: Idea }) {
           <input
             value={videoUrl}
             onChange={(e) => setVideoUrl(e.target.value)}
-            placeholder="youtube url"
-            aria-label="video url"
+            placeholder="YouTube URL"
+            aria-label="Video URL"
             className={`${inputClass} sm:flex-1`}
           />
         ) : null}
@@ -150,7 +150,7 @@ export function AdminPanel({ ideas, events }: { ideas: Idea[]; events: IdeaEvent
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="font-display text-2xl text-silver">ideas admin</h1>
+      <h1 className="font-display text-2xl text-silver">Ideas admin</h1>
 
       <form
         onSubmit={async (e) => {
@@ -163,7 +163,7 @@ export function AdminPanel({ ideas, events }: { ideas: Idea[]; events: IdeaEvent
         }}
         className="surface-card mt-6 p-4"
       >
-        <p className="font-body text-base text-silver">add one of your own titles</p>
+        <p className="font-body text-base text-silver">Add one of your own titles</p>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -173,7 +173,7 @@ export function AdminPanel({ ideas, events }: { ideas: Idea[]; events: IdeaEvent
         <input
           value={detail}
           onChange={(e) => setDetail(e.target.value)}
-          placeholder="detail (optional)"
+          placeholder="Detail (optional)"
           className={`${inputClass} mt-2`}
         />
         <Button type="submit" className="mt-3 w-full sm:w-auto">
@@ -190,7 +190,7 @@ export function AdminPanel({ ideas, events }: { ideas: Idea[]; events: IdeaEvent
         ))}
       </ul>
 
-      <h2 className="mt-10 font-body text-base text-silver-muted">recent activity</h2>
+      <h2 className="mt-10 font-body text-base text-silver-muted">Recent activity</h2>
       <ul className="mt-4 flex flex-col gap-2">
         {events.map((e) => (
           <li

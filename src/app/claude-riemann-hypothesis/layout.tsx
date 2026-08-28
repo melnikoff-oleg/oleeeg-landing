@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     "Anthropic",
     "AI mathematics",
     "Riemann zeta function",
-    "prime numbers explained",
+    "Prime numbers explained",
     "AI discovery",
     "Claude Code",
   ],

@@ -7,7 +7,7 @@ import { AdminLogin, AdminPanel } from "./admin-client";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "ideas admin",
+  title: "Ideas admin",
   robots: { index: false, follow: false },
 };
 

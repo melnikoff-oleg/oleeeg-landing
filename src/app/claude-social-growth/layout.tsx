@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Claude AI",
     "AI social media growth",
     "AI content strategy",
-    "competitor content analysis",
+    "Competitor content analysis",
     "Claude Code tutorial",
     "YouTube growth AI",
     "AI social media marketing",

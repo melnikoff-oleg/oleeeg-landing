@@ -17,7 +17,7 @@ export function GuideFaq({ entries }: { entries: FaqEntry[] }) {
           id="faq"
           className="scroll-mt-24 font-display text-2xl font-medium tracking-tight text-silver md:text-3xl"
         >
-          questions people ask
+          Questions people ask
         </h2>
         <dl className="mt-8 space-y-8">
           {entries.map((e) => (

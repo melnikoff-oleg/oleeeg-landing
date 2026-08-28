@@ -11,9 +11,9 @@ export const metadata: Metadata = {
     "AI advertising tool",
     "Claude Code",
     "AI marketing tool",
-    "competitor ad analysis",
+    "Competitor ad analysis",
     "AI ad copy",
-    "open source AI tool",
+    "Open source AI tool",
     "Claude Code for marketing",
   ],
   openGraph: {

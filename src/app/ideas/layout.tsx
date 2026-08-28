@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "AI for marketing",
     "AI video requests",
     "Oleg Melnikov",
-    "vote on video ideas",
+    "Vote on video ideas",
   ],
   openGraph: {
     title: "Video Ideas: Vote On What I Build Next",

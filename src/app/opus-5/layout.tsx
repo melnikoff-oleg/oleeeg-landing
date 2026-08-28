@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "Fable 5",
     "Claude model pricing",
     "Anthropic benchmarks",
-    "which Claude model to use",
+    "Which Claude model to use",
     "AI systems for marketing",
     "Boldane",
   ],

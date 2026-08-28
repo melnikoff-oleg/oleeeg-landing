@@ -40,10 +40,10 @@ export const metadata: Metadata = {
   description: SHORT,
   keywords: [
     "Sam Altman",
-    "how Sam Altman uses AI",
+    "How Sam Altman uses AI",
     "Sam Altman ChatGPT",
     "ChatGPT tips",
-    "how to use ChatGPT",
+    "How to use ChatGPT",
     "Sam Altman advice",
     "Codex",
     "AI agents",

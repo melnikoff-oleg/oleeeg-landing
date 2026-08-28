@@ -81,7 +81,7 @@ export function VoxelClawd() {
       for (const [transform, fw, fh, offset] of spec) {
         const face = document.createElement("div");
         face.style.cssText =
-          "position:absolute;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)";
+          "Position:absolute;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)";
         face.style.width = `${fw}px`;
         face.style.height = `${fh}px`;
         face.style.left = `${w / 2}px`;
@@ -103,7 +103,7 @@ export function VoxelClawd() {
       vox.style.transform = `translate3d(${ex - 13}px,${ey - 13}px,40px)`;
       const ball = document.createElement("div");
       ball.style.cssText =
-        "position:absolute;width:26px;height:26px;border-radius:50%;background:#140f0b;box-shadow:0 0 0 3px rgba(255,255,255,.85)";
+        "Position:absolute;width:26px;height:26px;border-radius:50%;background:#140f0b;box-shadow:0 0 0 3px rgba(255,255,255,.85)";
       const glint = document.createElement("div");
       glint.style.cssText =
         "position:absolute;left:6px;top:4px;width:8px;height:8px;border-radius:50%;background:#fff;opacity:.9";
@@ -279,8 +279,8 @@ export function VoxelClawd() {
         className="grid aspect-square w-full max-w-[260px] cursor-grab touch-pan-y place-items-center [perspective:900px] active:cursor-grabbing sm:max-w-[300px]"
       />
       <p className="eyebrow font-body text-[13px] text-silver-muted">
-        drag to spin &middot;{" "}
-        <span className="text-amber-400">built by opus 5</span>
+        Drag to spin &middot;{" "}
+        <span className="text-amber-400">Built by Opus 5</span>
       </p>
     </div>
   );

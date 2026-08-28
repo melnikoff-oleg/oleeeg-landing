@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     `${name} makes ${creator.niche || "Instagram reels"}`,
     `for ${compactNumber(creator.followers)} followers.`,
     `${creator.reels_pulled ?? creator.reels_indexed} of their reels are in the database,`,
-    `the best one beating their own audience by ${formatScore(creator.top_score)}x.`,
+    `The best one beating their own audience by ${formatScore(creator.top_score)}x.`,
   ].join(" ");
 
   return {
@@ -81,7 +81,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
  * typical, and the three 1-10 reads -- in one grid at one size, so nothing on
  * the card said which number to look at first. Two of the seven are gone by
  * Oleg's instruction (the outlier scores: on one creator's page the audience is
- * a constant, so "beat their own audience by 394x" is a fact about one old reel
+ * a constant, so "Beat their own audience by 394x" is a fact about one old reel
  * and not about the person) and the five that remain are now two ranks.
  *
  * These are the big rank. Number above, label below, at a size that reads from
@@ -176,8 +176,8 @@ function SortTabs({
   sort: CreatorSort;
 }) {
   const tabs: { key: CreatorSort; label: string }[] = [
-    { key: "new", label: "newest first" },
-    { key: "views", label: "most viewed" },
+    { key: "new", label: "Newest first" },
+    { key: "views", label: "Most viewed" },
   ];
   return (
     <div className="flex shrink-0 gap-1 rounded-full border border-hairline p-1">
@@ -275,7 +275,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
     reels = reelPage.rows;
     total = reelPage.total;
   } catch (err) {
-    console.error("creator page failed", err);
+    console.error("Creator page failed", err);
     failed = true;
   }
 
@@ -300,7 +300,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
 
       {failed && (
         <p className="rounded-2xl border border-hairline px-5 py-4 text-sm text-silver-muted">
-          the database did not answer. reload in a moment.
+          The database did not answer. Reload in a moment.
         </p>
       )}
 
@@ -382,7 +382,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
                 <Headline
                   icon={Film}
                   value={`${total}`}
-                  label="reels scraped"
+                  label="Reels scraped"
                   tone="blue"
                 />
               </div>
@@ -424,7 +424,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
             {creator.study_note ? (
               <p className="mt-4 border-t border-hairline pt-4 text-sm leading-relaxed text-silver">
                 <span className="eyebrow mr-2 text-[10px] text-vivid-blue">
-                  worth studying for
+                  Worth studying for
                 </span>
                 {creator.study_note}
               </p>
@@ -433,7 +433,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
             {signature.length > 0 && (
               <p className="mt-4 border-t border-hairline pt-4 text-sm leading-relaxed text-silver-muted">
                 <span className="eyebrow mr-2 text-[10px] text-vivid-blue">
-                  how they make them
+                  How they make them
                 </span>
                 {signature.slice(0, 8).join(", ")}
               </p>
@@ -449,7 +449,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
 
           {reels.length === 0 ? (
             <p className="rounded-2xl border border-hairline px-5 py-4 text-sm text-silver-muted">
-              nothing on this page. go back to page one.
+              Nothing on this page. Go back to page one.
             </p>
           ) : (
             // Instagram's own profile grid: four to a row on a desktop, three on
@@ -465,7 +465,7 @@ export default async function CreatorPage({ params, searchParams }: Params & Sea
 
           {pages > 1 && (
             <nav
-              aria-label="reel pages"
+              aria-label="Reel pages"
               className="mt-6 flex items-center justify-between gap-3"
             >
               <PageLink href={reelsHref(creator.account, page - 1, sort)} disabled={page <= 1}>

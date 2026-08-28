@@ -144,3 +144,68 @@ test("80 - the hero CTA still comes before the guide", async ({ page }) => {
     );
   }
 });
+
+// Test 110: sentence case, everywhere a reader reads.
+//
+// The site was written entirely in lowercase as a style choice. It costs real
+// legibility: without a capital there is no signal where one sentence ends and
+// the next begins, which is exactly the complaint the guides drew, and it
+// leaves brand names ("claude code", "youtube") reading as common nouns, which
+// is also how a search engine resolves entities. Headings are the visible half
+// of that rule and the cheapest thing to guard.
+test("110 - headings are sentence case, not lowercase", async ({ page }) => {
+  test.skip(test.info().project.name !== "desktop", "content check, not layout");
+  const offenders: string[] = [];
+  for (const route of GUIDE_ROUTES) {
+    await page.goto(route, { waitUntil: "domcontentloaded" });
+    const headings = await page.locator("main h1, main h2, main h3").allInnerTexts();
+    for (const h of headings) {
+      const t = h.trim();
+      if (!t) continue;
+      // Skip anything CSS has upper-cased for us, and anything that opens with
+      // a number, a quote or a command (`npm run dev` is not a sentence).
+      if (t === t.toUpperCase()) continue;
+      if (!/^[a-zA-Z]/.test(t)) continue;
+      if (/^[a-z]/.test(t)) offenders.push(`${route}: "${t.slice(0, 60)}"`);
+    }
+  }
+  expect(offenders, `lowercase headings:\n${offenders.join("\n")}`).toEqual([]);
+});
+
+// Test 111: the guides are illustrated, not a wall of prose.
+//
+// Every one of these pages is the write-up of a video in which something is on
+// screen the whole time. A guide with no figure, no stat row and no table threw
+// that half away and asked the reader to picture it. This is a floor of two
+// non-prose blocks per guide, which is low enough that a genuinely text-only
+// page can still pass with a facts table and a callout.
+test("111 - every guide breaks its prose up with something to look at", async ({ page }) => {
+  test.skip(test.info().project.name !== "desktop", "content check, not layout");
+  for (const route of GUIDE_ROUTES) {
+    await page.goto(route, { waitUntil: "domcontentloaded" });
+    const guide = page.locator("article.prose-guide");
+    const blocks =
+      (await guide.locator("figure").count()) +
+      (await guide.locator("dl").count()) +
+      (await guide.locator("table").count());
+    expect(blocks, `${route} non-prose blocks`).toBeGreaterThanOrEqual(2);
+  }
+});
+
+// Test 112: a figure taken from the video links back into the video, at the
+// second it came from. That is what makes a screenshot evidence rather than
+// decoration, and it is the only internal route from the written page back to
+// the thing it was written from.
+test("112 - video figures deep link to their own timestamp", async ({ page }) => {
+  test.skip(test.info().project.name !== "desktop", "content check, not layout");
+  for (const route of GUIDE_ROUTES) {
+    await page.goto(route, { waitUntil: "domcontentloaded" });
+    const links = page.locator('article.prose-guide figure a[href*="youtube.com/watch"]');
+    const n = await links.count();
+    for (let i = 0; i < n; i++) {
+      const href = await links.nth(i).getAttribute("href");
+      expect(href, `${route} figure link`).toMatch(/[?&]t=\d+s/);
+      expect(await links.nth(i).getAttribute("rel"), `${route} figure rel`).toContain("noopener");
+    }
+  }
+});

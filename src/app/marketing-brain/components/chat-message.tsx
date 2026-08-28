@@ -143,7 +143,7 @@ export function ChatMessage({
     <div className="space-y-5">
       {showSearching && (
         <p className="flex items-center gap-1.5 font-body text-sm text-silver-muted">
-          searching the brain
+          Searching the brain
           {dots}
         </p>
       )}
@@ -154,7 +154,7 @@ export function ChatMessage({
             variants={reveal}
             className="eyebrow text-[13px] text-vivid-blue"
           >
-            foundational sources
+            Foundational sources
           </motion.p>
           <div className="grid gap-3 sm:grid-cols-2">
             {grouped.map((g, i) => (
@@ -178,7 +178,7 @@ export function ChatMessage({
           animate={{ opacity: 1 }}
           className="flex items-center gap-1.5 font-body text-sm text-silver-muted"
         >
-          thinking it through
+          Thinking it through
           {dots}
         </motion.p>
       ) : (
@@ -218,7 +218,7 @@ export function ChatMessage({
       {/* Cut off because the answer got long: offer to continue it. */}
       {!message.streaming && message.truncated && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 font-body text-sm text-amber-300">
-          <span>this answer hit the length limit, so it stops here.</span>
+          <span>This answer hit the length limit, so it stops here.</span>
           {onContinue && (
             <button
               type="button"
@@ -235,8 +235,8 @@ export function ChatMessage({
       {!message.streaming && message.interrupted && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 font-body text-sm text-red-300">
           <span>
-            this answer was cut off before it finished, the connection dropped or
-            timed out. it wasn&apos;t you.
+            This answer was cut off before it finished, the connection dropped or
+            timed out. It wasn&apos;t you.
           </span>
           {onRetry && (
             <button

@@ -145,7 +145,7 @@ export function CreatorCard({ creator }: { creator: CreatorTileRow }) {
               <Metric
                 icon={Flame}
                 value={compactNumber(creator.best_views)}
-                label="best reel"
+                label="Best reel"
                 tone="amber"
               />
             ) : null}

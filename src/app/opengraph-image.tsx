@@ -9,6 +9,6 @@ export const contentType = OG_CONTENT_TYPE;
 export default function Image() {
   return ogImage({
     title: "AI systems for marketing, built with Claude Code",
-    eyebrow: "oleg melnikov",
+    eyebrow: "Oleg Melnikov",
   });
 }
