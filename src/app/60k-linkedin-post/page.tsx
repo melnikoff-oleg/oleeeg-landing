@@ -100,7 +100,7 @@ function PromptBox({ text }: { text: string }) {
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
         </svg>
-        {expanded ? "show less" : "show full prompt"}
+        {expanded ? "show less" : "Show full prompt"}
       </button>
     </div>
   );
@@ -143,9 +143,9 @@ For each post:
 - Format for mobile: short paragraphs of 1-3 sentences, varied rhythm. Not every sentence on its own line.
 - Under 1,500 characters each.
 
-Banned (these scream AI): em dashes, "Not X. It's Y." contrasts, fragment questions like "The result? ..." or "And honestly? ...", and words like unlock, delve, game changer, elevate, journey, dive in, "here's the thing".
+Banned (these scream AI): em dashes, "Not X. It's Y." contrasts, fragment questions like "The result? ..." or "And honestly? ...", and words like unlock, delve, game changer, elevate, journey, dive in, "Here's the thing".
 
-Final test for each post: would I read it and say "yeah, that's basically what I said"? If not, rewrite it closer to my words.
+Final test for each post: would I read it and say "Yeah, that's basically what I said"? If not, rewrite it closer to my words.
 
 MY CONTENT FOUNDATION:
 [paste it here]
@@ -156,26 +156,26 @@ THE INTERVIEW:
 const prompts = [
   {
     number: "1",
-    title: "build your content foundation",
+    title: "Build your content foundation",
     time: "~5 min",
     description:
-      "paste this into a new Claude or ChatGPT chat. answer the questions one by one. save the output, you’ll reuse it.",
+      "Paste this into a new Claude or ChatGPT chat. Answer the questions one by one. Save the output, you’ll reuse it.",
     prompt: PROMPT_1,
   },
   {
     number: "2",
-    title: "the content interview",
+    title: "The content interview",
     time: "~15-20 min",
     description:
-      "open a NEW chat. paste this prompt, then paste your Content Foundation below it. talk for 15-20 minutes. the more specific stories and numbers you give, the better. when done, copy the ENTIRE conversation.",
+      "Open a NEW chat. Paste this prompt, then paste your Content Foundation below it. Talk for 15-20 minutes. The more specific stories and numbers you give, the better. When done, copy the ENTIRE conversation.",
     prompt: PROMPT_2,
   },
   {
     number: "3",
-    title: "write the posts",
+    title: "Write the posts",
     time: "~5 min",
     description:
-      "open a NEW chat. paste this prompt, then your Content Foundation and the full interview conversation. pick your favorites, do a light edit, and post.",
+      "Open a NEW chat. Paste this prompt, then your Content Foundation and the full interview conversation. Pick your favorites, do a light edit, and post.",
     prompt: PROMPT_3,
   },
 ];
@@ -190,7 +190,7 @@ export default function LinkedInPostPage() {
             href="/"
             className="brand-wordmark font-display text-lg tracking-tight"
           >
-            oleg melnikov
+            Oleg Melnikov
           </Link>
           <a
             href="https://youtube.com/@Oleg-Melnikov"
@@ -202,7 +202,7 @@ export default function LinkedInPostPage() {
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" />
               <path fill="black" d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
             </svg>
-            youtube
+            YouTube
           </a>
         </div>
       </header>
@@ -227,14 +227,14 @@ export default function LinkedInPostPage() {
               variants={fadeUp}
               className="text-metallic mt-8 font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl md:text-5xl"
             >
-              the $60K LinkedIn post
+              The $60K LinkedIn post
             </motion.h1>
 
             <motion.p
               variants={fadeUp}
               className="mt-4 font-body text-lg text-silver-muted md:text-xl"
             >
-              the exact system that generated $60,000 in sales from a single
+              The exact system that generated $60,000 in sales from a single
               LinkedIn post. 3 prompts, 3 separate chats, your real voice, not
               AI slop.
             </motion.p>
@@ -243,15 +243,15 @@ export default function LinkedInPostPage() {
               variants={fadeUp}
               className="mt-3 font-body text-base text-silver-muted"
             >
-              this is a simplified, do-it-yourself version of the Boldane
-              system. copy the prompts below and start writing posts built
+              This is a simplified, do-it-yourself version of the Boldane
+              system. Copy the prompts below and start writing posts built
               from what you actually say.
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-8">
               <Button asChild size="lg">
                 <a href="#prompts">
-                  jump to the prompts
+                  Jump to the prompts
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -284,7 +284,7 @@ export default function LinkedInPostPage() {
               variants={fadeUp}
               className="eyebrow font-body text-[13px] text-vivid-blue"
             >
-              how it works
+              How it works
             </motion.h2>
 
             <motion.div
@@ -294,18 +294,18 @@ export default function LinkedInPostPage() {
               {[
                 {
                   step: "1",
-                  label: "context",
-                  desc: "answer a short questionnaire about yourself and your audience. save the output.",
+                  label: "Context",
+                  desc: "Answer a short questionnaire about yourself and your audience. Save the output.",
                 },
                 {
                   step: "2",
-                  label: "interview",
-                  desc: "paste your context doc. AI interviews you and pulls out your real stories and opinions.",
+                  label: "Interview",
+                  desc: "Paste your context doc. AI interviews you and pulls out your real stories and opinions.",
                 },
                 {
                   step: "3",
-                  label: "writing",
-                  desc: "paste context + interview. get 3-5 LinkedIn posts built from what you said.",
+                  label: "Writing",
+                  desc: "Paste context + interview. Get 3-5 LinkedIn posts built from what you said.",
                 },
               ].map((s) => (
                 <div
@@ -329,9 +329,9 @@ export default function LinkedInPostPage() {
               variants={fadeUp}
               className="mt-5 font-body text-base text-silver-muted"
             >
-              the magic is in step 2: the posts are built from what{" "}
-              <span className="text-silver">you</span> actually said, not from
-              what AI invents. that is what makes them sound human.
+              The magic is in step 2: the posts are built from what{" "}
+              <span className="text-silver">You</span> actually said, not from
+              what AI invents. That is what makes them sound human.
             </motion.p>
           </div>
         </motion.section>
@@ -384,15 +384,15 @@ export default function LinkedInPostPage() {
         >
           <div className="mx-auto max-w-3xl px-6">
             <h2 className="eyebrow font-body text-[13px] text-vivid-blue">
-              tips for better results
+              Tips for better results
             </h2>
             <ul className="mt-5 space-y-3 font-body text-base leading-relaxed text-silver-muted">
               <li className="flex gap-3">
                 <span className="mt-0.5 text-silver-muted">01</span>
                 <span>
                   in the interview (prompt 2), give{" "}
-                  <span className="text-silver">specific numbers</span> and{" "}
-                  <span className="text-silver">real names</span>. &quot;we
+                  <span className="text-silver">Specific numbers</span> and{" "}
+                  <span className="text-silver">Real names</span>. &quot;we
                   grew 40% in 3 months&quot; beats &quot;we grew a lot.&quot;
                 </span>
               </li>
@@ -401,20 +401,20 @@ export default function LinkedInPostPage() {
                 <span>
                   talk for at least{" "}
                   <span className="text-silver">15 minutes</span> in prompt 2.
-                  short interviews = generic posts.
+                  Short interviews = generic posts.
                 </span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 text-silver-muted">03</span>
                 <span>
-                  repeat weekly: same foundation (prompt 1 is one-time), new
+                  Repeat weekly: same foundation (prompt 1 is one-time), new
                   interview, fresh posts every week.
                 </span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 text-silver-muted">04</span>
                 <span>
-                  always do a light edit before posting. fix anything that
+                  Always do a light edit before posting. Fix anything that
                   doesn&apos;t sound like you.
                 </span>
               </li>
@@ -432,11 +432,11 @@ export default function LinkedInPostPage() {
         >
           <div className="mx-auto max-w-3xl px-6">
             <h2 className="eyebrow font-body text-[13px] text-vivid-blue">
-              the post that started it
+              The post that started it
             </h2>
             <div className="surface-card mt-6 rounded-2xl p-6 sm:p-8">
               <p className="font-body text-base leading-relaxed text-silver-muted">
-                this system was built for{" "}
+                This system was built for{" "}
                 <a
                   href="https://www.linkedin.com/in/chintanaroad/"
                   target="_blank"
@@ -454,7 +454,7 @@ export default function LinkedInPostPage() {
                 >
                   Recruiting Launch
                 </a>
-                . one post written with this method generated{" "}
+                . One post written with this method generated{" "}
                 <span className="text-silver">$60,000 in sales</span>.
               </p>
 
@@ -488,7 +488,7 @@ export default function LinkedInPostPage() {
           <div className="mx-auto max-w-3xl px-6">
             <div className="surface-card rounded-2xl p-6 text-center sm:p-8">
               <p className="font-body text-base leading-relaxed text-silver-muted">
-                this is the simple, do-it-yourself version of what{" "}
+                This is the simple, do-it-yourself version of what{" "}
                 <a
                   href="https://www.boldane.com"
                   target="_blank"
@@ -499,7 +499,7 @@ export default function LinkedInPostPage() {
                 </a>{" "}
                 does for founders who would rather just talk for an hour a week
                 and let real expertise become a presence their market trusts.
-                even this version beats 99% of AI content, because it starts
+                Even this version beats 99% of AI content, because it starts
                 from a real conversation with you.
               </p>
             </div>

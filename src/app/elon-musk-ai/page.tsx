@@ -28,7 +28,7 @@ export default function ElonMuskAiPage() {
       <ArticleJsonLd
         title="Seven things Elon Musk actually does with AI"
         description="Seven things Elon Musk says he actually does with AI, each one linked to the exact second he says it, read out of 31 transcribed interviews and 997 of his posts."
-        url="https://oleg.ae/elon-musk-ai"
+        url="https://www.oleg.ae/elon-musk-ai"
         datePublished={PUBLISHED}
         dateModified={PUBLISHED}
       />

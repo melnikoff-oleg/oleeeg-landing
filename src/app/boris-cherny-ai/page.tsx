@@ -30,7 +30,7 @@ export default function BorisChernyAiPage() {
       <ArticleJsonLd
         title="10 Things The Creator Of Claude Code Actually Does With AI"
         description="Ten rules from the creator of Claude Code, one to a slide, read out of 27 interviews and 1,346 of his posts."
-        url="https://oleg.ae/boris-cherny-ai"
+        url="https://www.oleg.ae/boris-cherny-ai"
         datePublished={PUBLISHED}
         dateModified={MODIFIED}
       />

@@ -32,7 +32,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://oleg.ae"),
+  metadataBase: new URL("https://www.oleg.ae"),
   title: {
     default: "Oleg Melnikov: AI Systems for Marketing & Claude Code Tutorials",
     template: "%s | Oleg Melnikov",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     "AI systems for marketing",
     "Claude Code",
     "Claude Code for marketing",
-    "personal branding for founders",
+    "Personal branding for founders",
     "AI for B2B founders",
     "Boldane",
     "Oleg Melnikov",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     description:
       "AI software entrepreneur bridging media and software. I run Boldane, helping founders with real expertise become known, and teach AI systems for marketing and Claude Code to 19K+ on YouTube.",
     type: "website",
-    url: "https://oleg.ae",
+    url: "https://www.oleg.ae",
     siteName: "Oleg Melnikov",
   },
   twitter: {
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
       "AI software entrepreneur bridging media and software. I run Boldane, helping founders with real expertise become known, and teach AI systems for marketing and Claude Code to 19K+ on YouTube.",
   },
   alternates: {
-    canonical: "https://oleg.ae",
+    canonical: "https://www.oleg.ae",
   },
 };
 

@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   description:
     "The whole corpus behind the Marketing Brain, grouped by expert: every book and talk from Hormozi, Brunson, Cialdini, Godin and more.",
   keywords: [
-    "marketing knowledge base",
-    "best marketing books",
+    "Marketing knowledge base",
+    "Best marketing books",
     "Alex Hormozi",
     "Russell Brunson",
     "Robert Cialdini",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     description:
       "8 books and 75 talks from the greatest marketing minds, distilled into one searchable AI brain. Every insight cited to the exact page or timecode.",
     type: "website",
-    url: "https://oleg.ae/marketing-brain-knowledge",
+    url: "https://www.oleg.ae/marketing-brain-knowledge",
   },
   twitter: {
     card: "summary_large_image",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
       "8 books and 75 talks from the greatest marketing minds, distilled into one searchable AI brain.",
   },
   alternates: {
-    canonical: "https://oleg.ae/marketing-brain-knowledge",
+    canonical: "https://www.oleg.ae/marketing-brain-knowledge",
   },
 };
 

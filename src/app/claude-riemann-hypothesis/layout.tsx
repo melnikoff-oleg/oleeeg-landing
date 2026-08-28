@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     "Anthropic",
     "AI mathematics",
     "Riemann zeta function",
-    "prime numbers explained",
+    "Prime numbers explained",
     "AI discovery",
     "Claude Code",
   ],
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "article",
-    url: "https://oleg.ae/claude-riemann-hypothesis",
+    url: "https://www.oleg.ae/claude-riemann-hypothesis",
     publishedTime: "2026-08-11T00:00:00Z",
     modifiedTime: "2026-08-11T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     description: SHORT,
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-riemann-hypothesis",
+    canonical: "https://www.oleg.ae/claude-riemann-hypothesis",
   },
 };
 

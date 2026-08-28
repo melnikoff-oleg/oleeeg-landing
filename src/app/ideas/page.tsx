@@ -20,7 +20,7 @@ export default async function IdeasPage() {
       <header className="px-2">
         <div className="mx-auto mt-2 flex max-w-3xl items-center justify-between px-6 py-4">
           <Link href="/" className="brand-wordmark font-display text-lg tracking-tight">
-            oleg melnikov
+            Oleg Melnikov
           </Link>
           <Link
             href="https://www.youtube.com/@Oleg-Melnikov"
@@ -31,7 +31,7 @@ export default async function IdeasPage() {
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="size-4">
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
             </svg>
-            youtube
+            YouTube
           </Link>
         </div>
       </header>
@@ -44,12 +44,12 @@ export default async function IdeasPage() {
             </span>
 
             <h1 className="text-metallic mt-8 font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl md:text-5xl">
-              what should i build next?
+              What should I build next?
             </h1>
 
             <p className="mt-4 font-body text-lg text-silver-muted md:text-xl">
-              suggest a video, or vote for one that is already here. the ideas with the
-              most votes are the ones i make.
+              Suggest a video, or vote for one that is already here. The ideas with the
+              most votes are the ones I make.
             </p>
           </div>
         </section>
@@ -59,7 +59,7 @@ export default async function IdeasPage() {
             <IdeaBoard initialIdeas={ideas} initialVoted={voted} />
 
             <p className="mt-8 font-body text-sm text-silver-muted">
-              one vote per idea per browser. i log an ip address and a browser id with
+              One vote per idea per browser. I log an ip address and a browser id with
               every action, only to keep the board honest.
             </p>
           </div>

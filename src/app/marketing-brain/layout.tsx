@@ -5,11 +5,11 @@ export const metadata: Metadata = {
   description:
     "An AI chat grounded in 8 marketing books and 75 talks from Hormozi, Brunson, Cialdini and Godin. Every answer cited to the page or the timecode.",
   keywords: [
-    "marketing AI chat",
-    "ask marketing experts AI",
+    "Marketing AI chat",
+    "Ask marketing experts AI",
     "AI marketing assistant",
     "Alex Hormozi AI",
-    "marketing knowledge base",
+    "Marketing knowledge base",
     "AI systems for marketing",
     "Claude Code for marketing",
   ],
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     description:
       "An AI chat grounded in the best marketing books and talks, with every answer cited to the exact page or video timecode.",
     type: "website",
-    url: "https://oleg.ae/marketing-brain",
+    url: "https://www.oleg.ae/marketing-brain",
   },
   twitter: {
     card: "summary_large_image",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
       "An AI chat grounded in the best marketing books and talks, every answer cited to the exact page or timecode.",
   },
   alternates: {
-    canonical: "https://oleg.ae/marketing-brain",
+    canonical: "https://www.oleg.ae/marketing-brain",
   },
 };
 

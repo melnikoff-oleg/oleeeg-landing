@@ -33,33 +33,33 @@ const fadeUp = {
 const principles = [
   {
     icon: Target,
-    title: "the headline sells the benefit",
-    body: "it leads with the result your buyer wants, not a list of what you do. the first screen carries the whole pitch.",
+    title: "The headline sells the benefit",
+    body: "It leads with the result your buyer wants, not a list of what you do. The first screen carries the whole pitch.",
   },
   {
     icon: BadgeCheck,
-    title: "proof comes early, and often",
-    body: "real testimonials, numbers, and names sit above the ask. people believe proof, not promises.",
+    title: "Proof comes early, and often",
+    body: "Real testimonials, numbers, and names sit above the ask. People believe proof, not promises.",
   },
   {
     icon: Calculator,
-    title: "the value equation",
-    body: "every section is engineered to raise the dream outcome and belief, and lower the time and effort it takes to get there.",
+    title: "The value equation",
+    body: "Every section is engineered to raise the dream outcome and belief, and lower the time and effort it takes to get there.",
   },
   {
     icon: ShieldCheck,
-    title: "doubt removed at the CTA",
-    body: "a reassurance or risk reversal sits right next to the button, so the last hesitation disappears.",
+    title: "Doubt removed at the CTA",
+    body: "A reassurance or risk reversal sits right next to the button, so the last hesitation disappears.",
   },
   {
     icon: Sparkles,
-    title: "premium means restraint",
-    body: "no AI-slop look, no flashy tricks. a deliberate type pairing, one accent color, and room to breathe read as expensive.",
+    title: "Premium means restraint",
+    body: "No AI-slop look, no flashy tricks. A deliberate type pairing, one accent color, and room to breathe read as expensive.",
   },
   {
     icon: Smartphone,
-    title: "built for the phone",
-    body: "most visitors arrive on mobile, so the page is designed for that screen on purpose, not as an afterthought.",
+    title: "Built for the phone",
+    body: "Most visitors arrive on mobile, so the page is designed for that screen on purpose, not as an afterthought.",
   },
 ];
 
@@ -71,16 +71,16 @@ const code =
 
 const steps = [
   {
-    title: "step 1: install VS Code (your work window)",
+    title: "Step 1: install VS Code (your work window)",
     content: (
       <div className="space-y-3">
         <p>
-          VS Code is a free app from Microsoft. it&apos;s the window where
-          you&apos;ll run everything. think of it like Word, but for projects.
+          VS Code is a free app from Microsoft. It&apos;s the window where
+          you&apos;ll run everything. Think of it like Word, but for projects.
         </p>
         <ol className="list-decimal space-y-2 pl-5">
           <li>
-            go to{" "}
+            Go to{" "}
             <a
               href="https://code.visualstudio.com"
               target="_blank"
@@ -91,22 +91,22 @@ const steps = [
             </a>{" "}
             and click <span className="text-silver">Download</span>
           </li>
-          <li>open the downloaded file and install it like any other app</li>
+          <li>Open the downloaded file and install it like any other app</li>
         </ol>
       </div>
     ),
   },
   {
-    title: "step 2: install Node.js (lets the website run)",
+    title: "Step 2: install Node.js (lets the website run)",
     content: (
       <div className="space-y-3">
         <p>
-          Node.js is a small program that runs in the background. you install it
+          Node.js is a small program that runs in the background. You install it
           once and forget about it.
         </p>
         <ol className="list-decimal space-y-2 pl-5">
           <li>
-            go to{" "}
+            Go to{" "}
             <a
               href="https://nodejs.org"
               target="_blank"
@@ -119,7 +119,7 @@ const steps = [
             <span className="text-silver">LTS</span> button
           </li>
           <li>
-            open the downloaded file and install it, clicking
+            Open the downloaded file and install it, clicking
             &quot;Next&quot; / &quot;Continue&quot; through everything
           </li>
         </ol>
@@ -127,39 +127,38 @@ const steps = [
     ),
   },
   {
-    title: "step 3: install Claude Code (your AI builder)",
+    title: "Step 3: install Claude Code (your AI builder)",
     content: (
       <div className="space-y-3">
         <p>
-          Claude Code is the AI that actually builds your page. you&apos;ll
+          Claude Code is the AI that actually builds your page. You&apos;ll
           install it once from inside VS Code.
         </p>
         <ol className="list-decimal space-y-2 pl-5">
           <li>
-            in VS Code, open the terminal:{" "}
+            In VS Code, open the terminal:{" "}
             <span className="text-silver">Terminal, then New Terminal</span>
           </li>
-          <li>type this and press Enter:</li>
+          <li>Type this and press Enter:</li>
         </ol>
         <pre className="whitespace-pre-wrap [overflow-wrap:anywhere] rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
           <code>{INSTALL_CMD}</code>
         </pre>
-        <CopyButton text={INSTALL_CMD} label="copy the command" />
+        <CopyButton text={INSTALL_CMD} label="Copy the command" />
         <p>
-          on Mac, if it mentions permissions, put{" "}
-          <code className={code}>sudo</code> in front and run it again. Claude
-          Code needs a Claude subscription (from about $20/mo, cancel anytime).
+          On Mac, if it mentions permissions, put{" "}
+          <code className={code}>sudo</code> in front and run it again. Claude Code needs a Claude subscription (from about $20/mo, cancel anytime).
         </p>
       </div>
     ),
   },
   {
-    title: "step 4: create free GitHub and Vercel accounts",
+    title: "Step 4: create free GitHub and Vercel accounts",
     content: (
       <div className="space-y-3">
         <p>
-          these two free accounts are what put your site on the internet later.
-          just sign up for now.
+          These two free accounts are what put your site on the internet later.
+          Just sign up for now.
         </p>
         <ol className="list-decimal space-y-2 pl-5">
           <li>
@@ -182,8 +181,8 @@ const steps = [
             >
               vercel.com
             </a>{" "}
-            (puts your site live). sign up{" "}
-            <span className="text-silver">with your GitHub account</span> to make
+            (puts your site live). Sign up{" "}
+            <span className="text-silver">With your GitHub account</span> to make
             the next steps easier
           </li>
         </ol>
@@ -191,13 +190,13 @@ const steps = [
     ),
   },
   {
-    title: "step 5: download the kit",
+    title: "Step 5: download the kit",
     content: (
       <div className="space-y-3">
-        <p>the kit is free and lives on GitHub.</p>
+        <p>The kit is free and lives on GitHub.</p>
         <ol className="list-decimal space-y-2 pl-5">
           <li>
-            go to{" "}
+            Go to{" "}
             <a
               href={REPO_URL}
               target="_blank"
@@ -208,32 +207,32 @@ const steps = [
             </a>
           </li>
           <li>
-            click the green <span className="text-silver">&lt;&gt; Code</span>{" "}
+            Click the green <span className="text-silver">&lt;&gt; Code</span>{" "}
             button, then <span className="text-silver">Download ZIP</span>
           </li>
           <li>
-            find the ZIP (usually in Downloads) and double-click it to unzip. you
+            Find the ZIP (usually in Downloads) and double-click it to unzip. You
             should get a folder called{" "}
-            <span className="text-silver">high-converting-website-main</span>.
-            move it somewhere easy to find, like your Desktop
+            <span className="text-silver">High-converting-website-main</span>.
+            Move it somewhere easy to find, like your Desktop
           </li>
         </ol>
       </div>
     ),
   },
   {
-    title: "step 6: open the kit and launch Claude",
+    title: "Step 6: open the kit and launch Claude",
     content: (
       <div className="space-y-3">
         <ol className="list-decimal space-y-2 pl-5">
           <li>
-            in VS Code, click <span className="text-silver">File</span>, then{" "}
+            In VS Code, click <span className="text-silver">File</span>, then{" "}
             <span className="text-silver">Open Folder...</span>, and choose the{" "}
-            <span className="text-silver">high-converting-website-main</span>{" "}
+            <span className="text-silver">High-converting-website-main</span>{" "}
             folder
           </li>
           <li>
-            open the terminal again (
+            Open the terminal again (
             <span className="text-silver">Terminal, then New Terminal</span>),
             type this, and press Enter:
           </li>
@@ -242,37 +241,37 @@ const steps = [
           <code>claude</code>
         </pre>
         <p>
-          the first time, it&apos;ll ask you to sign in. follow the link it
-          shows. once you see the Claude prompt, you&apos;re in.
+          The first time, it&apos;ll ask you to sign in. Follow the link it
+          shows. Once you see the Claude prompt, you&apos;re in.
         </p>
       </div>
     ),
   },
   {
-    title: "step 7: run /start and let it build",
+    title: "Step 7: run /start and let it build",
     content: (
       <div className="space-y-3">
-        <p>this is the part that does all the work. type:</p>
+        <p>This is the part that does all the work. Type:</p>
         <pre className="whitespace-pre-wrap [overflow-wrap:anywhere] rounded-lg surface-raised border border-hairline p-4 font-mono text-sm text-silver">
           <code>/start</code>
         </pre>
         <p>Claude takes over from here and walks you through everything:</p>
         <ol className="list-decimal space-y-2 pl-5">
           <li>
-            it learns your business (paste a file, give it a link to your current
+            It learns your business (paste a file, give it a link to your current
             site or LinkedIn, or just answer its questions)
           </li>
           <li>
-            it builds your page section by section, following the conversion
+            It builds your page section by section, following the conversion
             playbook bundled in the kit, not just making it pretty
           </li>
           <li>
-            it shows you a live preview at{" "}
+            It shows you a live preview at{" "}
             <span className="text-silver">localhost:3000</span>
           </li>
         </ol>
         <p>
-          the most important part is the first one: a great-looking page that
+          The most important part is the first one: a great-looking page that
           says the wrong thing won&apos;t sell, so take your time telling Claude
           about your business.
         </p>
@@ -280,45 +279,45 @@ const steps = [
     ),
   },
   {
-    title: "step 8: preview and polish in plain english",
+    title: "Step 8: preview and polish in plain English",
     content: (
       <div className="space-y-3">
         <p>
-          open your browser at{" "}
+          Open your browser at{" "}
           <span className="text-silver">localhost:3000</span> to see your page.
-          only you can see it for now. tell Claude what to change in your own
+          Only you can see it for now. Tell Claude what to change in your own
           words:
         </p>
         <div className="rounded-lg surface-raised border border-hairline p-5 text-[15px] leading-relaxed text-silver italic">
-          &quot;the headline doesn&apos;t sound like me. make it feel more
-          premium. this testimonial is wrong, use this one instead.&quot;
+          &quot;the headline doesn&apos;t sound like me. Make it feel more
+          premium. This testimonial is wrong, use this one instead.&quot;
         </div>
-        <p>Claude edits it live. repeat until you love it.</p>
+        <p>Claude edits it live. Repeat until you love it.</p>
       </div>
     ),
   },
   {
-    title: "step 9: go live on your domain",
+    title: "Step 9: go live on your domain",
     content: (
       <div className="space-y-3">
         <p>
-          when you&apos;re happy, tell Claude you&apos;re ready to deploy. it runs
+          When you&apos;re happy, tell Claude you&apos;re ready to deploy. It runs
           the <code className={code}>/deploy</code> steps and walks you through
           each click:
         </p>
         <ol className="list-decimal space-y-2 pl-5">
-          <li>saving your code to GitHub</li>
+          <li>Saving your code to GitHub</li>
           <li>
-            putting it live on Vercel (you get a free address in about a minute)
+            Putting it live on Vercel (you get a free address in about a minute)
           </li>
           <li>
-            connecting your own domain, like{" "}
-            <span className="text-silver">yourbusiness.com</span>. the secure
+            Connecting your own domain, like{" "}
+            <span className="text-silver">yourbusiness.com</span>. The secure
             padlock (HTTPS) is set up automatically
           </li>
         </ol>
         <p>
-          want to change the site later? open the folder, run{" "}
+          Want to change the site later? Open the folder, run{" "}
           <code className={code}>claude</code>, ask for the change, and Vercel
           updates your live site in under a minute.
         </p>
@@ -333,7 +332,7 @@ export default function HighConvertingWebsitePage() {
       <ArticleJsonLd
         title="Build a High-Converting Landing Page with Claude Code"
         description="A free, open-source kit that builds a landing page engineered to convert. Claude Code reads a distilled conversion playbook from Alex Hormozi and the world's best marketers, then builds and deploys your page on your own domain."
-        url="https://oleg.ae/high-converting-website"
+        url="https://www.oleg.ae/high-converting-website"
         datePublished="2026-06-28"
         dateModified="2026-06-28"
       />
@@ -345,7 +344,7 @@ export default function HighConvertingWebsitePage() {
             href="/"
             className="brand-wordmark font-display text-lg tracking-tight"
           >
-            oleg melnikov
+            Oleg Melnikov
           </Link>
           <a
             href={REPO_URL}
@@ -356,7 +355,7 @@ export default function HighConvertingWebsitePage() {
             <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
               <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
             </svg>
-            github
+            GitHub
           </a>
         </div>
       </header>
@@ -381,16 +380,15 @@ export default function HighConvertingWebsitePage() {
               variants={fadeUp}
               className="text-metallic mt-8 font-display text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl md:text-5xl"
             >
-              build a high-converting landing page with claude code
+              Build a high-converting landing page with Claude Code
             </motion.h1>
 
             <motion.p
               variants={fadeUp}
               className="mt-4 font-body text-lg text-silver-muted md:text-xl"
             >
-              most &quot;build a site with AI&quot; guides give you a page that
-              looks fine but doesn&apos;t sell. this free kit is different: Claude
-              Code builds your page on real conversion knowledge, then deploys it
+              Most &quot;build a site with AI&quot; guides give you a page that
+              looks fine but doesn&apos;t sell. This free kit is different: Claude Code builds your page on real conversion knowledge, then deploys it
               live on your own domain.
             </motion.p>
 
@@ -400,11 +398,11 @@ export default function HighConvertingWebsitePage() {
             >
               <Button asChild size="lg">
                 <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
-                  download the kit on github
+                  Download the kit on GitHub
                 </a>
               </Button>
               <p className="font-body text-sm text-silver-muted">
-                free, takes about an hour
+                Free, takes about an hour
               </p>
             </motion.div>
           </motion.div>
@@ -421,7 +419,7 @@ export default function HighConvertingWebsitePage() {
           >
             <div className="surface-card glow-blue px-6 py-7 text-center sm:px-10">
               <p className="font-body text-base leading-relaxed text-silver sm:text-lg">
-                i built my own agency site,{" "}
+                I built my own agency site,{" "}
                 <a
                   href="https://boldane.com"
                   target="_blank"
@@ -430,8 +428,8 @@ export default function HighConvertingWebsitePage() {
                 >
                   boldane.com
                 </a>
-                , with this exact kit. it already closed a real B2B deal for me.
-                this is the same process, in your hands.
+                , with this exact kit. It already closed a real B2B deal for me.
+                This is the same process, in your hands.
               </p>
             </div>
           </motion.div>
@@ -450,14 +448,14 @@ export default function HighConvertingWebsitePage() {
               variants={fadeUp}
               className="eyebrow font-body text-[13px] text-vivid-blue"
             >
-              what makes it convert
+              What makes it convert
             </motion.h2>
 
             <motion.p
               variants={fadeUp}
               className="mt-3 font-body text-lg text-silver md:text-xl"
             >
-              under the hood, the kit carries a distilled playbook from Alex
+              Under the hood, the kit carries a distilled playbook from Alex
               Hormozi and the world&apos;s best marketers. Claude reads it before
               it builds, so your page follows what actually sells.
             </motion.p>
@@ -486,7 +484,7 @@ export default function HighConvertingWebsitePage() {
               variants={fadeUp}
               className="mt-6 font-body text-sm text-silver-muted"
             >
-              the full playbook and its source material live in the{" "}
+              The full playbook and its source material live in the{" "}
               <a
                 href={`${REPO_URL}/tree/main/knowledge-base`}
                 target="_blank"
@@ -513,14 +511,14 @@ export default function HighConvertingWebsitePage() {
               variants={fadeUp}
               className="eyebrow font-body text-[13px] text-vivid-blue"
             >
-              setup guide
+              Setup guide
             </motion.h2>
 
             <motion.p
               variants={fadeUp}
               className="mt-3 font-body text-sm text-silver-muted"
             >
-              steps 1 to 6 are one-time setup. steps 7 to 9 are how Claude builds
+              Steps 1 to 6 are one-time setup. Steps 7 to 9 are how Claude builds
               and ships your page.
             </motion.p>
 
@@ -531,7 +529,7 @@ export default function HighConvertingWebsitePage() {
             <motion.div variants={fadeUp} className="mt-10 text-center">
               <Button asChild size="lg">
                 <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
-                  get the kit on github
+                  Get the kit on GitHub
                 </a>
               </Button>
             </motion.div>

@@ -8,8 +8,8 @@ export const metadata: Metadata = {
     "Claude Code pricing",
     "Claude Code price",
     "Claude Code cost",
-    "is Claude Code free",
-    "how much does Claude Code cost",
+    "Is Claude Code free",
+    "How much does Claude Code cost",
     "Claude Code subscription",
     "Claude Code Max",
     "Claude Code Pro plan",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     description:
       "Not free. Included in every paid plan from $20 a month, or per token on the API. Every plan compared, plus what developers really spend.",
     type: "article",
-    url: "https://oleg.ae/claude-code-pricing",
+    url: "https://www.oleg.ae/claude-code-pricing",
     publishedTime: "2026-08-27T00:00:00Z",
     modifiedTime: "2026-08-27T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     description:
       "Not free. Included in every paid plan from $20 a month, or per token on the API. Every plan compared.",
   },
-  alternates: { canonical: "https://oleg.ae/claude-code-pricing" },
+  alternates: { canonical: "https://www.oleg.ae/claude-code-pricing" },
 };
 
 export default function ClaudeCodePricingLayout({

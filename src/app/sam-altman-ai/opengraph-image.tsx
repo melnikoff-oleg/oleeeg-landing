@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "20 Things Sam Altman Actually Does With AI", eyebrow: "the evidence" });
+  return ogImage({ title: "20 Things Sam Altman Actually Does With AI", eyebrow: "The evidence" });
 }

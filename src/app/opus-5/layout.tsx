@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "Fable 5",
     "Claude model pricing",
     "Anthropic benchmarks",
-    "which Claude model to use",
+    "Which Claude model to use",
     "AI systems for marketing",
     "Boldane",
   ],
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "article",
-    url: "https://oleg.ae/opus-5",
+    url: "https://www.oleg.ae/opus-5",
     publishedTime: "2026-07-25T00:00:00Z",
     modifiedTime: "2026-07-25T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     description: SHORT,
   },
   alternates: {
-    canonical: "https://oleg.ae/opus-5",
+    canonical: "https://www.oleg.ae/opus-5",
   },
 };
 

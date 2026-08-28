@@ -4,7 +4,7 @@
 // them questions), clustered by how often they repeat. The top four clusters are
 // all the same shape: someone follows the video exactly, hits a wall that has
 // nothing to do with the idea being taught, and has no way to get unstuck. So
-// they either give up or write "not working bro". Answering them here is worth
+// they either give up or write "Not working bro". Answering them here is worth
 // more than another tutorial.
 //
 // Every fact was checked against primary docs on 2026-08-12 (Anthropic's own
@@ -70,12 +70,12 @@ export const FIXES: Record<FixKey, TroubleshootingItem> = {
     a: (
       <>
         <p>
-          installing the Claude Code <strong>extension in VS Code does not give
-          you the <C>claude</C> terminal command</strong>. the extension keeps a
-          private copy for its own chat panel. that catches almost everyone, and
+          Installing the Claude Code <strong>extension in VS Code does not give
+          you the <C>Claude</C> terminal command</strong>. The extension keeps a
+          private copy for its own chat panel. That catches almost everyone, and
           it is not a broken setup.
         </p>
-        <p>to get the command, install Claude Code itself:</p>
+        <p>To get the command, install Claude Code itself:</p>
         <Cmd>
           {`# macOS or Linux
 curl -fsSL https://claude.ai/install.sh | bash
@@ -84,12 +84,12 @@ curl -fsSL https://claude.ai/install.sh | bash
 irm https://claude.ai/install.ps1 | iex`}
         </Cmd>
         <p>
-          then <strong>close the terminal window completely and open a new
-          one</strong>. skipping that is the second most common reason it still
-          says not found. check it worked with <C>claude --version</C>.
+          Then <strong>close the terminal window completely and open a new
+          one</strong>. Skipping that is the second most common reason it still
+          says not found. Check it worked with <C>Claude --version</C>.
         </p>
         <p>
-          still not found on a Mac? your PATH is missing the folder, so run these
+          Still not found on a Mac? Your PATH is missing the folder, so run these
           two lines:
         </p>
         <Cmd>
@@ -97,14 +97,14 @@ irm https://claude.ai/install.ps1 | iex`}
 source ~/.zshrc`}
         </Cmd>
         <p>
-          <C>claude doctor</C> prints a full health report if you are still
-          stuck. and if you would rather never touch a terminal, the{" "}
+          <C>Claude doctor</C> prints a full health report if you are still
+          stuck. And if you would rather never touch a terminal, the{" "}
           <A href="https://claude.ai/download">Claude Code desktop app</A> does
           the same job with buttons.
         </p>
         <p className="text-silver-muted">
-          one thing worth knowing before you install anything: Claude Code needs
-          a paid Claude plan (Pro or higher) or an API account. the free
+          One thing worth knowing before you install anything: Claude Code needs
+          a paid Claude plan (Pro or higher) or an API account. The free
           claude.ai plan does not include it, so it can install perfectly and
           still refuse to sign you in.
         </p>
@@ -116,39 +116,39 @@ source ~/.zshrc`}
     a: (
       <>
         <p>
-          <C>cr</C> is not a Claude command. it is a shortcut for a longer one,
+          <C>cr</C> is not a Claude command. It is a shortcut for a longer one,
           and three things go wrong with it.
         </p>
         <p>
-          <strong>it is lowercase.</strong> terminals are case sensitive, so{" "}
+          <strong>It is lowercase.</strong> Terminals are case sensitive, so{" "}
           <C>CR</C> is a different word and will never be found.
         </p>
         <p>
-          <strong>a shortcut typed straight into a terminal dies when you close
-          that window.</strong> to keep it, put the two lines in <C>~/.zshrc</C>{" "}
+          <strong>A shortcut typed straight into a terminal dies when you close
+          that window.</strong> To keep it, put the two lines in <C>~/.zshrc</C>{" "}
           on a Mac, then run <C>source ~/.zshrc</C>.
         </p>
         <p>
-          <strong>on Windows, <C>alias</C> does not define anything.</strong> in
+          <strong>On Windows, <C>alias</C> does not define anything.</strong> In
           PowerShell <C>alias</C> means <C>Get-Alias</C>, which is why you get{" "}
-          <C>ItemNotFoundException</C>. use functions instead:
+          <C>ItemNotFoundException</C>. Use functions instead:
         </p>
         <Cmd>
           {`function cs { claude "/prime" }
 function cr { claude --dangerously-skip-permissions "/prime" }`}
         </Cmd>
         <p>
-          to keep those permanently on Windows, run <C>notepad $PROFILE</C> and
+          To keep those permanently on Windows, run <C>notepad $PROFILE</C> and
           paste them in.
         </p>
         <p>
-          you never need the shortcut at all. just run the thing it stands for:
+          You never need the shortcut at all. Just run the thing it stands for:
         </p>
         <Cmd>{`claude --dangerously-skip-permissions "/prime"`}</Cmd>
         <p>
-          and read which error you get, because it tells you which piece is
+          And read which error you get, because it tells you which piece is
           missing. <C>command not found: cr</C> means the shortcut is not saved.{" "}
-          <C>command not found: claude</C> after typing <C>cr</C> means the
+          <C>command not found: Claude</C> after typing <C>cr</C> means the
           shortcut is fine and Claude Code itself is not installed.
         </p>
       </>
@@ -159,12 +159,12 @@ function cr { claude --dangerously-skip-permissions "/prime" }`}
     a: (
       <>
         <p>
-          correct, and on purpose. <C>.env</C> is where your private keys live,
-          so it is deliberately kept out of the repo. a public folder with
+          Correct, and on purpose. <C>.env</C> is where your private keys live,
+          so it is deliberately kept out of the repo. A public folder with
           someone else&apos;s API keys in it would be a gift to whoever found it.
         </p>
         <p>
-          you create it yourself, once. the projects now ship a{" "}
+          You create it yourself, once. The projects now ship a{" "}
           <C>.env.example</C> to copy:
         </p>
         <Cmd>
@@ -175,18 +175,18 @@ cp .env.example .env
 Copy-Item .env.example .env`}
         </Cmd>
         <p>
-          or just make it by hand in VS Code: click the new file icon in the left
-          panel and name it exactly <C>.env</C>, dot and all. then paste your
+          Or just make it by hand in VS Code: click the new file icon in the left
+          panel and name it exactly <C>.env</C>, dot and all. Then paste your
           keys in, one per line, <strong>no quotes and no spaces around the{" "}
           <C>=</C></strong>.
         </p>
         <p>
-          put it in the <strong>project root</strong>, the folder that has{" "}
+          Put it in the <strong>project root</strong>, the folder that has{" "}
           <C>CLAUDE.md</C> in it, not inside <C>app</C>.
         </p>
         <p className="text-silver-muted">
-          if you cannot see the file after making it, some setups hide files that
-          start with a dot. it is there.
+          If you cannot see the file after making it, some setups hide files that
+          start with a dot. It is there.
         </p>
       </>
     ),
@@ -198,16 +198,16 @@ Copy-Item .env.example .env`}
         <p>
           <strong>Claude Code</strong> comes with a Claude subscription: Pro at
           $20/month, or Max from $100/month for five or twenty times the usage.
-          usage is included, there is no per-run charge. the free plan does not
+          Usage is included, there is no per-run charge. The free plan does not
           include Claude Code at all.
         </p>
         <p>
-          inside Claude Code, <C>/status</C> tells you whether you are on a
+          Inside Claude Code, <C>/status</C> tells you whether you are on a
           subscription or an API key, and <C>/usage</C> shows how close you are
           to your plan limit.
         </p>
         <p className="text-silver-muted">
-          prices and free tiers move. these were checked in August 2026.
+          Prices and free tiers move. These were checked in August 2026.
         </p>
       </>
     ),
@@ -220,21 +220,21 @@ Copy-Item .env.example .env`}
     a: (
       <>
         <p>
-          yes, and it is a separate bill. mixing the two up is what causes most
+          Yes, and it is a separate bill. Mixing the two up is what causes most
           of the confusion.
         </p>
         <p>
-          <strong>the API keys</strong> the pipelines use are pay per token,
-          prepaid, and completely separate. a Claude subscription does not fund
+          <strong>The API keys</strong> the pipelines use are pay per token,
+          prepaid, and completely separate. A Claude subscription does not fund
           an API key.
         </p>
         <p>
-          the free tiers genuinely cover trying this out: Apify&apos;s free plan
+          The free tiers genuinely cover trying this out: Apify&apos;s free plan
           includes $5 of usage a month, and a scrape of a few dozen profiles
           costs cents. Google AI Studio has a free tier for the analysis.
         </p>
         <p className="text-silver-muted">
-          prices and free tiers move. these were checked in August 2026.
+          Prices and free tiers move. These were checked in August 2026.
         </p>
       </>
     ),
@@ -244,22 +244,21 @@ Copy-Item .env.example .env`}
     a: (
       <>
         <p>
-          that message is about the <strong>Anthropic API</strong>, which is
-          prepaid pay per token. it is not about your Claude subscription, and a
-          Pro or Max subscription never funds an API key. they are two different
+          That message is about the <strong>Anthropic API</strong>, which is
+          prepaid pay per token. It is not about your Claude subscription, and a
+          Pro or Max subscription never funds an API key. They are two different
           products with two different bills.
         </p>
         <p>
-          if you meant to use the API, add credit at{" "}
+          If you meant to use the API, add credit at{" "}
           <A href="https://platform.claude.com">platform.claude.com</A> under
           Billing, and switch on auto reload so a long run cannot die halfway.
         </p>
         <p>
-          if you did <em>not</em> mean to use an API key, you probably have one
+          If you did <em>not</em> mean to use an API key, you probably have one
           sitting in your environment, and a key set there overrides your
-          subscription login. check with <C>echo $ANTHROPIC_API_KEY</C> on a Mac.
-          if it prints something, remove it and run <C>/login</C> inside Claude
-          Code to sign in with your subscription instead.
+          subscription login. Check with <C>echo $ANTHROPIC_API_KEY</C> on a Mac.
+          If it prints something, remove it and run <C>/login</C> inside Claude Code to sign in with your subscription instead.
         </p>
       </>
     ),
@@ -269,22 +268,22 @@ Copy-Item .env.example .env`}
     a: (
       <>
         <p>
-          a 429 means you hit a quota on your Google AI key: too many requests
-          per minute, or the daily cap. it is not a bug in the project, and{" "}
-          <strong>no, this does not require a paid Gemini plan</strong>. the
+          A 429 means you hit a quota on your Google AI key: too many requests
+          per minute, or the daily cap. It is not a bug in the project, and{" "}
+          <strong>no, this does not require a paid Gemini plan</strong>. The
           claim going round that the paid tier has a $200 minimum is wrong: that
           number is a spend limit in Google&apos;s docs, not an entry price.
         </p>
-        <p>free ways to get under the limit:</p>
+        <p>Free ways to get under the limit:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>analyse fewer items per run, lower the top-k and max videos</li>
+          <li>Analyse fewer items per run, lower the top-k and max videos</li>
           <li>
-            wait and try again: the daily quota resets at midnight Pacific, not
+            Wait and try again: the daily quota resets at midnight Pacific, not
             24 hours after your run
           </li>
         </ul>
         <p>
-          check your own limits at{" "}
+          Check your own limits at{" "}
           <A href="https://aistudio.google.com/rate-limit">
             aistudio.google.com/rate-limit
           </A>
@@ -292,16 +291,16 @@ Copy-Item .env.example .env`}
           dashboard is the only accurate source.
         </p>
         <p>
-          if you get a <strong>404 saying the model does not exist</strong>, that
-          is different: Google retires models. list what your key can reach and
+          If you get a <strong>404 saying the model does not exist</strong>, that
+          is different: Google retires models. List what your key can reach and
           set <C>GEMINI_MODEL</C> in your <C>.env</C> to one of them:
         </p>
         <Cmd>
           {`curl "https://generativelanguage.googleapis.com/v1/models?key=YOUR_KEY"`}
         </Cmd>
         <p className="text-silver-muted">
-          one warning: Google&apos;s pricing page says free tier content is used
-          to improve their products. do not push client material through a free
+          One warning: Google&apos;s pricing page says free tier content is used
+          to improve their products. Do not push client material through a free
           key.
         </p>
       </>
@@ -312,20 +311,20 @@ Copy-Item .env.example .env`}
     a: (
       <>
         <p>
-          it does exactly what the name says: it turns off the ask-before-acting
+          It does exactly what the name says: it turns off the ask-before-acting
           prompt, so Claude can edit files and run commands on your machine
-          without checking with you each time. that is why it is fast, and that
+          without checking with you each time. That is why it is fast, and that
           is the whole risk.
         </p>
         <p>
-          the honest version: in a project folder like this one, where you know
+          The honest version: in a project folder like this one, where you know
           what is inside and nothing valuable is nearby, it is a reasonable
-          trade. pointed at your whole home folder, or at a repo you have not
+          trade. Pointed at your whole home folder, or at a repo you have not
           read, it is not.
         </p>
         <p>
-          the safer default is to drop the flag. <C>claude &quot;/prime&quot;</C>{" "}
-          does the same work and asks first. you approve a few things at the
+          The safer default is to drop the flag. <C>Claude &quot;/prime&quot;</C>{" "}
+          does the same work and asks first. You approve a few things at the
           start, then it stops asking about the same kinds of actions.
         </p>
       </>
@@ -344,16 +343,16 @@ Copy-Item .env.example .env`}
     a: (
       <>
         <p>
-          the community is free and still open, and the files sit in the{" "}
+          The community is free and still open, and the files sit in the{" "}
           <strong>Classroom</strong> section once you have joined:{" "}
           <A href="https://www.skool.com/ai-automation-7100/about">
             skool.com/ai-automation-7100
           </A>
-          . the link in some of the older video descriptions is stale, which is
+          . The link in some of the older video descriptions is stale, which is
           what most of this confusion is.
         </p>
         <p>
-          if you would rather skip the signup entirely, these are public on
+          If you would rather skip the signup entirely, these are public on
           GitHub right now and need no account:
         </p>
         <ul className="list-disc space-y-1 pl-5">
@@ -381,7 +380,7 @@ Copy-Item .env.example .env`}
           </li>
         </ul>
         <p>
-          they are all the same shape as what this page describes, so the setup
+          They are all the same shape as what this page describes, so the setup
           steps above still apply.
         </p>
       </>
@@ -393,42 +392,42 @@ Copy-Item .env.example .env`}
     a: (
       <>
         <p>
-          straight answer: <strong>there is real risk, and you should decide
-          knowing that.</strong> automating LinkedIn is not a grey area, it is
+          Straight answer: <strong>There is real risk, and you should decide
+          knowing that.</strong> Automating LinkedIn is not a grey area, it is
           against{" "}
           <A href="https://www.linkedin.com/legal/user-agreement">
             LinkedIn&apos;s user agreement
           </A>{" "}
           in plain words. LinkedIn says automated inauthentic activity can lead
-          to temporary or permanent restriction of your account. in practice what
+          to temporary or permanent restriction of your account. In practice what
           people usually meet first is a block on sending invitations.
         </p>
         <p>
-          worth knowing too: Anthropic&apos;s{" "}
+          Worth knowing too: Anthropic&apos;s{" "}
           <A href="https://www.anthropic.com/legal/aup">usage policy</A> forbids
           using Claude to get around another platform&apos;s terms. so driving
           LinkedIn this way is against both sets of rules, not just
           LinkedIn&apos;s.
         </p>
         <p>
-          the thing that actually changes your exposure is{" "}
+          The thing that actually changes your exposure is{" "}
           <strong>whether your own logged-in account is doing the automated
-          work</strong>. reading public pages through a third party scraper does
-          not put your account in the loop. a tool driving your session with your
+          work</strong>. Reading public pages through a third party scraper does
+          not put your account in the loop. A tool driving your session with your
           cookies does.
         </p>
-        <p>so the lower-risk shape of this, and the one I would run:</p>
+        <p>So the lower-risk shape of this, and the one I would run:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>automate the research: finding leads, reading public pages, writing the draft</li>
-          <li>send from your own account yourself, at a human volume</li>
-          <li>never point it at an account you cannot afford to lose</li>
+          <li>Automate the research: finding leads, reading public pages, writing the draft</li>
+          <li>Send from your own account yourself, at a human volume</li>
+          <li>Never point it at an account you cannot afford to lose</li>
         </ul>
         <p className="text-silver-muted">
           I will not give you tricks for looking human to LinkedIn&apos;s
-          detection. people do post them, and following them is how you end up
-          arguing with an appeal form. do not quote a &quot;safe&quot; daily
+          detection. People do post them, and following them is how you end up
+          arguing with an appeal form. Do not quote a &quot;safe&quot; daily
           number either: LinkedIn does not publish one, and every figure you see
-          online came from a vendor blog. what LinkedIn does say is what triggers
+          online came from a vendor blog. What LinkedIn does say is what triggers
           it, which is more useful: a lot of invitations in a short time, and
           invitations that get ignored or marked as spam.
         </p>
@@ -440,16 +439,16 @@ Copy-Item .env.example .env`}
     a: (
       <>
         <p>
-          this reads <strong>public</strong> posts through a third party scraper.
-          it never logs in as you, never posts, never follows and never messages,
-          so your own account is not the thing making the requests. that is a
+          This reads <strong>public</strong> posts through a third party scraper.
+          It never logs in as you, never posts, never follows and never messages,
+          so your own account is not the thing making the requests. That is a
           different risk profile from automating your own logged-in account, and
           it is the reason it is built this way.
         </p>
         <p>
-          worth being straight about the rest: Meta&apos;s and TikTok&apos;s terms
+          Worth being straight about the rest: Meta&apos;s and TikTok&apos;s terms
           restrict automated collection of data from their platforms, whoever is
-          doing it. the practical exposure here sits with the scraping service,
+          doing it. The practical exposure here sits with the scraping service,
           not with your profile.
         </p>
       </>
@@ -474,10 +473,10 @@ export function Troubleshooting({ items }: { items: FixKey[] }) {
     <Reveal as="section" className="pb-16 md:pb-20">
       <div className="mx-auto max-w-3xl px-6">
         <h2 className="eyebrow font-body text-[13px] text-vivid-blue">
-          if you get stuck
+          If you get stuck
         </h2>
         <p className="mt-4 font-body text-base text-silver-muted">
-          the things that actually go wrong, taken from the questions people ask
+          The things that actually go wrong, taken from the questions people ask
           under the video.
         </p>
 

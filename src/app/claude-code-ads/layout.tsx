@@ -8,20 +8,20 @@ export const metadata: Metadata = {
     "Claude Code",
     "Claude Code video ads",
     "AI video ads",
-    "make video ads with AI",
+    "Make video ads with AI",
     "AI ad generator",
-    "free AI video ads",
+    "Free AI video ads",
     "HyperFrames",
     "Claude Code tutorial",
     "AI commercial generator",
-    "make money with Claude Code",
+    "Make money with Claude Code",
   ],
   openGraph: {
     title: "Make Video Ads With Claude Code: Free Setup Guide",
     description:
       "Paste a company's website, get a finished video ad in their own brand. Every step from installing VS Code to your first render.",
     type: "article",
-    url: "https://oleg.ae/claude-code-ads",
+    url: "https://www.oleg.ae/claude-code-ads",
     publishedTime: "2026-08-07T00:00:00Z",
     modifiedTime: "2026-08-07T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Paste a company's website, get a finished video ad in their own brand. Local, free per ad.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-code-ads",
+    canonical: "https://www.oleg.ae/claude-code-ads",
   },
 };
 

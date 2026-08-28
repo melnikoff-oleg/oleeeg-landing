@@ -4,7 +4,7 @@ import type { Idea } from "@/lib/ideas/db";
 const STATUS_LABEL: Record<string, string> = {
   planned: "planned",
   filming: "filming now",
-  published: "video is out",
+  published: "Video is out",
 };
 
 export function IdeaCard({
@@ -35,7 +35,7 @@ export function IdeaCard({
         onClick={() => onVote(idea.id)}
         disabled={pending}
         aria-pressed={voted}
-        aria-label={voted ? `remove your vote from ${idea.title}` : `vote for ${idea.title}`}
+        aria-label={voted ? `Remove your vote from ${idea.title}` : `Vote for ${idea.title}`}
         className={cn(
           "flex h-[62px] w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border transition-colors",
           voted

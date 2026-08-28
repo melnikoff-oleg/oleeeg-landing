@@ -7,12 +7,12 @@ export const metadata: Metadata = {
     "A free Claude Code kit that builds a landing page that sells, with the conversion playbook behind it. I built boldane.com with it and closed a deal.",
   keywords: [
     "Claude Code",
-    "high-converting landing page",
-    "landing page with AI",
+    "High-converting landing page",
+    "Landing page with AI",
     "Claude Code landing page",
-    "build landing page with AI",
+    "Build landing page with AI",
     "AI website builder",
-    "conversion optimized landing page",
+    "Conversion optimized landing page",
     "Alex Hormozi value equation",
     "Claude Code for marketing",
     "AI systems for marketing",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     description:
       "A free kit that builds a landing page engineered to sell, powered by a conversion playbook from Hormozi and top marketers. No code required.",
     type: "article",
-    url: "https://oleg.ae/high-converting-website",
+    url: "https://www.oleg.ae/high-converting-website",
     publishedTime: "2026-06-28T00:00:00Z",
     modifiedTime: "2026-06-28T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
       "A free kit that builds a landing page engineered to sell, powered by a conversion playbook from Hormozi and top marketers. No code required.",
   },
   alternates: {
-    canonical: "https://oleg.ae/high-converting-website",
+    canonical: "https://www.oleg.ae/high-converting-website",
   },
 };
 

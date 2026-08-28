@@ -58,11 +58,11 @@ export function ConnectSection() {
         className="mx-auto max-w-3xl px-6 text-center"
       >
         <h2 className="eyebrow font-body text-[13px] text-vivid-blue">
-          connect
+          Connect
         </h2>
 
         <p className="mt-8 font-body text-xl text-silver md:text-2xl">
-          let&apos;s connect. i&apos;m always open to interesting conversations
+          Let&apos;s connect. I&apos;m always open to interesting conversations
           and collaborations.
         </p>
 
@@ -84,7 +84,7 @@ export function ConnectSection() {
 
         {/* Sign-off */}
         <p className="mt-16 font-body text-lg text-silver-muted">
-          cheers, oleg
+          Cheers, Oleg
         </p>
       </RevealGroup>
     </section>

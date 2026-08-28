@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "Claude and the Riemann Hypothesis, Explained", eyebrow: "explained" });
+  return ogImage({ title: "Claude and the Riemann Hypothesis, Explained", eyebrow: "Explained" });
 }

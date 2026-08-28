@@ -167,7 +167,7 @@ function Wall({ reels }: { reels: readonly ReelTileRow[] }) {
  *
  * One page where there were two. /viral-reels was a search box over an empty
  * screen and this was a list with two filters; a visitor deciding what to film
- * moves between "what is close to this idea" and "what is in here at all"
+ * moves between "What is close to this idea" and "What is in here at all"
  * constantly, and a page turn between them cost the thread. Searching now
  * narrows the same wall the filters narrow, under the same five controls.
  *
@@ -228,7 +228,7 @@ export function Library({
   const shownRef = useRef(shown);
   shownRef.current = shown;
 
-  const [wallError, setWallError] = useState(initialFailed ? "the library did not come back. try again in a moment." : "");
+  const [wallError, setWallError] = useState(initialFailed ? "The library did not come back. Try again in a moment." : "");
 
   const searchInflight = useRef<AbortController | null>(null);
   // The empty div under the wall whose arrival on screen reveals the next 24.
@@ -309,7 +309,7 @@ export function Library({
         };
         if (controller.signal.aborted) return;
         if (!res.ok) {
-          setWallError("the library did not come back. try again in a moment.");
+          setWallError("The library did not come back. Try again in a moment.");
           return;
         }
         setWall(json.results ?? []);
@@ -319,7 +319,7 @@ export function Library({
         setFeatured(false);
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
-        setWallError("the library did not come back. try again in a moment.");
+        setWallError("The library did not come back. Try again in a moment.");
       } finally {
         if (!controller.signal.aborted) setWallBusy(false);
       }
@@ -454,8 +454,8 @@ export function Library({
         kind: "error",
         message:
           (err as Error & { reason?: string }).reason === "rate_limited"
-            ? "that is a lot of searching for one day. try again tomorrow."
-            : "the search did not come back. try again in a moment.",
+            ? "That is a lot of searching for one day. Try again tomorrow."
+            : "The search did not come back. Try again in a moment.",
       });
     }
   }, [ask]);
@@ -601,7 +601,7 @@ export function Library({
   const results = state.kind === "done" ? state.results : [];
   const showWall = state.kind === "idle";
   // What to draw while a new answer is on its way. Sixty reels going slightly
-  // quiet reads as "this is being replaced"; sixty reels going away reads as
+  // quiet reads as "This is being replaced"; sixty reels going away reads as
   // "it broke".
   const holding = state.kind === "loading" ? state.previous : [];
 
@@ -641,7 +641,7 @@ export function Library({
           aria-hidden
         />
         <label htmlFor="library-query" className="sr-only">
-          what is your reel about?
+          What is your reel about?
         </label>
         <input
           id="library-query"
@@ -662,7 +662,7 @@ export function Library({
           maxLength={QUERY_MAX}
           autoComplete="off"
           enterKeyHint="search"
-          placeholder="what is your reel about?"
+          placeholder="What is your reel about?"
           className="h-14 w-full rounded-full border border-hairline bg-navy-raised pl-13 pr-28 font-body text-base text-silver outline-none transition-colors placeholder:text-silver-muted focus:border-vivid-blue/60 sm:h-16 sm:pr-32 sm:text-lg"
         />
         <button
@@ -694,13 +694,13 @@ export function Library({
         <div aria-live="polite" aria-atomic="true" className="sr-only">
           {state.kind === "loading" && "searching"}
           {state.kind === "done" &&
-            (results.length ? `showing ${results.length} reels` : "no reels matched")}
+            (results.length ? `showing ${results.length} reels` : "No reels matched")}
           {state.kind === "error" && state.message}
         </div>
 
         {!configured && (
           <p className="rounded-2xl border border-hairline px-5 py-4 text-sm text-silver-muted">
-            the library is not connected right now. try again shortly.
+            The library is not connected right now. Try again shortly.
           </p>
         )}
 
@@ -724,7 +724,7 @@ export function Library({
 
         {state.kind === "done" && results.length === 0 && (
           <p className="rounded-2xl border border-hairline px-5 py-4 text-sm text-silver-muted">
-            nothing in the library is close to that. try describing the FORMAT or
+            Nothing in the library is close to that. Try describing the FORMAT or
             the FEELING rather than the topic, or widen a filter.
           </p>
         )}
@@ -732,7 +732,7 @@ export function Library({
         {state.kind === "done" && results.length > 0 && (
           <>
             <p className="mb-4 font-body text-xs text-silver-muted">
-              the {results.length} closest reels to that, closest first
+              The {results.length} closest reels to that, closest first
             </p>
             <Wall reels={results.slice(0, shown)} />
             {shown < results.length && (
@@ -748,14 +748,14 @@ export function Library({
                 {wallError
                   ? wallError
                   : count === 0
-                    ? "no reels match those filters. try widening one."
+                    ? "No reels match those filters. Try widening one."
                     : featured
-                      ? "hand-picked, from the creators worth studying"
-                      : "the biggest outliers first"}
+                      ? "Hand-picked, from the creators worth studying"
+                      : "The biggest outliers first"}
               </p>
               {!featured && pages > 1 && (
                 <p className="font-display text-xs tabular-nums text-silver-muted">
-                  page {page} of {pages}
+                  Page {page} of {pages}
                 </p>
               )}
             </div>
@@ -772,15 +772,15 @@ export function Library({
                   className="inline-flex min-h-11 items-center rounded-full border border-hairline px-5 font-body text-xs text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
                 >
                   {count > 0
-                    ? `see all ${count.toLocaleString("en-GB")} reels`
-                    : "see every reel"}
+                    ? `See all ${count.toLocaleString("en-GB")} reels`
+                    : "See every reel"}
                 </button>
               </div>
             )}
 
             {!featured && pages > 1 && (
               <nav
-                aria-label="library pages"
+                aria-label="Library pages"
                 className="mt-6 flex items-center justify-between gap-3"
               >
                 <PageLink

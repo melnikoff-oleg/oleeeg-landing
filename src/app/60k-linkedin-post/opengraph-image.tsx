@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "The LinkedIn prompts behind a $60K month", eyebrow: "free prompts" });
+  return ogImage({ title: "The LinkedIn prompts behind a $60K month", eyebrow: "Free prompts" });
 }

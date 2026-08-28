@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "Ask the $1B Marketing Brain", eyebrow: "ai chat" });
+  return ogImage({ title: "Ask the $1B Marketing Brain", eyebrow: "Ai chat" });
 }

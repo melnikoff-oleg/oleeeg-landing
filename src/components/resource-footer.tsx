@@ -8,7 +8,7 @@ export function ResourceFooter({
   boldaneCredit = false,
 }: {
   currentSlug: string;
-  /** Show the "founder of Boldane" credit line. Opt in ONLY on pages with no
+  /** Show the "Founder of Boldane" credit line. Opt in ONLY on pages with no
    *  other Boldane mention — one Boldane moment per page, never two. */
   boldaneCredit?: boolean;
 }) {
@@ -63,12 +63,12 @@ export function ResourceFooter({
           way to keep going, not as another thing to grab. */}
       {currentSlug !== "ideas" && (
         <p className="mt-8 text-center text-sm text-silver-muted">
-          got an idea for a video?{" "}
+          Got an idea for a video?{" "}
           <Link
             href="/ideas"
             className="text-vivid-blue underline decoration-vivid-blue/40 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
           >
-            vote on what i build next
+            vote on what I build next
           </Link>
         </p>
       )}
@@ -77,7 +77,7 @@ export function ResourceFooter({
         <p
           className={`${currentSlug !== "ideas" ? "mt-3" : "mt-8"} text-center text-sm text-silver-muted`}
         >
-          free guides by oleg, founder of{" "}
+          Free guides by Oleg, founder of{" "}
           <a
             href="https://www.boldane.com"
             target="_blank"
@@ -90,7 +90,7 @@ export function ResourceFooter({
       )}
 
       <p className="mt-3 text-center text-sm text-silver-muted">
-        &copy; 2026 oleg melnikov
+        &copy; 2026 Oleg Melnikov
       </p>
     </footer>
   );

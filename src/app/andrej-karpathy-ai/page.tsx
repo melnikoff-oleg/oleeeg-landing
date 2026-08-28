@@ -30,7 +30,7 @@ export default function AndrejKarpathyAiPage() {
       <ArticleJsonLd
         title="11 Things Andrej Karpathy Actually Does With AI"
         description="Eleven rules from Andrej Karpathy, one to a slide, read out of 37 interviews and 3,035 of his posts."
-        url="https://oleg.ae/andrej-karpathy-ai"
+        url="https://www.oleg.ae/andrej-karpathy-ai"
         datePublished={PUBLISHED}
         dateModified={MODIFIED}
       />

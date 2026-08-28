@@ -10,9 +10,9 @@ export const metadata: Metadata = {
     "Claude Code Instagram",
     "AI video editor",
     "AI Instagram Reels",
-    "make reels with AI",
+    "Make reels with AI",
     "HyperFrames",
-    "free AI video editing",
+    "Free AI video editing",
     "Claude Code tutorial",
     "AI reels editor",
   ],
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description:
       "Turn Claude Code into a local video editor. Photos and a voice take in, a finished Instagram Reel out. Every step from installing VS Code to your first render.",
     type: "article",
-    url: "https://oleg.ae/claude-code-instagram",
+    url: "https://www.oleg.ae/claude-code-instagram",
     publishedTime: "2026-08-01T00:00:00Z",
     modifiedTime: "2026-08-01T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Turn Claude Code into a local video editor. Photos and a voice take in, a finished Instagram Reel out.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-code-instagram",
+    canonical: "https://www.oleg.ae/claude-code-instagram",
   },
 };
 

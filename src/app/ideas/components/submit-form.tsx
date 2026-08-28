@@ -44,20 +44,20 @@ export function SubmitForm({
       if (res.status === 429) {
         setOutcome({
           kind: "error",
-          message: "that is a few ideas for one day. come back tomorrow.",
+          message: "That is a few ideas for one day. Come back tomorrow.",
         });
         return;
       }
       if (!res.ok) {
         setOutcome({
           kind: "error",
-          message: "something broke on my side. try again in a minute.",
+          message: "Something broke on my side. Try again in a minute.",
         });
         return;
       }
 
       if (data.status === "rejected") {
-        setOutcome({ kind: "rejected", reason: data.reason || "that one does not fit here." });
+        setOutcome({ kind: "rejected", reason: data.reason || "That one does not fit here." });
         return;
       }
       if (data.status === "duplicate") {
@@ -81,7 +81,7 @@ export function SubmitForm({
     } catch {
       setOutcome({
         kind: "error",
-        message: "could not reach the server. check your connection and try again.",
+        message: "Could not reach the server. Check your connection and try again.",
       });
     }
   }
@@ -89,7 +89,7 @@ export function SubmitForm({
   return (
     <form onSubmit={submit} className="surface-card p-5 sm:p-6">
       <label htmlFor="idea-title" className="block font-body text-base text-silver">
-        what should i build or explain next?
+        What should I build or explain next?
       </label>
 
       <input
@@ -97,7 +97,7 @@ export function SubmitForm({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         maxLength={TITLE_MAX}
-        placeholder="claude code that writes my newsletter"
+        placeholder="Claude Code that writes my newsletter"
         /* text-base is load bearing: under 16px iOS Safari zooms the page on focus */
         className="mt-3 min-h-[44px] w-full rounded-xl border border-hairline bg-navy-raised px-4 py-3 font-body text-base text-silver placeholder:text-silver-muted/70 focus:border-vivid-blue/60 focus:outline-none"
       />
@@ -108,7 +108,7 @@ export function SubmitForm({
         onChange={(e) => setDetail(e.target.value)}
         maxLength={DETAIL_MAX}
         rows={3}
-        placeholder="anything else about it (optional)"
+        placeholder="Anything else about it (optional)"
         /* resize-none: the drag grabber renders outside the rounded corner and is
            useless on a phone anyway, which is where most of this traffic is */
         className="mt-2.5 w-full resize-none rounded-xl border border-hairline bg-navy-raised px-4 py-3 font-body text-base text-silver placeholder:text-silver-muted/70 focus:border-vivid-blue/60 focus:outline-none"
@@ -120,29 +120,29 @@ export function SubmitForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={NAME_MAX}
-          placeholder="your name (optional)"
+          placeholder="Your name (optional)"
           className="min-h-[44px] w-full rounded-xl border border-hairline bg-navy-raised px-4 py-3 font-body text-base text-silver placeholder:text-silver-muted/70 focus:border-vivid-blue/60 focus:outline-none sm:flex-1"
         />
         <Button type="submit" size="md" disabled={!canSend} className="w-full min-h-[44px] sm:w-auto">
-          {outcome.kind === "checking" ? "checking your idea" : "add it to the board"}
+          {outcome.kind === "checking" ? "Checking your idea" : "Add it to the board"}
         </Button>
       </div>
 
       {tooShort ? (
         <p className="mt-3 font-body text-sm text-silver-muted">
-          a few more words, so people know what they are voting for.
+          A few more words, so people know what they are voting for.
         </p>
       ) : null}
 
       {outcome.kind === "published" ? (
         <p className="mt-3 font-body text-base text-vivid-blue">
-          it is on the board, with your vote on it.
+          It is on the board, with your vote on it.
         </p>
       ) : null}
 
       {outcome.kind === "held" ? (
         <p className="mt-3 font-body text-base text-silver">
-          got it. this one needs a quick look from me, it will show up shortly.
+          Got it. This one needs a quick look from me, it will show up shortly.
         </p>
       ) : null}
 

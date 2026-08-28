@@ -6,6 +6,98 @@ Format: `### YYYY-MM-DD  Title` then what changed, why, and the commit if there 
 
 ---
 
+### 2026-08-28  Search Console verified, and the www mismatch it exposed
+
+`S-06` is closed. Oleg verified a **Domain** property (`oleg.ae`) by TXT record
+and submitted the sitemap. Domain rather than URL-prefix on purpose: it covers
+`oleg.ae` and `www.oleg.ae` together, which matters here. Indexing requested for
+the homepage plus the five pages aimed at measured demand: `/claude-cowork`,
+`/claude-code-tutorial`, `/claude-code-pricing`, `/claude-cowork-pricing`,
+`/claude-code-vs-cursor`.
+
+Two things worth recording from the setup:
+
+- **The DNS is at Vercel, not at the registrar.** `oleg.ae` is an aeDA domain
+  bought through Tasjeel (only accredited UAE registrars can sell `.ae`, which
+  is why Namecheap refused), but its nameservers are `ns1/ns2.vercel-dns.com`
+  and Vercel answers authoritatively. The TXT record goes in Vercel. Tasjeel is
+  never touched.
+- **`.ae` is a real ccTLD, and that is a strategic constraint.** Google treats a
+  ccTLD as "a strong signal that your site is explicitly intended for a certain
+  country", and `.ae` is **not** on Google's list of ccTLDs treated as generic
+  (`.io`, `.me`, `.tv`, `.co`, `.ai` and about fifteen others are). It cannot be
+  overridden: the International Targeting report was removed from Search Console
+  on 2022-09-22. Every keyword in `keywords.md` is US volume and the audience is
+  US, India, Brazil, Germany, UK. **This is now measurable**: in about eight
+  weeks, Performance to Countries answers whether the domain is costing reach.
+  Do not act on it before then.
+
+**The host mismatch, found while checking the sitemap and fixed the same day.**
+The site is served at `www.oleg.ae` (Vercel redirects the apex to it) while the
+code said `https://oleg.ae` in 93 places. Every sitemap URL redirected and every
+canonical pointed at a URL that was not the page being served. Resolved by
+moving the code to www rather than flipping Vercel, since www is what already
+works and what Vercel recommends. `SITE_URL` is the single source; the test
+suite now imports the same constant.
+
+### 2026-08-28  The readable-pages pass: sentence case, visuals, and the player back in the fold
+
+Driven by Oleg, not by a tool. Three asks that shared a root cause, plus one
+finding that only turned up because of them. Full detail in CLAUDE.md.
+
+**The video was disqualifying its own pages.** Google's video documentation is
+explicit that a video "must not rely on user actions (such as swiping, clicking,
+or typing) to load", and that a watch page is one where the video is the main
+content. The site did both things wrong: a click-to-load facade, placed at the
+foot of the page. So the fourteen pages that exist *because* of a video were
+ineligible for a video result, and the credibility a six-figure view count buys
+was invisible to anyone arriving from a search result. The facade is gone (a
+real `<iframe loading="lazy">`, which is also a server component now, so the
+pages ship less of their own JavaScript), and the player sits in a two-column
+hero with the view count, runtime and publish date under it. The above-the-fold
+`RepoCta` did not move: `hero-cta.spec.ts` now asserts document order rather
+than a smaller `y`, since the two are level in the new layout.
+
+Measured cost, stated plainly: about **1.1 MB of third-party bytes** on a page
+with a player, against ~65 kB of the site's own payload. That is the price of
+being eligible at all, and it is the reason the facade existed.
+
+**VideoObject stopped guessing.** `uploadDate` had been the *page's* publish
+date, which is a different date and simply wrong; `duration` and
+`interactionStatistic` were missing entirely. All three now come from
+`src/lib/videos.ts`, generated from YouTube by `scripts/build-video-meta.mjs`.
+The chapters Oleg already writes into every description are emitted as `hasPart`
+Clips with a `SeekToAction`, which is the requirement for Google's key-moments
+treatment, and they render on the page as links into the exact second.
+
+**The wall of text was a CSS bug, not a writing problem.** Every paragraph in
+every written guide had `margin-top: 0` and `margin-bottom: 0`: Tailwind v4
+emits `space-y-*` inside `:where()`, which has zero specificity, so
+`.prose-guide p { margin: 0 }` won. The guides had been rendering as one
+undifferentiated block since they shipped last week. Fixed with explicit rules
+that carry specificity.
+
+**The guides are now illustrated from the videos.** 32 stills in `public/guide/`,
+each deep linked to the second it came from, plus new `Answer` / `Stats` /
+`Checklist` / `Quote` primitives. `Answer` matters most for search: a section
+headed "Is Claude Code free" now opens with the answer instead of three
+sentences of context, which is the shape an answer engine can lift. Guarded by
+`guide.spec.ts` 111 and 112.
+
+**Sentence case, site-wide.** About 2,300 strings across 85 files. Beyond
+legibility this is an entity-recognition fix: "claude code" appeared 184 times
+in copy, reading as a common noun rather than a product. Test 110 fails any
+lowercase-initial heading.
+
+**Two versions per topic was considered and rejected.** Splitting each topic
+into a YouTube page and a Google page splits link equity and reads as duplicate
+content, and a referrer-based swap shows Google only the default. The difference
+between the two intents is order, not content, and one hero serves both. If they
+ever need measuring apart, `?from=yt` in the video descriptions and Plausible,
+not a second URL.
+
+Suite: 458 e2e passing, 87 unit passing, 0 failing.
+
 ### 2026-08-27  The standalone-guide rewrite, and a keyword map that matches reality
 
 The big one. Full write-up in `2026-08-27-strategy.md`; the short version:

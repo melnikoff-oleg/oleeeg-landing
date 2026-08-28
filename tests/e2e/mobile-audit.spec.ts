@@ -6,7 +6,7 @@ import { ROUTES } from "./routes";
 // The site already had zero horizontal overflow, so these lock in the NEXT
 // tier of mobile quality surfaced by the audit: real tap-target sizes (>=44px,
 // Apple HIG), primary reading copy at >=16px (never below the legibility floor),
-// and a lightweight click-to-load YouTube facade instead of an eager iframe that
+// and a real YouTube player placed in the fold (it was a click-to-load facade at
 // pulls ~0.5-1MB of player JS on load. All written to FAIL against pre-fix code.
 
 const MOBILE_ONLY = (testInfo: { project: { name: string } }) =>
@@ -136,26 +136,38 @@ test("36 - high-converting: 'what makes it convert' card body is >=16px", async 
   expect(await fontSize(body), "principle card body px").toBeGreaterThanOrEqual(15.5);
 });
 
-// ── YouTube facade (no eager iframe; click to load) ───────────────────────────
+// ── YouTube player (a real iframe, which is what Google requires) ────────────
+//
+// This rule used to be the exact opposite: no eager iframe, a click-to-load
+// facade only. That was the right call for page weight and the wrong call for
+// everything else. Google's video documentation is explicit that a video "must
+// not rely on user actions (such as swiping, clicking, or typing) to load", and
+// a page whose video never loads for a crawler is not eligible for a video
+// result at all. On pages that exist because of a video, that trade was
+// backwards, so the facade is gone and these tests now guard the replacement.
 
 for (const route of YT_FACADE_ROUTES) {
-  test(`37 - facade: ${route} ships no eager iframe and a play affordance`, async ({ page }, testInfo) => {
+  test(`37 - player: ${route} embeds a real, crawlable, lazily fetched iframe`, async ({ page }, testInfo) => {
     MOBILE_ONLY(testInfo);
     await settle(page, route);
-    // No YouTube iframe should exist before the user opts in.
-    expect(await page.locator("iframe[src*='youtube']").count(), "eager youtube iframes").toBe(0);
-    const facade = page.getByTestId("youtube-facade").first();
-    await expect(facade).toBeVisible();
+    const frame = page.getByTestId("youtube-embed").first();
+    await expect(frame).toBeVisible();
+    // The src has to be in the markup, not swapped in by script.
+    expect(await frame.getAttribute("src"), "player src").toContain("youtube.com/embed/");
+    // ...and still off the critical path.
+    expect(await frame.getAttribute("loading"), "loading attribute").toBe("lazy");
   });
 }
 
-test("38 - facade: clicking the poster loads the real iframe", async ({ page }, testInfo) => {
+test("38 - player: the video sits in the fold, not at the foot of the page", async ({ page }, testInfo) => {
   MOBILE_ONLY(testInfo);
   await settle(page, "/claude-reels");
-  const facade = page.getByTestId("youtube-facade").first();
-  await facade.scrollIntoViewIfNeeded();
-  await facade.click();
-  await expect(page.locator("iframe[src*='youtube']").first()).toBeVisible({ timeout: 10_000 });
+  const frame = page.getByTestId("youtube-embed").first();
+  const box = await frame.boundingBox();
+  expect(box, "player box").not.toBeNull();
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  // Well inside the first tenth of the page. It used to be at about 80%.
+  expect(box!.y / height, "player position down the page").toBeLessThan(0.15);
 });
 
 // ── No horizontal overflow anywhere (regression guard, all routes) ────────────

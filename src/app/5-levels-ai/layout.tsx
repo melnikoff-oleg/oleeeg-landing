@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Claude Agent SDK",
     "AI for founders",
     "AI orchestration",
-    "levels of AI",
+    "Levels of AI",
     "AI automation",
     "Boldane",
   ],
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description:
       "From copy-pasting out of a chat window to a thousand agents that launch themselves. Find your level and the exact move to the next one.",
     type: "article",
-    url: "https://oleg.ae/5-levels-ai",
+    url: "https://www.oleg.ae/5-levels-ai",
     publishedTime: "2026-07-21T00:00:00Z",
     modifiedTime: "2026-07-21T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "From copy-pasting out of a chat window to a thousand agents that launch themselves. Find your level and the exact move to the next one.",
   },
   alternates: {
-    canonical: "https://oleg.ae/5-levels-ai",
+    canonical: "https://www.oleg.ae/5-levels-ai",
   },
 };
 

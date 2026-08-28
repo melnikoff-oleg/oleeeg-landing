@@ -33,10 +33,10 @@ export function NextUp({ currentSlug }: { currentSlug: string }) {
         id="next-up-title"
         className="eyebrow text-center text-[13px] font-medium text-vivid-blue"
       >
-        keep going
+        Keep going
       </p>
       <p className="mx-auto mt-2 max-w-md text-center text-sm text-silver-muted">
-        a couple more, picked for you
+        A couple more, picked for you
       </p>
 
       {/* Hero "up next": the single most obvious next step, largest and first. */}

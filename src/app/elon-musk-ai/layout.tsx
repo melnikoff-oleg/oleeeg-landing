@@ -34,12 +34,12 @@ export const metadata: Metadata = {
   title: TITLE,
   description: SHORT,
   keywords: [
-    "how Elon Musk uses AI",
+    "How Elon Musk uses AI",
     "Elon Musk AI",
     "Elon Musk Grok",
     "Elon Musk AI rules",
-    "how to use AI daily",
-    "which AI model is best",
+    "How to use AI daily",
+    "Which AI model is best",
     "AI prompting",
     "Anthropic Fable",
     "Grok 4.5",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "article",
-    url: "https://oleg.ae/elon-musk-ai",
+    url: "https://www.oleg.ae/elon-musk-ai",
     publishedTime: "2026-08-05T00:00:00Z",
     modifiedTime: "2026-08-05T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     description: SHORT,
   },
   alternates: {
-    canonical: "https://oleg.ae/elon-musk-ai",
+    canonical: "https://www.oleg.ae/elon-musk-ai",
   },
 };
 
@@ -82,7 +82,7 @@ export default function ElonMuskAiLayout({
       </div>
       {/* The companion video (ieTgCMWYsoQ) went private some time before
           2026-08-27: the oembed endpoint 403s and it is no longer on the
-          channel. Without videoId the outro renders its "more from oleg"
+          channel. Without videoId the outro renders its "More from Oleg"
           variant (channel + free guides) instead of a thumbnail that links to a
           dead watch page. Put the id back if the video is republished. */}
       <FilmedPageOutro />

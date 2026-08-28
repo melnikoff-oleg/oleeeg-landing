@@ -34,19 +34,28 @@ export const DOWNLOAD_ICON = (
  */
 export function RepoCta({
   href,
-  label = "get it on github",
+  label = "Get it on GitHub",
   icon = GITHUB_ICON,
   className,
+  align = "center",
 }: {
   href: string;
   label?: string;
   icon?: ReactNode;
   className?: string;
+  /**
+   * The centered hero still centers it. The two-column video hero puts it in a
+   * left-aligned column, where a centered button floats away from the copy it
+   * belongs to.
+   */
+  align?: "center" | "start";
 }) {
   return (
     <div
       data-testid="hero-cta"
-      className={`flex flex-col items-center justify-center gap-3 sm:flex-row ${className ?? ""}`}
+      className={`flex flex-col gap-3 sm:flex-row ${
+        align === "start" ? "items-start justify-start" : "items-center justify-center"
+      } ${className ?? ""}`}
     >
       <Button asChild size="lg" variant="primary">
         <a href={href} target="_blank" rel="noopener noreferrer">

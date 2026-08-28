@@ -31,7 +31,7 @@ const NAMED_COLLABS = 1;
  * `sponsored` is tri-state and only `true` paints. false is Instagram asking and
  * the creator saying no; null is a row from a source that never carried the
  * field. Neither is a claim worth a badge, and painting them the same way is
- * the point -- they are both "nothing to declare".
+ * the point -- they are both "Nothing to declare".
  */
 function Credits({ reel }: { reel: CreatorReel }) {
   const collab = reel.collab_with ?? [];
@@ -69,7 +69,7 @@ function Credits({ reel }: { reel: CreatorReel }) {
  * already trained on: a wall of 9:16 stills at four to a row, hairline gaps,
  * and the numbers laid over the picture rather than beside it. The old row
  * layout gave a 50px thumbnail four fifths of a card's width of text, which is
- * exactly backwards for a page whose whole job is "show me what they make".
+ * exactly backwards for a page whose whole job is "Show me what they make".
  *
  * Four things on the overlay, in Oleg's order and at four sizes, because on one
  * creator's page they are not equally important and reading them as a row of
@@ -147,7 +147,7 @@ export function CreatorReelTile({
               <span className="truncate font-display text-lg font-semibold leading-none tabular-nums text-white sm:text-xl">
                 {compactNumber(reel.views)}
               </span>
-              <span className="sr-only">views</span>
+              <span className="sr-only">Views</span>
             </span>
 
             {/* Second. No icon: a date needs no glyph to be read as a date, and
@@ -176,7 +176,7 @@ export function CreatorReelTile({
               <span className="font-body text-[11px] font-medium tabular-nums sm:text-xs">
                 {compactNumber(reel.likes)}
               </span>
-              <span className="sr-only">likes</span>
+              <span className="sr-only">Likes</span>
             </span>
 
             <Credits reel={reel} />

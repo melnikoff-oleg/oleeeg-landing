@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Claude Cowork",
     "Claude AI",
     "AI LinkedIn automation",
-    "cold outreach AI",
+    "Cold outreach AI",
     "B2B sales AI",
     "Claude Code tutorial",
     "AI sales automation",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description:
       "Run LinkedIn cold outreach with Claude Cowork. Research prospects, write personalized messages, and send connections, all for you.",
     type: "article",
-    url: "https://oleg.ae/claude-cowork-outreach",
+    url: "https://www.oleg.ae/claude-cowork-outreach",
     publishedTime: "2026-05-12T00:00:00Z",
     modifiedTime: "2026-05-13T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Run LinkedIn cold outreach with Claude Cowork. Research prospects, write personalized messages, and send connections, all for you.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-cowork-outreach",
+    canonical: "https://www.oleg.ae/claude-cowork-outreach",
   },
 };
 

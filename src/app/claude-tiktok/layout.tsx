@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description:
       "Study the TikToks earning real reach in your niche and generate thumb-stopping video concepts and scripts with Claude Code.",
     type: "article",
-    url: "https://oleg.ae/claude-tiktok",
+    url: "https://www.oleg.ae/claude-tiktok",
     publishedTime: "2026-05-12T00:00:00Z",
     modifiedTime: "2026-05-13T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Study the TikToks earning real reach in your niche and generate strong video concepts with Claude Code.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-tiktok",
+    canonical: "https://www.oleg.ae/claude-tiktok",
   },
 };
 

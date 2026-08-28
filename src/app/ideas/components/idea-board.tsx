@@ -91,8 +91,8 @@ export function IdeaBoard({
         );
         setNotice(
           res.status === 429
-            ? "that is a lot of voting for one day. come back tomorrow."
-            : "could not save that vote. try again in a moment.",
+            ? "That is a lot of voting for one day. Come back tomorrow."
+            : "Could not save that vote. Try again in a moment.",
         );
         setTimeout(() => setNotice(null), 6000);
         return;
@@ -120,7 +120,7 @@ export function IdeaBoard({
   }
 
   function onDuplicate(ideaId: string) {
-    flash(ideaId, "someone already suggested this. vote for it here.");
+    flash(ideaId, "Someone already suggested this. Vote for it here.");
   }
 
   return (
@@ -128,9 +128,9 @@ export function IdeaBoard({
       <SubmitForm onPublished={onPublished} onDuplicate={onDuplicate} />
 
       <div className="mt-10 flex items-center justify-between gap-4">
-        <h2 className="eyebrow font-body text-[13px] text-vivid-blue">the board</h2>
+        <h2 className="eyebrow font-body text-[13px] text-vivid-blue">The board</h2>
 
-        <div className="flex gap-1" role="group" aria-label="sort ideas">
+        <div className="flex gap-1" role="group" aria-label="Sort ideas">
           {(["top", "new"] as Sort[]).map((option) => (
             <button
               key={option}
@@ -161,7 +161,7 @@ export function IdeaBoard({
 
       {sorted.length === 0 ? (
         <p className="mt-6 font-body text-base text-silver-muted">
-          nothing on the board yet. add the first one.
+          Nothing on the board yet. Add the first one.
         </p>
       ) : (
         <ul className="mt-4 flex flex-col gap-3">

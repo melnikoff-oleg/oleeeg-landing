@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "An X content machine built with Claude Code", eyebrow: "free guide" });
+  return ogImage({ title: "An X content machine built with Claude Code", eyebrow: "Free guide" });
 }

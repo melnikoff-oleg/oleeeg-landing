@@ -13,7 +13,7 @@ import type { ReelTileRow } from "@/lib/reels/types";
  * 9:16 stills at four to a row, hairline gaps, numbers laid over the picture
  * rather than beside it. The list of write-up cards this replaced gave a 50px
  * thumbnail four fifths of a card's width of prose, which is exactly backwards
- * for a page whose job is "show me what went viral".
+ * for a page whose job is "Show me what went viral".
  *
  * FOUR numbers on the strip, at four sizes, in Oleg's order, because they are
  * not equally important and reading them as a row of equals is what made the old
@@ -32,7 +32,7 @@ import type { ReelTileRow } from "@/lib/reels/types";
  * 4M from a huge one.
  *
  * The handle sits above the strip rather than in it, and it is the one link that
- * does not go to Instagram: from a wall of many creators, "who made this" is the
+ * does not go to Instagram: from a wall of many creators, "Who made this" is the
  * question the tile cannot answer without it.
  *
  * `index` is the tile's place in the wall and it decides only one thing: how
@@ -104,7 +104,7 @@ export function LibraryReelTile({
         className="absolute inset-0 z-10"
       >
         <span className="sr-only">
-          {`open this reel on instagram: ${compactNumber(reel.views)} views, ${score}x outlier, posted ${posted}`}
+          {`Open this reel on Instagram: ${compactNumber(reel.views)} views, ${score}x outlier, posted ${posted}`}
         </span>
       </a>
 
@@ -131,7 +131,7 @@ export function LibraryReelTile({
               <span className="truncate font-display text-lg font-semibold leading-none tabular-nums text-white sm:text-xl">
                 {compactNumber(reel.views)}
               </span>
-              <span className="sr-only">views</span>
+              <span className="sr-only">Views</span>
             </span>
 
             {/* Second, and the only coloured thing on the strip. It is what
@@ -142,7 +142,7 @@ export function LibraryReelTile({
               <span className="font-display text-sm font-semibold leading-none tabular-nums sm:text-base">
                 {score}x
               </span>
-              <span className="sr-only">their own audience</span>
+              <span className="sr-only">Their own audience</span>
             </span>
           </div>
 
@@ -161,7 +161,7 @@ export function LibraryReelTile({
               <span className="font-body text-[11px] font-medium tabular-nums sm:text-xs">
                 {compactNumber(reel.likes)}
               </span>
-              <span className="sr-only">likes</span>
+              <span className="sr-only">Likes</span>
             </span>
           </div>
         </div>

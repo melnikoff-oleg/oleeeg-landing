@@ -11,9 +11,9 @@ export const metadata: Metadata = {
     "Claude Code Obsidian",
     "Obsidian second brain",
     "Claude Code tutorial",
-    "second brain setup",
-    "how to build a second brain",
-    "personal knowledge management",
+    "Second brain setup",
+    "How to build a second brain",
+    "Personal knowledge management",
     "Claude Code for beginners",
   ],
   openGraph: {
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description:
       "Set up an AI second brain in about 10 minutes: VS Code, Obsidian, Claude Code, one shared folder, and the one prompt that builds the vault itself.",
     type: "article",
-    url: "https://oleg.ae/claude-code-second-brain",
+    url: "https://www.oleg.ae/claude-code-second-brain",
     publishedTime: "2026-08-07T00:00:00Z",
     modifiedTime: "2026-08-07T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Set up an AI second brain in about 10 minutes: VS Code, Obsidian, Claude Code, one shared folder, and one prompt that builds the vault itself.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-code-second-brain",
+    canonical: "https://www.oleg.ae/claude-code-second-brain",
   },
 };
 

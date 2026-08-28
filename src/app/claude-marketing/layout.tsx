@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     description:
       "Five real marketing use cases with Claude Code: Instagram Reels, competitor analysis, ad campaigns, cold outreach, and content automation.",
     type: "article",
-    url: "https://oleg.ae/claude-marketing",
+    url: "https://www.oleg.ae/claude-marketing",
     publishedTime: "2026-05-12T00:00:00Z",
     modifiedTime: "2026-05-13T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
       "Five real marketing use cases with Claude Code: Reels, competitor analysis, ads, outreach, and content automation.",
   },
   alternates: {
-    canonical: "https://oleg.ae/claude-marketing",
+    canonical: "https://www.oleg.ae/claude-marketing",
   },
 };
 

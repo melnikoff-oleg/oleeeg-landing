@@ -40,8 +40,8 @@ export const metadata: Metadata = {
   description: SHORT,
   keywords: [
     "Boris Cherny",
-    "creator of Claude Code",
-    "how to use Claude Code",
+    "Creator of Claude Code",
+    "How to use Claude Code",
     "Claude Code tips",
     "Claude Code workflow",
     "CLAUDE.md",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "article",
-    url: "https://oleg.ae/boris-cherny-ai",
+    url: "https://www.oleg.ae/boris-cherny-ai",
     publishedTime: "2026-08-07T00:00:00Z",
     modifiedTime: "2026-08-12T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     description: SHORT,
   },
   alternates: {
-    canonical: "https://oleg.ae/boris-cherny-ai",
+    canonical: "https://www.oleg.ae/boris-cherny-ai",
   },
 };
 

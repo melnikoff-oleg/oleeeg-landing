@@ -15,21 +15,21 @@ export const metadata: Metadata = {
   title,
   description,
   keywords: [
-    "viral reels library",
+    "Viral reels library",
     "Instagram reels database",
-    "search viral reels",
-    "top viral reels",
-    "viral reel examples",
+    "Search viral reels",
+    "Top viral reels",
+    "Viral reel examples",
     "Instagram outlier reels",
   ],
   openGraph: {
     title,
     description,
     type: "website",
-    url: "https://oleg.ae/reels",
+    url: "https://www.oleg.ae/reels",
   },
   twitter: { card: "summary_large_image", title, description },
-  alternates: { canonical: "https://oleg.ae/reels" },
+  alternates: { canonical: "https://www.oleg.ae/reels" },
 };
 
 // The wall depends on searchParams and on a table sync.py rewrites, so it is
@@ -105,7 +105,7 @@ export default async function LibraryPage({
       // Charts with no bars, sliders that still work. The filters are applied by
       // the database either way, so losing this costs the preview, not the
       // filtering.
-      console.error("reel facts ssr failed", factsResult.reason);
+      console.error("Reel facts ssr failed", factsResult.reason);
     }
 
     if (wall.status === "fulfilled") {
@@ -123,7 +123,7 @@ export default async function LibraryPage({
     } else {
       // A dead upstream must not 500 the page: the client can retry by moving a
       // filter, and an empty wall with an explanation beats an error screen.
-      console.error("library ssr failed", wall.reason);
+      console.error("Library ssr failed", wall.reason);
       failed = true;
     }
 
@@ -136,7 +136,7 @@ export default async function LibraryPage({
         rows = fallback.rows;
         total = fallback.total;
       } catch (err) {
-        console.error("library fallback ssr failed", err);
+        console.error("Library fallback ssr failed", err);
         failed = true;
       }
     }
@@ -144,7 +144,7 @@ export default async function LibraryPage({
 
   return (
     <main className="mx-auto max-w-6xl px-4 pt-6 pb-16 sm:px-6 sm:pt-10">
-      <h1 className="sr-only">viral reels library</h1>
+      <h1 className="sr-only">Viral reels library</h1>
       <ReelNav current="/reels" />
       <Library
         initialQuery={query}

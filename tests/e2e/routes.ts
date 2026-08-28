@@ -11,6 +11,13 @@
 // is the cheaper truth. (They are not link dead ends any more: each one whose
 // video is live carries a FilmedPageOutro from its layout.tsx.)
 
+/**
+ * The host the site is served from, mirroring SITE_URL in src/lib/seo/schema.ts.
+ * Kept here so the metadata and schema specs assert one value rather than two
+ * literals that can drift apart.
+ */
+export const SITE_URL = "https://www.oleg.ae";
+
 export const ROUTES = [
   "/",
   // The search cluster: pages built for keywords that exist, rather than for

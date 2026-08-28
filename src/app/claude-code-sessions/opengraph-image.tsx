@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "Claude Code windows can talk now", eyebrow: "explained" });
+  return ogImage({ title: "Claude Code windows can talk now", eyebrow: "Explained" });
 }

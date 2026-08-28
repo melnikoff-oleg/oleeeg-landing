@@ -11,9 +11,9 @@ export const metadata: Metadata = {
     "AI advertising tool",
     "Claude Code",
     "AI marketing tool",
-    "competitor ad analysis",
+    "Competitor ad analysis",
     "AI ad copy",
-    "open source AI tool",
+    "Open source AI tool",
     "Claude Code for marketing",
   ],
   openGraph: {
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description:
       "Study the Meta ads your competitors are actually running, understand why they convert, and generate new ad concepts: copy, visuals, and video scripts.",
     type: "article",
-    url: "https://oleg.ae/ads-ai",
+    url: "https://www.oleg.ae/ads-ai",
     publishedTime: "2026-05-31T00:00:00Z",
     modifiedTime: "2026-05-31T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       "Study the Meta ads your competitors are actually running, understand why they convert, and generate new ad concepts: copy, visuals, and video scripts.",
   },
   alternates: {
-    canonical: "https://oleg.ae/ads-ai",
+    canonical: "https://www.oleg.ae/ads-ai",
   },
 };
 

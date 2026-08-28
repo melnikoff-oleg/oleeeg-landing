@@ -250,6 +250,43 @@ body {
   margin: 0;
 }
 
+/*
+  ...and then put the spacing back, which is the whole reason the guides read as
+  a wall.
+
+  GuideSection wraps its children in Tailwind's `space-y-4`. Tailwind v4 emits
+  that utility inside `:where()`, which has zero specificity, so the `margin: 0`
+  rule directly above it won every time and every paragraph in every written
+  guide ran straight into the next one with no gap at all. Nothing looked
+  broken, it just read as one undifferentiated block of text.
+
+  These selectors carry real specificity, so they hold. Spacing is in `em` so it
+  tracks the font size rather than fighting it.
+*/
+.prose-guide p + p,
+.prose-guide p + ul,
+.prose-guide p + ol,
+.prose-guide ul + p,
+.prose-guide ol + p,
+.prose-guide li > p + p {
+  margin-top: 1.15em;
+}
+
+/* A paragraph that follows a figure, a card or a table needs more air than one
+   that follows another paragraph, or the caption and the next sentence merge. */
+.prose-guide figure + p,
+.prose-guide div + p,
+.prose-guide dl + p,
+.prose-guide pre + p {
+  margin-top: 1.5em;
+}
+
+/* Lists were tight for the same reason: the gap between items came from a
+   utility that lost, so a four-item list read as one paragraph with bullets. */
+.prose-guide li + li {
+  margin-top: 0.4em;
+}
+
 .prose-guide strong {
   color: #fff;
   /* 700, not 600: Space Grotesk is loaded at 400/500/700, and asking for a

@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "What Claude Code actually costs", eyebrow: "pricing" });
+  return ogImage({ title: "What Claude Code actually costs", eyebrow: "Pricing" });
 }

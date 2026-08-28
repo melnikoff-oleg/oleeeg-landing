@@ -10,7 +10,14 @@
 // HowTo for a page that is not a how-to. Each of those is a penalty risk in
 // exchange for nothing.
 
-export const SITE_URL = "https://oleg.ae";
+import { isoDuration, thumbnailUrl, videoMeta } from "@/lib/videos";
+
+// The host the site is actually served from. Vercel serves www and redirects
+// the apex to it, which is Vercel's own recommendation, so this is www: a
+// canonical that points at a URL which redirects is a canonical pointing at a
+// different page. Every sitemap entry, every canonical, robots.txt, llms.txt
+// and the Person @id derive from this one line.
+export const SITE_URL = "https://www.oleg.ae";
 
 // The profiles Oleg actively points people at, checked against his own YouTube
 // descriptions on 2026-08-27: linkedin.com/in/olegane appears in all 24 live
@@ -66,16 +73,69 @@ export function articleSchema(input: ArticleInput): any {
     author: author(),
     publisher: author(),
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
-    ...(videoId
+    ...(videoId ? { video: videoObject(videoId, videoTitle ?? title, description, url) } : {}),
+  };
+}
+
+/**
+ * The VideoObject for an embedded video.
+ *
+ * Everything here except the description comes from src/lib/videos.ts, which is
+ * generated from YouTube itself, because every one of these fields is something
+ * Google can and does verify:
+ *
+ * - `uploadDate` used to be the page's own datePublished, which is a different
+ *   date and simply wrong. It is the video's real upload date now.
+ * - `duration` and `interactionStatistic` were missing. Google lists both as
+ *   recommended, and the view count is the same number the page shows a reader.
+ * - `hasPart` declares the chapters Oleg already writes into every description,
+ *   which is what makes a result eligible for the "key moments" treatment, and
+ *   `potentialAction` tells Google how to build a link to a given second.
+ *
+ * Returns undefined for a video we hold no metadata for, so a page can never
+ * claim a VideoObject built out of guesses.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function videoObject(
+  videoId: string,
+  name: string,
+  description: string,
+  pageUrl: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any {
+  const meta = videoMeta(videoId);
+  const watch = `https://www.youtube.com/watch?v=${videoId}`;
+  return {
+    "@type": "VideoObject",
+    name: meta?.title ?? name,
+    description,
+    thumbnailUrl: thumbnailUrl(videoId),
+    uploadDate: meta?.uploadDate ?? undefined,
+    ...(meta ? { duration: isoDuration(meta.seconds) } : {}),
+    contentUrl: watch,
+    embedUrl: `https://www.youtube.com/embed/${videoId}`,
+    ...(meta
       ? {
-          video: {
-            "@type": "VideoObject",
-            name: videoTitle ?? title,
-            description,
-            thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-            uploadDate: datePublished,
-            contentUrl: `https://www.youtube.com/watch?v=${videoId}`,
-            embedUrl: `https://www.youtube.com/embed/${videoId}`,
+          interactionStatistic: {
+            "@type": "InteractionCounter",
+            interactionType: { "@type": "WatchAction" },
+            userInteractionCount: meta.views,
+          },
+        }
+      : {}),
+    ...(meta && meta.chapters.length > 1
+      ? {
+          hasPart: meta.chapters.map((c, i) => ({
+            "@type": "Clip",
+            name: c.label,
+            startOffset: c.start,
+            ...(meta.chapters[i + 1] ? { endOffset: meta.chapters[i + 1].start } : {}),
+            url: `${watch}&t=${c.start}s`,
+          })),
+          potentialAction: {
+            "@type": "SeekToAction",
+            target: `${pageUrl}?t={seek_to_second_number}`,
+            "startOffset-input": "required name=seek_to_second_number",
           },
         }
       : {}),

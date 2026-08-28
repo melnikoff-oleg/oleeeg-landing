@@ -24,7 +24,7 @@ export function HeroSection() {
           {/* Top label */}
           <AnimatedGroup>
             <span className="eyebrow inline-block rounded-full border border-hairline bg-vivid-blue/10 px-4 py-1.5 font-body text-xs text-vivid-blue/90">
-              ai software entrepreneur
+              AI software entrepreneur
             </span>
           </AnimatedGroup>
 
@@ -35,7 +35,7 @@ export function HeroSection() {
             segmentClassName="text-metallic"
             className="mx-auto mt-8 max-w-3xl text-balance font-display text-2xl font-medium leading-[1.05] tracking-tight text-silver sm:text-3xl md:text-4xl lg:text-5xl"
           >
-            5 years in AI. left big tech and a hedge fund to build my own company.
+            5 years in AI. Left big tech and a hedge fund to build my own company.
           </TextEffect>
 
           {/* Subheading */}
@@ -45,7 +45,7 @@ export function HeroSection() {
             per="line"
             className="mx-auto mt-6 max-w-2xl text-balance font-body text-lg text-silver-muted md:text-xl"
           >
-            now i run boldane, helping founders with real expertise become the names their market trusts. and i share the AI systems i build for marketing with 19K+ on youtube.
+            Now I run Boldane, helping founders with real expertise become the names their market trusts. And I share the AI systems I build for marketing with 19K+ on YouTube.
           </TextEffect>
 
           {/* CTAs */}

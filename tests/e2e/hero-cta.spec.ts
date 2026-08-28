@@ -49,19 +49,26 @@ for (const spec of SPECS) {
     expect(await cta.getAttribute("href"), `${spec.route} href`).toMatch(spec.href);
     if (spec.label) await expect(cta).toContainText(spec.label);
 
-    // It must appear above the video facade (or, on the video-less pages, above
-    // the setup guide) so a skimmer meets the action first.
+    // The action must come first. Since the video moved into the hero, "first"
+    // is document order rather than a smaller y: on a wide screen the player
+    // sits in the right-hand column and is level with the copy, while on a
+    // phone the two stack and the button is genuinely above it. Document order
+    // is what holds on both, and it is what a screen reader follows.
     const below =
       spec.hasVideo === false
         ? page.getByText("setup guide", { exact: false }).first()
-        : page.getByTestId("youtube-facade").first();
+        : page.getByTestId("youtube-embed").first();
+    await expect(below, `${spec.route} following section present`).toBeVisible();
+    const ctaFirst = await page.evaluate(
+      ([a, b]) =>
+        !!a && !!b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
+      [await cta.elementHandle(), await below.elementHandle()],
+    );
+    expect(ctaFirst, `${spec.route} hero CTA should come before it`).toBe(true);
+
+    // And it has to be in the fold, not merely early in the markup.
     const ctaBox = await cta.boundingBox();
-    const belowBox = await below.boundingBox();
     expect(ctaBox, `${spec.route} cta box`).not.toBeNull();
-    expect(belowBox, `${spec.route} below-section box`).not.toBeNull();
-    expect(
-      ctaBox!.y,
-      `${spec.route} hero CTA should sit above it`
-    ).toBeLessThan(belowBox!.y);
+    expect(ctaBox!.y, `${spec.route} hero CTA should be above the fold`).toBeLessThan(900);
   });
 }

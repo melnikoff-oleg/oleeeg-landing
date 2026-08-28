@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
-  return ogImage({ title: "Study your competitors' ads with AI", eyebrow: "free tool" });
+  return ogImage({ title: "Study your competitors' ads with AI", eyebrow: "Free tool" });
 }

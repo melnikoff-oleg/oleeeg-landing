@@ -285,7 +285,7 @@ export function CreatorSearch({
         };
         if (controller.signal.aborted) return;
         if (!res.ok) {
-          setRosterError("the roster did not come back. try again in a moment.");
+          setRosterError("The roster did not come back. Try again in a moment.");
           return;
         }
         setRows(json.results ?? []);
@@ -295,7 +295,7 @@ export function CreatorSearch({
         setFeatured(false);
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
-        setRosterError("the roster did not come back. try again in a moment.");
+        setRosterError("The roster did not come back. Try again in a moment.");
       } finally {
         if (!controller.signal.aborted) setRosterBusy(false);
       }
@@ -430,8 +430,8 @@ export function CreatorSearch({
         kind: "error",
         message:
           (err as Error & { reason?: string }).reason === "rate_limited"
-            ? "that is a lot of searching for one day. try again tomorrow."
-            : "the search did not come back. try again in a moment.",
+            ? "That is a lot of searching for one day. Try again tomorrow."
+            : "The search did not come back. Try again in a moment.",
       });
     }
   }, [ask]);
@@ -582,7 +582,7 @@ export function CreatorSearch({
 
   const results = state.kind === "done" ? state.results : [];
   // What to draw while a new answer is on its way. Ten cards going slightly
-  // quiet reads as "this is being replaced"; ten cards going away reads as
+  // quiet reads as "This is being replaced"; ten cards going away reads as
   // "it broke".
   const holding = state.kind === "loading" ? state.previous : [];
   const showRoster = state.kind === "idle";
@@ -624,7 +624,7 @@ export function CreatorSearch({
           aria-hidden
         />
         <label htmlFor="creator-query" className="sr-only">
-          what kind of creator are you looking for?
+          What kind of creator are you looking for?
         </label>
         <input
           id="creator-query"
@@ -646,7 +646,7 @@ export function CreatorSearch({
           autoComplete="off"
           enterKeyHint="search"
           autoFocus
-          placeholder="what kind of creator are you looking for?"
+          placeholder="What kind of creator are you looking for?"
           className="h-14 w-full rounded-full border border-hairline bg-navy-raised pl-13 pr-28 font-body text-base text-silver outline-none transition-colors placeholder:text-silver-muted focus:border-vivid-blue/60 sm:h-16 sm:pr-32 sm:text-lg"
         />
         <button
@@ -680,7 +680,7 @@ export function CreatorSearch({
           {state.kind === "done" &&
             (results.length
               ? `showing ${results.length} creators`
-              : "no creators matched")}
+              : "No creators matched")}
           {state.kind === "error" && state.message}
         </div>
 
@@ -710,8 +710,8 @@ export function CreatorSearch({
         {state.kind === "done" && results.length === 0 && (
           <p className="mt-8 rounded-2xl border border-hairline px-5 py-4 text-sm text-silver-muted">
             {!filtersAreEmpty(filters)
-              ? "nobody matching those filters is close to that. try widening one."
-              : "nobody in the database is close to that. try describing what they make rather than naming them."}
+              ? "Nobody matching those filters is close to that. Try widening one."
+              : "Nobody in the database is close to that. Try describing what they make rather than naming them."}
           </p>
         )}
 
@@ -732,10 +732,10 @@ export function CreatorSearch({
               {rosterError
                 ? rosterError
                 : total === 0
-                  ? "nobody matches those filters. try widening one."
+                  ? "Nobody matches those filters. Try widening one."
                   : featured
-                    ? "hand-picked, the ones to study first"
-                    : "the ones most worth studying first"}
+                    ? "Hand-picked, the ones to study first"
+                    : "The ones most worth studying first"}
             </p>
             <div className="space-y-4">
               {rows.map((creator) => (
@@ -753,15 +753,15 @@ export function CreatorSearch({
                   className="inline-flex min-h-11 items-center rounded-full border border-hairline px-5 font-body text-xs text-silver transition-colors hover:border-vivid-blue/50 hover:text-white"
                 >
                   {total > 0
-                    ? `see all ${total.toLocaleString("en-GB")} creators`
-                    : "see every creator"}
+                    ? `See all ${total.toLocaleString("en-GB")} creators`
+                    : "See every creator"}
                 </button>
               </div>
             )}
 
             {!featured && pages > 1 && (
               <nav
-                aria-label="roster pages"
+                aria-label="Roster pages"
                 className="mt-6 flex items-center justify-between gap-3"
               >
                 <PageLink

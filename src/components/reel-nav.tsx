@@ -18,15 +18,15 @@ import Link from "next/link";
  * the same corpus from the other end, and its own detail pages hang under it.
  */
 const PAGES = [
-  { href: "/reels", label: "reels" },
-  { href: "/creators", label: "creators" },
+  { href: "/reels", label: "Reels" },
+  { href: "/creators", label: "Creators" },
 ] as const;
 
 export type ReelPage = (typeof PAGES)[number]["href"];
 
 export function ReelNav({ current }: { current: ReelPage }) {
   return (
-    <nav aria-label="viral reels" className="mb-5 flex items-center gap-1">
+    <nav aria-label="Viral reels" className="mb-5 flex items-center gap-1">
       {PAGES.map((p) => {
         const active = p.href === current;
         return (

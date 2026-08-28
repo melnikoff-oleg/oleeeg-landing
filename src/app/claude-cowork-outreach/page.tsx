@@ -3,9 +3,11 @@ import { BoldaneLink } from "@/components/boldane-cta";
 import { DOWNLOAD_ICON } from "@/components/repo-cta";
 import { APIFY, PLANS, freeLeadsPerMonth, usd } from "@/lib/pricing";
 import {
+  Answer,
   Block,
   Callout,
   Code,
+  Figure,
   Guide,
   GuideSection,
   GuideSteps,
@@ -22,11 +24,11 @@ const VIDEO_TITLE = "How I Use Claude For Cold Outreach (B2B Sales)";
 // steps" surface.
 const steps = [
   {
-    title: "get a paid claude plan",
+    title: "Get a paid Claude plan",
     content: (
       <div className="space-y-3">
         <p>
-          cowork is not on the free plan. you need Pro ({usd(PLANS.pro.monthly)}/mo) or Max. one
+          Cowork is not on the free plan. You need Pro ({usd(PLANS.pro.monthly)}/mo) or Max. One
           closed B2B deal pays for a year of it, so this is the cheapest part of
           the system.
         </p>
@@ -34,11 +36,11 @@ const steps = [
     ),
   },
   {
-    title: "download claude cowork",
+    title: "Download Claude Cowork",
     content: (
       <div className="space-y-3">
         <p>
-          get the desktop app at{" "}
+          Get the desktop app at{" "}
           <a
             href="https://claude.com/download"
             target="_blank"
@@ -48,34 +50,34 @@ const steps = [
             claude.com/download
           </a>
           , pick your operating system, install it, and sign in with the same
-          claude account.
+          Claude account.
         </p>
       </div>
     ),
   },
   {
-    title: "check the browser (this changed since the video)",
+    title: "Check the browser (this changed since the video)",
     content: (
       <div className="space-y-3">
         <p>
-          cowork now opens a browser inside its own side panel. nothing to
-          install, and it does not touch your tabs. sign in to linkedin once at
+          Cowork now opens a browser inside its own side panel. Nothing to
+          install, and it does not touch your tabs. Sign in to LinkedIn once at
           the start of a session, or import your cookies so it stays signed in.
         </p>
         <p>
-          in the video i use the older path, the &quot;claude for chrome&quot;
-          extension driving my own chrome window. that still works. the built-in
-          browser is simpler and is what i would set up today.
+          In the video I use the older path, the &quot;Claude for chrome&quot;
+          extension driving my own chrome window. That still works. The built-in
+          browser is simpler and is what I would set up today.
         </p>
       </div>
     ),
   },
   {
-    title: "make an apify account and copy your api token",
+    title: "Make an Apify account and copy your API token",
     content: (
       <div className="space-y-3">
         <p>
-          sign up at{" "}
+          Sign up at{" "}
           <a
             href="https://apify.com"
             target="_blank"
@@ -84,35 +86,35 @@ const steps = [
           >
             apify.com
           </a>
-          , open settings, integrations, and copy the api token. apify is where
+          , open settings, integrations, and copy the API token. Apify is where
           the leads come from.
         </p>
       </div>
     ),
   },
   {
-    title: "connect apify to cowork",
+    title: "Connect Apify to cowork",
     content: (
       <div className="space-y-3">
         <p>
-          in cowork: settings, connectors, browse connectors, search apify, open
-          the apify mcp server, install, enable, configure, paste the token,
+          In cowork: settings, connectors, browse connectors, search Apify, open
+          the Apify MCP server, install, enable, configure, paste the token,
           save.
         </p>
         <p>
-          that is the whole setup. from here cowork can pull leads itself
+          That is the whole setup. From here cowork can pull leads itself
           instead of you exporting spreadsheets.
         </p>
       </div>
     ),
   },
   {
-    title: "run your first batch",
+    title: "Run your first batch",
     content: (
       <div className="space-y-3">
         <p>
-          open a new task and tell it your offer, who you sell to, and where to
-          get the leads. start with ten profiles, read every message it writes,
+          Open a new task and tell it your offer, who you sell to, and where to
+          get the leads. Start with ten profiles, read every message it writes,
           then let it send.
         </p>
       </div>
@@ -121,48 +123,48 @@ const steps = [
 ];
 
 const SECTIONS = [
-  "what claude cowork actually does on linkedin",
-  "what it costs to run",
-  "where the leads come from",
-  "the full walkthrough",
-  "the prompt i use",
-  "why the messages get replies",
-  "what it does badly",
+  "What Claude Cowork actually does on LinkedIn",
+  "What it costs to run",
+  "Where the leads come from",
+  "The full walkthrough",
+  "The prompt I use",
+  "Why the messages get replies",
+  "What it does badly",
 ];
 
 // Each step carries the one-sentence version that goes into HowTo schema, so
 // the markup and the prose live in the same place and cannot drift apart.
 const guideSteps = [
   {
-    title: "install cowork and give it a browser",
+    title: "Install cowork and give it a browser",
     schema:
       "Download Claude Cowork from claude.com/download and sign in with a paid Claude plan. It opens a browser in its own side panel, so there is nothing else to install.",
     body: (
       <>
         <p>
-          claude cowork is anthropic&apos;s desktop app. it is not a chat window
-          that gives you advice, it is claude with hands on your own computer. it
+          Claude Cowork is Anthropic&apos;s desktop app. It is not a chat window
+          that gives you advice, it is Claude with hands on your own computer. It
           takes a screenshot of what is on screen, decides where to click, and
           clicks.
         </p>
         <p>
-          download it from <Out href="https://claude.com/download">claude.com/download</Out>{" "}
-          and sign in. you need a paid claude plan for this, Pro at {usd(PLANS.pro.monthly)} a month
-          or Max. the free claude.ai plan does not include cowork, so it will
+          Download it from <Out href="https://claude.com/download">claude.com/download</Out>{" "}
+          and sign in. You need a paid Claude plan for this, Pro at {usd(PLANS.pro.monthly)} a month
+          or Max. The free claude.ai plan does not include cowork, so it will
           install perfectly and then refuse to let you in.
         </p>
         <p>
-          it also needs a browser to reach linkedin, and this is the one thing
-          that has changed since i filmed the video. cowork now ships with{" "}
-          <strong>a browser built into its own side panel</strong>: nothing to
-          install, separate from your tabs and your logins. you sign in to
-          linkedin once per session, or import your cookies so it stays signed
+          It also needs a browser to reach LinkedIn, and this is the one thing
+          that has changed since I filmed the video. Cowork now ships with{" "}
+          <strong>A browser built into its own side panel</strong>: nothing to
+          install, separate from your tabs and your logins. You sign in to
+          LinkedIn once per session, or import your cookies so it stays signed
           in.
         </p>
         <p>
-          the older path, the <strong>claude for chrome</strong> extension
+          The older path, the <strong>Claude for chrome</strong> extension
           driving your own chrome window, is what you will see me use in the
-          video and it still works. if you are setting this up now, use the
+          video and it still works. If you are setting this up now, use the
           built-in browser: it is fewer moving parts and it does not take over
           the window you are working in.
         </p>
@@ -170,29 +172,29 @@ const guideSteps = [
     ),
   },
   {
-    title: "connect apify so it can find its own leads",
+    title: "Connect Apify so it can find its own leads",
     schema:
       "Create an Apify account, copy the API token, then add the Apify MCP server in Cowork under settings, connectors, browse connectors.",
     body: (
       <>
         <p>
-          apify is a marketplace of scrapers. you point one at a source and it
-          gives you back structured rows. for B2B the one worth using is an{" "}
+          Apify is a marketplace of scrapers. You point one at a source and it
+          gives you back structured rows. For B2B the one worth using is an{" "}
           <Out href="https://apify.com/store?search=apollo">apollo scraper</Out>,
           which pulls founders, CEOs and job titles out of linkedin along with
           emails where they exist.
         </p>
         <p>
-          make an account, open settings, integrations, and copy your api token.
-          then connect it inside cowork:
+          Make an account, open settings, integrations, and copy your API token.
+          Then connect it inside cowork:
         </p>
         <Block>{`settings -> connectors -> browse connectors
 search "apify" -> apify mcp server
 install -> enable -> configure
 paste your api token -> save`}</Block>
         <p>
-          this is the step that changes the shape of the whole thing. without
-          it, you export a spreadsheet and feed it in by hand. with it, you can
+          This is the step that changes the shape of the whole thing. Without
+          it, you export a spreadsheet and feed it in by hand. With it, you can
           say &quot;find me 100 marketing agency founders in europe&quot; and
           cowork runs the scraper itself, gets the rows back, and starts working
           through them.
@@ -201,19 +203,19 @@ paste your api token -> save`}</Block>
     ),
   },
   {
-    title: "tell it your offer before you tell it anything else",
+    title: "Tell it your offer before you tell it anything else",
     schema:
       "Give Cowork your offer, your ideal customer and the value your first message leads with, before pointing it at any profile.",
     body: (
       <>
         <p>
-          the quality of every message it writes is decided here, not in the
-          send step. it needs to know what you sell, who it is for, and what a
+          The quality of every message it writes is decided here, not in the
+          send step. It needs to know what you sell, who it is for, and what a
           good first message looks like coming from you.
         </p>
         <p>
-          be specific about the value you lead with. not &quot;let&apos;s
-          connect&quot;, which is what everyone else sends. something the person
+          Be specific about the value you lead with. Not &quot;let&apos;s
+          connect&quot;, which is what everyone else sends. Something the person
           would want even if they never reply: a note on a post they wrote, a
           gap you noticed, a version of their banner that is better than the one
           they have.
@@ -222,43 +224,43 @@ paste your api token -> save`}</Block>
     ),
   },
   {
-    title: "watch it do one profile end to end",
+    title: "Watch it do one profile end to end",
     schema:
       "Give it a single LinkedIn URL and watch it read the profile, read the last ten posts, draft the message and send the connection request.",
     body: (
       <>
         <p>
-          before you point it at a list, give it one linkedin url and watch. ask
+          Before you point it at a list, give it one LinkedIn URL and watch. Ask
           it to study the profile and the last ten posts, write a personalized
           message, and send a connection request with that message attached.
         </p>
         <p>
-          what you will see: it opens the profile, reads the top of the page,
+          What you will see: it opens the profile, reads the top of the page,
           scrolls to the activity feed, reads each post and writes down what it
-          learned, then drafts. then it presses add a note, pastes the message,
+          learned, then drafts. Then it presses add a note, pastes the message,
           and sends.
         </p>
         <p>
-          it is not fast. it is doing screenshot, decide, click, screenshot
-          again. that is the point. you are not sitting there watching it, you
+          It is not fast. It is doing screenshot, decide, click, screenshot
+          again. That is the point. You are not sitting there watching it, you
           are doing other work while it runs.
         </p>
       </>
     ),
   },
   {
-    title: "put a human checkpoint in before you scale it",
+    title: "Put a human checkpoint in before you scale it",
     schema:
       "Have it write every message into a table first, read them yourself, delete the bad ones, and only then tell it to send.",
     body: (
       <>
         <p>
-          the version that works is not &quot;send 100 connections&quot;. it is:
-          research all 100, write all 100 messages into a table, and stop. you
-          read the table. you kill the bad ones. then you tell it to send.
+          The version that works is not &quot;send 100 connections&quot;. It is:
+          research all 100, write all 100 messages into a table, and stop. You
+          read the table. You kill the bad ones. Then you tell it to send.
         </p>
         <p>
-          this costs you ten minutes and it is the difference between a system
+          This costs you ten minutes and it is the difference between a system
           you can leave running and a system that quietly damages your name in
           your own market.
         </p>
@@ -266,15 +268,15 @@ paste your api token -> save`}</Block>
     ),
   },
   {
-    title: "run more than one at a time",
+    title: "Run more than one at a time",
     schema:
       "Ask Cowork to run sub agents so several prospects are researched in parallel instead of one after another.",
     body: (
       <>
         <p>
-          when a single run is working, ask cowork to spin up sub agents so
+          When a single run is working, ask cowork to spin up sub agents so
           several profiles are being researched at once instead of one after
-          another. this is where the hour of work you saved turns into a day of
+          another. This is where the hour of work you saved turns into a day of
           it.
         </p>
       </>
@@ -284,27 +286,27 @@ paste your api token -> save`}</Block>
 
 const faq = [
   {
-    q: "is claude cowork free",
+    q: "Is Claude Cowork free",
     a: "No. Cowork needs a paid Claude plan, either Pro at $20 a month or Max. The free claude.ai account does not include it, so the app will install and then refuse to sign you in. Apify, where the leads come from, does have a free allowance of $5 of credit a month, which is about 3,000 leads on a $1.50 per 1,000 scraper.",
   },
   {
-    q: "how much does this cost to run",
+    q: "How much does this cost to run",
     a: "Claude Pro at $20 a month covers Cowork. Leads run about $1.50 per 1,000 on an Apollo scraper on Apify, and Apify gives you $5 of credit free every month, so roughly 3,000 leads a month cost nothing. That is already more connection requests than LinkedIn will let you send, so in practice the whole system costs the $20 plan.",
   },
   {
-    q: "does claude cowork need chrome",
+    q: "Does Claude Cowork need chrome",
     a: "Not any more. Cowork now opens a browser inside its own side panel, with nothing to install and no access to your own tabs or logins: you sign in once per session, or import cookies from Chrome, Edge or Firefox. The older route, the Claude for Chrome extension driving your own Chrome window, is what the video shows and still works, but the built-in browser is fewer moving parts.",
   },
   {
-    q: "will linkedin ban me for automating outreach",
+    q: "Will LinkedIn ban me for automating outreach",
     a: "Automating LinkedIn is against LinkedIn's user agreement, and using Claude to work around another platform's terms is against Anthropic's usage policy too. There is no published safe number of daily requests, and anyone quoting you one is guessing. The lower risk version is to automate the research and the drafting, which is where almost all the time goes, and send by hand.",
   },
   {
-    q: "how many leads can i get for free",
+    q: "How many leads can I get for free",
     a: "About 3,000 a month. Apify gives every account $5 of platform credit a month and a good Apollo scraper charges around $1.50 per 1,000 results. I said 5,000 in the video and corrected it on camera: the real number is 3,000, and it is still more than you can send connection requests to without breaking LinkedIn's limits.",
   },
   {
-    q: "what makes the messages different from normal ai outreach",
+    q: "What makes the messages different from normal AI outreach",
     a: "Two things. It reads the person's last ten posts before writing, so the message refers to something they actually said this month. And I ask it for a slightly awkward compliment rather than a polished one, because polished is exactly what a mass-generated message looks like now. Awkward reads as human.",
   },
 ];
@@ -315,13 +317,13 @@ export default function ClaudeCoworkOutreachPage() {
       slug="claude-cowork-outreach"
       repoCta={{
         href: "https://claude.com/download",
-        label: "download claude cowork",
+        label: "Download Claude Cowork",
         icon: DOWNLOAD_ICON,
       }}
       videoId={VIDEO_ID}
       videoTitle={VIDEO_TITLE}
-      title="claude cowork for cold outreach (b2b sales)"
-      subhead="cowork opens linkedin itself, reads a prospect's last ten posts, writes a message about what they actually said, and sends the connection. here is the whole system, including what it costs and where it goes wrong."
+      title="Claude Cowork for cold outreach (B2B sales)"
+      subhead="Cowork opens LinkedIn itself, reads a prospect's last ten posts, writes a message about what they actually said, and sends the connection. Here is the whole system, including what it costs and where it goes wrong."
       steps={steps}
       troubleshooting={["linkedinBan", "claudeNotFound", "costs", "costsScraping"]}
       breadcrumb={[
@@ -338,102 +340,133 @@ export default function ClaudeCoworkOutreachPage() {
       faq={faq}
       guide={
         <Guide>
-          <GuideSection title="what claude cowork actually does on linkedin">
+          <GuideSection title="What Claude Cowork actually does on LinkedIn">
+            <Answer>
+              Cowork opens its own browser, finds the people you described, reads their profiles and writes each message itself. You approve and send.
+            </Answer>
+            <Figure
+              src="/guide/cowork-tasks.webp"
+              alt="Claude Cowork's task screen, waiting for an instruction"
+              videoId={VIDEO_ID}
+              at={580}
+              caption="Cowork's whole surface is this box. You describe the job in a sentence and it opens its own browser to do it."
+            />
             <p>
-              claude cowork is anthropic&apos;s desktop app, and the difference
-              between it and a normal chat is that it has your computer. it
+              Claude Cowork is Anthropic&apos;s desktop app, and the difference
+              between it and a normal chat is that it has your computer. It
               takes a screenshot of the screen, works out where to click, and
-              clicks. so &quot;do my linkedin outreach&quot; is not a metaphor.
-              it opens the profile.
+              clicks. So &quot;do my LinkedIn outreach&quot; is not a metaphor.
+              It opens the profile.
             </p>
             <p>
-              the loop it runs for one prospect is the same loop you would run
+              The loop it runs for one prospect is the same loop you would run
               by hand, and it looks like this:
             </p>
             <ul>
-              <li>open the profile and read the headline and about section</li>
+              <li>Open the profile and read the headline and about section</li>
               <li>
-                scroll to their activity and read the last ten posts, noting
+                Scroll to their activity and read the last ten posts, noting
                 what each one is about
               </li>
               <li>
-                write a message that refers to something specific they said
+                Write a message that refers to something specific they said
               </li>
               <li>
-                press add a note on the connection request, paste the message,
+                Press add a note on the connection request, paste the message,
                 send
               </li>
             </ul>
             <p>
-              it is slow, maybe a minute or two a profile, because every step is
-              look then act. that stops mattering the moment you stop watching
-              it. the whole reason to build this is that the research is the
+              It is slow, maybe a minute or two a profile, because every step is
+              look then act. That stops mattering the moment you stop watching
+              it. The whole reason to build this is that the research is the
               expensive part and the research is what you hand over.
             </p>
             <GuideToc sections={SECTIONS} />
           </GuideSection>
 
-          <GuideSection title="what it costs to run">
+          <GuideSection title="What it costs to run">
+            <Figure
+              src="/guide/cowork-pricing.webp"
+              alt="An Apify lead scraper's pricing page, showing a price per thousand leads"
+              videoId={VIDEO_ID}
+              at={300}
+              caption="A representative lead scraper on Apify. The unit is dollars per thousand, not per month."
+            />
             <KeyFacts
               rows={[
-                { label: "claude plan", value: `Pro, ${usd(PLANS.pro.monthly)} a month. Max also works. the free plan does not.` },
-                { label: "leads", value: `about ${usd(APIFY.leadsPerThousand)} per 1,000 on an apollo scraper on apify` },
-                { label: "apify free tier", value: `${usd(APIFY.freeMonthlyCredit)} of credit a month, so roughly ${freeLeadsPerMonth().toLocaleString()} leads free` },
-                { label: "browser", value: "none to install. cowork opens one in its own side panel, separate from your tabs" },
-                { label: "setup time", value: "about 15 minutes, no code" },
-                { label: "realistic monthly bill", value: `${usd(PLANS.pro.monthly)}, because the free apify credit covers more leads than linkedin will let you contact` },
+                { label: "Claude plan", value: `Pro, ${usd(PLANS.pro.monthly)} a month. Max also works. The free plan does not.` },
+                { label: "Leads", value: `About ${usd(APIFY.leadsPerThousand)} per 1,000 on an apollo scraper on Apify` },
+                { label: "Apify free tier", value: `${usd(APIFY.freeMonthlyCredit)} of credit a month, so roughly ${freeLeadsPerMonth().toLocaleString()} leads free` },
+                { label: "Browser", value: "None to install. Cowork opens one in its own side panel, separate from your tabs" },
+                { label: "Setup time", value: "About 15 minutes, no code" },
+                { label: "Realistic monthly bill", value: `${usd(PLANS.pro.monthly)}, because the free Apify credit covers more leads than LinkedIn will let you contact` },
               ]}
-              caption="checked against apify's pricing and anthropic's plans on 2026-08-27."
+              caption="Checked against Apify's pricing and Anthropic's plans on 2026-08-27."
             />
-            <Callout title="one correction from the video">
+            <Callout title="One correction from the video">
               <p>
-                i said 5,000 free leads a month on camera and corrected it in
-                the same video. the real number is about 3,000. it makes no
+                I said 5,000 free leads a month on camera and corrected it in
+                the same video. The real number is about 3,000. It makes no
                 practical difference, because either figure is far more people
-                than linkedin will let you send connection requests to.
+                than LinkedIn will let you send connection requests to.
               </p>
             </Callout>
           </GuideSection>
 
-          <GuideSection title="where the leads come from">
+          <GuideSection title="Where the leads come from">
+            <Figure
+              src="/guide/cowork-actors.webp"
+              alt="The Apify store, showing lead scrapers for different sources"
+              videoId={VIDEO_ID}
+              at={280}
+              caption="Apify is a shelf of ready-made scrapers. You pick one, hand it parameters, and it gives you rows back."
+            />
             <p>
-              <Out href="https://apify.com">apify</Out> is a marketplace of
+              <Out href="https://apify.com">Apify</Out> is a marketplace of
               scrapers. you pick one, give it parameters, and it hands back
               rows. for B2B the useful one is an apollo scraper, which pulls
               people out of linkedin by role, industry and location.
             </p>
-            <p>a run returns, for each person:</p>
+            <p>A run returns, for each person:</p>
             <ul>
-              <li>name and job title</li>
-              <li>the linkedin profile url, which is the field that matters</li>
-              <li>an email, on some of them</li>
-              <li>company, location, and a description of the organization</li>
+              <li>Name and job title</li>
+              <li>The LinkedIn profile URL, which is the field that matters</li>
+              <li>An email, on some of them</li>
+              <li>Company, location, and a description of the organization</li>
             </ul>
             <p>
-              it is not only for linkedin. the same marketplace has scrapers for
-              instagram followers of a given account, and for local businesses
-              off google maps. if your buyers are not on linkedin, the rest of
+              It is not only for LinkedIn. The same marketplace has scrapers for
+              Instagram followers of a given account, and for local businesses
+              off Google maps. If your buyers are not on LinkedIn, the rest of
               the system still works, you just change the source.
             </p>
             <p>
-              once the apify connector is installed in cowork, you do not export
-              anything. you ask for the leads in the chat and it runs the
+              Once the Apify connector is installed in cowork, you do not export
+              anything. You ask for the leads in the chat and it runs the
               scraper, reads the rows, and can build a spreadsheet out of them
               before it starts writing.
             </p>
           </GuideSection>
 
-          <GuideSection title="the full walkthrough">
+          <GuideSection title="The full walkthrough">
+            <Figure
+              src="/guide/cowork-mcp.webp"
+              alt="The Apify connector, enabled in Claude's settings"
+              videoId={VIDEO_ID}
+              at={560}
+              caption="The one piece of setup that is not obvious: the Apify connector has to be switched on before Cowork can reach the scrapers."
+            />
             <p>
-              fifteen minutes, and none of it is code. if you only read one part
+              Fifteen minutes, and none of it is code. If you only read one part
               of this page, read step five.
             </p>
             <GuideSteps steps={guideSteps} />
           </GuideSection>
 
-          <GuideSection title="the prompt i use">
+          <GuideSection title="The prompt I use">
             <p>
-              this is the shape, not a magic string. the parts in capitals are
+              This is the shape, not a magic string. The parts in capitals are
               the parts you have to replace, and they are the parts that decide
               whether it works.
             </p>
@@ -451,64 +484,64 @@ for each linkedin profile i give you:
 
 when the table is done, stop and show it to me.`}</Block>
             <p>
-              the last two lines are the ones people delete and then regret. see
+              The last two lines are the ones people delete and then regret. See
               below.
             </p>
           </GuideSection>
 
-          <GuideSection title="why the messages get replies">
+          <GuideSection title="Why the messages get replies">
             <p>
-              the reason is not that an AI wrote them. it is that almost nobody
+              The reason is not that an AI wrote them. It is that almost nobody
               reads ten posts before sending a connection request, and the
               message shows it.
             </p>
             <p>
-              the deliberate part is the <strong>slightly awkward
-              compliment</strong>. everyone&apos;s inbox is now full of
+              The deliberate part is the <strong>slightly awkward
+              compliment</strong>. Everyone&apos;s inbox is now full of
               perfectly balanced, perfectly polite, perfectly generic messages,
-              and that polish has become the tell. asking for something a little
+              and that polish has become the tell. Asking for something a little
               uneven produces something that reads like a person typed it,
               because a person would have.
             </p>
             <p>
-              the other half is the checkpoint. a message that goes out without
+              The other half is the checkpoint. A message that goes out without
               you reading it is a message you cannot stand behind, and in a
               small market you only get to do that once.
             </p>
           </GuideSection>
 
-          <GuideSection title="what it does badly">
+          <GuideSection title="What it does badly">
             <ul>
               <li>
-                <strong>it is slow per profile.</strong> a minute or two each,
-                because it is screenshotting and deciding. fine in the
+                <strong>It is slow per profile.</strong> A minute or two each,
+                because it is screenshotting and deciding. Fine in the
                 background, painful if you sit and watch.
               </li>
               <li>
-                <strong>it works one page at a time.</strong> the built-in
+                <strong>It works one page at a time.</strong> The built-in
                 browser is a single surface, so a run is a queue, not a swarm,
                 unless you explicitly split it across sub agents.
               </li>
               <li>
-                <strong>it will happily send something bad.</strong> if you skip
+                <strong>It will happily send something bad.</strong> If you skip
                 the table step it has no way of knowing the message missed.
               </li>
               <li>
-                <strong>automating linkedin is against linkedin&apos;s
-                terms</strong>, and using claude to get around another
-                platform&apos;s terms is against anthropic&apos;s usage policy
-                too. there is no published safe daily number and every figure
-                you find online is somebody guessing. the version i would
+                <strong>Automating LinkedIn is against LinkedIn&apos;s
+                terms</strong>, and using Claude to get around another
+                platform&apos;s terms is against Anthropic&apos;s usage policy
+                too. There is no published safe daily number and every figure
+                you find online is somebody guessing. The version I would
                 actually recommend is to automate the research and the drafting,
                 which is where the hours go, and press send yourself.
               </li>
             </ul>
             <p>
-              if you want the same research-then-draft loop without the browser
+              If you want the same research-then-draft loop without the browser
               automation, the <Code>claude code</Code> version of this is on the{" "}
-              <a href="/claude-b2b-outreach">b2b outreach page</a>, and the
+              <a href="/claude-b2b-outreach">B2b outreach page</a>, and the
               broader picture of what cowork is for is on{" "}
-              <a href="/claude-cowork">the cowork guide</a>.
+              <a href="/claude-cowork">The cowork guide</a>.
             </p>
           </GuideSection>
         </Guide>
@@ -517,14 +550,14 @@ when the table is done, stop and show it to me.`}</Block>
         title: "Claude Cowork for Cold Outreach: the full LinkedIn system",
         description:
           "How to run B2B cold outreach with Claude Cowork: the Apify lead setup, what it costs, the prompt, and the human checkpoint that keeps it from damaging your name.",
-        url: "https://oleg.ae/claude-cowork-outreach",
+        url: "https://www.oleg.ae/claude-cowork-outreach",
         datePublished: "2026-05-12",
         dateModified: "2026-08-27",
       }}
       boldaneCta={
         <>
-          one thing makes every outreach system convert better: before anyone
-          replies, they check your LinkedIn profile. if it shows a real
+          One thing makes every outreach system convert better: before anyone
+          replies, they check your LinkedIn profile. If it shows a real
           expert, reply rates climb. <BoldaneLink /> builds that presence for
           founders, from one hour of talking a week.
         </>

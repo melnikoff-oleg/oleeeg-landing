@@ -6,8 +6,8 @@ export const metadata: Metadata = {
     "What Claude Cowork actually does, how it differs from Claude Code, the new built-in browser, and the eight jobs I hand it every week. Plus what it is bad at.",
   keywords: [
     "Claude Cowork",
-    "what is Claude Cowork",
-    "how to use Claude Cowork",
+    "What is Claude Cowork",
+    "How to use Claude Cowork",
     "Claude Cowork use cases",
     "Claude Cowork for Windows",
     "Claude Cowork vs Claude Code",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     description:
       "What Claude Cowork actually does, how it differs from Claude Code, real pricing, the built-in browser, and eight jobs it does well.",
     type: "article",
-    url: "https://oleg.ae/claude-cowork",
+    url: "https://www.oleg.ae/claude-cowork",
     publishedTime: "2026-08-27T00:00:00Z",
     modifiedTime: "2026-08-27T00:00:00Z",
     authors: ["Oleg Melnikov"],
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     description:
       "A practitioner's guide: what it does, how it differs from Claude Code, real pricing, and what it is bad at.",
   },
-  alternates: { canonical: "https://oleg.ae/claude-cowork" },
+  alternates: { canonical: "https://www.oleg.ae/claude-cowork" },
 };
 
 export default function ClaudeCoworkLayout({
