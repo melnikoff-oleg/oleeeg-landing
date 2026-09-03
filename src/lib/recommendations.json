@@ -103,6 +103,11 @@
       "claude-cowork",
       "claude-marketing"
     ],
+    "fable-money": [
+      "claude-code-tutorial",
+      "high-converting-website",
+      "claude-code-pricing"
+    ],
     "claude-code-pricing": [
       "claude-code-tutorial",
       "claude-code-vs-cursor",

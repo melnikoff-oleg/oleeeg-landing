@@ -58,6 +58,7 @@ export const SITEMAP_ROUTES: SitemapRoute[] = [
   { path: "/60k-linkedin-post", lastModified: "2026-08-15", changeFrequency: "monthly", priority: SECONDARY },
   { path: "/5-levels-ai", lastModified: "2026-08-15", changeFrequency: "monthly", priority: SECONDARY },
   { path: "/opus-5", lastModified: "2026-08-15", changeFrequency: "monthly", priority: SECONDARY },
+  { path: "/fable-money", lastModified: "2026-09-03", changeFrequency: "monthly", priority: GUIDE },
 
   // The marketing brain.
   { path: "/marketing-brain", lastModified: "2026-08-15", changeFrequency: "monthly", priority: GUIDE },

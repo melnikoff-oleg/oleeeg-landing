@@ -40,6 +40,7 @@ export const ROUTES = [
   "/60k-linkedin-post",
   "/5-levels-ai",
   "/opus-5",
+  "/fable-money",
   "/claude-code-instagram",
   "/claude-code-second-brain",
   "/claude-code-ads",
